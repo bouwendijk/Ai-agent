@@ -1,0 +1,20 @@
+name: StoreCrew smoke tests
+on:
+  push:
+    branches: [storecrew-studio-v1]
+    paths:
+      - 'storecrew/**'
+      - '.github/workflows/storecrew-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check storecrew/engine.mjs && node --check storecrew/server.mjs
+      - run: node storecrew/test/smoke.test.mjs
