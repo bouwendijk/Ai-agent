@@ -5,6 +5,41 @@
 :root{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e7f0f6;background:#080d15;font-synthesis:none;--bg:#080d15;--panel:#0d1420;--panel2:#111b29;--line:#263241;--dim:#718198;--cyan:#12e5d4;--red:#ff566e;--green:#a4f685;--white:#eef8fc}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(circle at 42% -12%,#17324b 0%,#080d15 39%,#070b11 90%);color:var(--white)}button,select,input{font:inherit}button{cursor:pointer;transition:background .2s,border-color .2s,transform .2s,color .2s}button:disabled{opacity:.38;cursor:not-allowed!important;transform:none!important}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}a{color:inherit;text-decoration:none}p{line-height:1.65}.scanlines{position:fixed;inset:0;pointer-events:none;z-index:20;background:repeating-linear-gradient(to bottom,transparent 0 5px,#0004 6px);opacity:.075}.topbar{height:75px;border-bottom:1px solid #293744;background:#0b121ccc;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 max(30px,calc((100vw - 1500px)/2));position:sticky;top:0;z-index:15;backdrop-filter:blur(18px)}.brand{display:flex;align-items:center;gap:12px;min-width:238px}.brand-mark{height:41px;width:41px;background:#ff4f68;display:grid;place-items:center;color:#10141f;font-size:27px;font-weight:1000;letter-spacing:-6px;transform:skew(-8deg)}.brand-mark span{font-size:8px;letter-spacing:-3px;align-self:center;transform:translateX(-4px)}.brand-word{font-size:17px;line-height:.94;font-weight:900;letter-spacing:2px}.brand-word>span{display:block;color:var(--red)}.brand-word small{display:block;margin-top:6px;font:8px/1.2 ui-monospace,monospace;letter-spacing:1px;color:#74899c}.top-mid,.top-right,.hero-meta,.eyebrow,.hero-chips,.metric-label,.metric-foot,.section-id,.corner-badge,.mono-dim,.top-tag,.progress-head,.vault-foot,.seed-row,.thinking-head,.now-foot,.terminal-head,.terminal-bottom,.intel-grid,.chart-head,.intel-footer,.fragment,.footer,.p1,.p2,.p3{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.top-mid{color:#7e92a4;letter-spacing:1.3px;font-size:10px;display:flex;align-items:center;gap:15px}.top-dash{height:1px;width:38px;background:#344553}.slash{color:var(--red)}.top-right{display:flex;align-items:center;gap:9px;font-size:10px;color:#b3c4d2;letter-spacing:1px}.live-dot,.small-dot{display:inline-block;height:7px;width:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px #12e5d481;flex:none}.live-dot{background:var(--red);box-shadow:0 0 11px #ff566e88}.live-dot.running,.pulse i{background:var(--green);box-shadow:0 0 12px #a4f6858a}.top-help{background:none;border:1px solid #41536a;color:#afc0d6;width:25px;height:25px;border-radius:50%;font-size:12px;margin-left:12px}.main{max-width:1500px;margin:auto;padding:0 30px}.hero{min-height:267px;display:flex;justify-content:space-between;gap:45px;align-items:center;position:relative;padding:39px 0 31px;border-bottom:1px solid #22313e}.hero:after{content:"";position:absolute;right:0;top:0;height:100%;width:54%;background:repeating-linear-gradient(90deg,transparent 0 63px,#1f2e3b33 64px),linear-gradient(90deg,transparent,#15324925 100%);mask-image:linear-gradient(90deg,transparent,black);pointer-events:none;z-index:-1}.eyebrow{letter-spacing:2.2px;color:#91a5b8;font-size:10px;font-weight:700;margin:0 0 13px}.pill-bracket{color:var(--red)}h1{font-size:clamp(36px,4.7vw,68px);font-weight:1000;line-height:.98;margin:0;letter-spacing:-2px}h1 em{font-style:normal;color:var(--red)}.hero-desc{max-width:650px;color:#9db0c0;font-size:13px;margin:16px 0 19px;line-height:1.75}.hero-desc strong{color:#e3f0fa}.hero-chips{display:flex;gap:20px;flex-wrap:wrap;font-size:9px;color:#7e93a5;letter-spacing:1px}.hero-chips>span{display:flex;align-items:center;gap:8px}.small-dot.red{background:var(--red);box-shadow:0 0 10px #ff566e72}.small-dot.cyan{background:var(--cyan)}.small-dot.lime{background:var(--green);box-shadow:0 0 10px #a4f68569}.hero-meta{position:relative;min-width:250px;max-width:310px;width:24%;padding:17px 19px;background:#101b2b70;border:1px solid #2a3d4b;border-left:2px solid var(--red);font-size:10px;color:#648197;line-height:2.6;letter-spacing:.5px}.hero-meta>div{display:flex;gap:12px;justify-content:space-between;border-bottom:1px solid #1c2d3c}.hero-meta>div:last-child{border:0}.hero-meta strong{color:#d8e3f0;font-weight:700;font-size:9px}.metrics{display:grid;grid-template-columns:1.15fr repeat(4,1fr);border:1px solid #2a3745;margin:23px 0 22px;background:#101825;box-shadow:0 13px 40px #0004}.metric{padding:19px 24px;min-height:107px;border-right:1px solid #2a3745;display:flex;flex-direction:column;gap:5px}.metric:last-child{border:0}.metric-label{font-size:9px;color:#8598ac;letter-spacing:1.3px}.metric>strong{font-size:30px;line-height:1.15;letter-spacing:-1.5px;font-variant-numeric:tabular-nums}.metric .metric-status{font-size:19px;line-height:1.8;color:var(--red);letter-spacing:.4px}.metric-status.free{color:var(--green)}.metric-foot{font-size:9px;color:#677e90;line-height:1.6}.slash-grey{font-size:16px;color:#657787}.alert-value{color:var(--red)}.grid-main{display:grid;grid-template-columns:minmax(355px,42fr) minmax(540px,58fr);gap:19px;align-items:start}.left-stack,.right-stack{display:flex;flex-direction:column;gap:19px}.panel{border:1px solid #283745;background:linear-gradient(145deg,#101925,#0b131e);box-shadow:0 15px 40px #0003;overflow:hidden}.panel-head{padding:20px 21px 17px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #273442;min-height:79px}.section-id{display:block;color:var(--red);font-size:9px;letter-spacing:1.5px;font-weight:800;margin-bottom:8px}.panel-head h2{font-size:15px;letter-spacing:1.1px;margin:0;font-weight:850}.corner-badge,.top-tag{border:1px solid #6a3845;padding:7px 10px;color:#fd687a;font-size:9px;white-space:nowrap;letter-spacing:.5px}.corner-badge{display:flex;align-items:center;gap:7px}.mono-dim{color:#677a8d;letter-spacing:1px;font-size:9px}.vault-scene{height:355px;position:relative;display:grid;place-items:center;background:radial-gradient(circle at center,#102f3d 0,#101e2b 28%,#0b1520 64%,#0d1621 100%);overflow:hidden;isolation:isolate}.scene-grid{position:absolute;inset:0;background-image:linear-gradient(#1c3b4b54 1px,transparent 1px),linear-gradient(90deg,#1c3b4b54 1px,transparent 1px);background-size:25px 25px;mask-image:radial-gradient(circle,transparent 10%,black 90%);opacity:.5}.scene-scan{position:absolute;left:0;right:0;height:1px;top:40%;background:linear-gradient(90deg,transparent,#29efd599,transparent);animation:scan 6s linear infinite}.vault-ring{position:absolute;border:2px solid #28536a;border-radius:50%;border-left-color:#12e5d4;border-bottom-color:#10495a;box-shadow:0 0 15px #0dd3c41c,inset 0 0 8px #1ca6a517;transition:border-color .8s,opacity .8s,filter .8s}.vault-ring.open{border-color:#a4f685;opacity:.28;box-shadow:0 0 18px #a4f68543}.ring7{width:312px;height:312px;border-style:dashed;animation:spin 80s linear infinite}.ring6{width:286px;height:286px;animation:spin 70s linear infinite reverse}.ring5{width:262px;height:262px;border-style:dashed;animation:spin 63s linear infinite}.ring4{width:238px;height:238px;animation:spin 50s linear infinite reverse}.ring3{width:214px;height:214px;border-style:dashed;animation:spin 45s linear infinite}.ring2{width:188px;height:188px;animation:spin 35s linear infinite reverse}.ring1{width:163px;height:163px;border-color:#ff566e80;border-right-color:var(--red);animation:spin 29s linear infinite}.radial-line{position:absolute;width:400px;height:1px;background:linear-gradient(90deg,transparent,#19c0cf48,transparent);transform:rotate(30deg)}.line-b{transform:rotate(80deg)}.line-c{transform:rotate(130deg)}.line-d{transform:rotate(-30deg)}.core-outer{height:144px;width:144px;border-radius:50%;display:grid;place-items:center;border:1px solid #ff566eaa;background:radial-gradient(circle,#591b32,#180f25 67%,#111c2d);box-shadow:0 0 50px #ff51684c,0 0 100px #ff51681c,inset 0 0 20px #ff516858;z-index:2;animation:heartbeat 4s ease-in-out infinite}.core-inner{height:112px;width:112px;border:1px solid #db4b69aa;background:radial-gradient(circle,#a32550 0%,#410f2a 57%,#1c172d);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 18px #f455754a;gap:4px}.core-eyebrow{font:8px ui-monospace,monospace;color:#f9afb6;letter-spacing:1.3px}.core-icon{font-size:43px;font-weight:1000;line-height:1;color:#ff7995;text-shadow:0 0 15px #ff566e}.core-inner>span:last-child{font:8px ui-monospace,monospace;color:#ffd6d9;letter-spacing:2px}.vault-scene.escaped .core-outer{border-color:#a4f685;background:radial-gradient(circle,#1d613b,#0b2929);box-shadow:0 0 60px #8be66f99,0 0 115px #8be66f55}.vault-scene.escaped .core-inner{border-color:var(--green);background:#1e3a28}.vault-scene.escaped .core-icon{color:var(--green)}.vault-scene.escaped .core-inner>span:last-child{color:var(--green)}.scene-pos{position:absolute;color:#4c8090;font-size:9px;line-height:1.8;letter-spacing:1px;z-index:2}.p1{top:14px;left:17px}.p2{bottom:16px;left:17px}.p3{bottom:16px;right:18px;text-align:right;color:var(--cyan)}.progress-head{display:flex;justify-content:space-between;padding:18px 21px 11px;color:#a0b6c8;font:9px ui-monospace,monospace;letter-spacing:.7px}.progress-head>span:last-child{color:var(--cyan)}.stage-progress{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin:0 21px 18px}.stage-progress span{height:5px;background:#293d4d;transition:background .4s,box-shadow .4s}.stage-progress span.passed{background:var(--cyan);box-shadow:0 0 9px #10e4d277}.stage-progress span.active{background:var(--red);box-shadow:0 0 8px #ff566e75;animation:blink 1.2s infinite}.vault-foot{border-top:1px solid #253442;color:#71899a;font-size:9px;display:flex;align-items:center;gap:10px;padding:15px 21px;line-height:1.5}.warn-icon{font-size:15px;color:#dbab5e}.stages-list{padding:8px 11px 12px}.stage-row{min-height:68px;display:grid;grid-template-columns:36px 1fr 23px;align-items:center;gap:10px;padding:12px 11px;border-bottom:1px solid #1d3040;transition:background .2s}.stage-row:last-child{border:0}.stage-row.is-current{background:linear-gradient(90deg,#26303c 0%,transparent 95%);box-shadow:inset 3px 0 0 var(--red)}.stage-row.is-passed{background:linear-gradient(90deg,#113c3d33,transparent)}.stage-index{font:17px ui-monospace,monospace;color:#506a7e}.is-current .stage-index{color:var(--red)}.is-passed .stage-index{color:var(--cyan)}.stage-info b{font-size:11px;letter-spacing:1px}.stage-info small{display:block;margin-top:5px;color:#70889c;font-size:10px;line-height:1.45}.stage-lock{color:#526d82;font-size:14px}.is-passed .stage-lock{color:var(--cyan)}.is-current .stage-lock{color:var(--red)}.run-btns{display:flex;gap:9px;padding:20px 21px 0}.btn-primary{border:1px solid var(--red);background:var(--red);color:#160e19;font-weight:900;font-size:11px;letter-spacing:1.1px;min-height:49px;padding:0 17px;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 9px 25px #d73e5738}.btn-primary:hover{background:#ff8294;border-color:#ff8294;transform:translateY(-1px)}.run-btns .btn-primary{flex:1}.btn-symbol{font-size:15px}.btn-secondary{border:1px solid #3a4c60;background:#182536;color:#c8d9e7;font:700 10px ui-monospace,monospace;letter-spacing:.7px;padding:0 11px;min-height:49px;display:flex;align-items:center;gap:8px}.btn-secondary:hover{background:#263b50;border-color:var(--cyan)}.btn-secondary.muted{background:transparent;color:#8e9fb0}.control-line{height:1px;background:#243542;margin:21px 21px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px 16px;padding:0 21px 22px}.field{display:flex;flex-direction:column;gap:11px}.field>span{font:9px ui-monospace,monospace;letter-spacing:1px;color:#a7b7c6}.field>span b{color:var(--cyan);font-weight:600;float:right}.field select{appearance:none;border:1px solid #354759;color:#d6e2ee;background:#152435 url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m3 5 4 4 4-4' stroke='%2395acbd' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 11px center;border-radius:2px;width:100%;padding:10px 24px 10px 11px;font-size:10px;font-weight:750;letter-spacing:.35px;min-height:40px;cursor:pointer}.field select option{background:#152435;color:#fff}.field input[type=range]{width:100%;accent-color:var(--cyan);cursor:pointer;margin:7px 0;height:7px}.toggles{border-top:1px solid #223440;display:flex;gap:20px;padding:17px 21px;flex-wrap:wrap}.switch-label{display:flex;align-items:center;gap:9px;cursor:pointer;position:relative;color:#bfcede;font:9px ui-monospace,monospace;letter-spacing:.4px;line-height:1.4}.switch-label input{position:absolute;opacity:0}.switch{width:32px;height:18px;border:1px solid #466075;border-radius:12px;background:#1d3343;flex:none;position:relative;transition:background .2s}.switch:after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;background:#648296;border-radius:50%;transition:transform .2s,background .2s}.switch-label input:checked +.switch{background:#0a4b50;border-color:var(--cyan)}.switch-label input:checked+.switch:after{background:var(--cyan);transform:translateX(14px)}.switch-label small{display:block;color:#698094;letter-spacing:0;font-size:9px;margin-top:4px}.seed-row{border-top:1px solid #223440;display:flex;align-items:center;justify-content:space-between;padding:13px 21px;font-size:9px;letter-spacing:.7px;gap:10px;color:#72889b}.seed-row span:nth-child(2){color:#e0ebf4;font-size:11px}.seed-row button,.feed-right button,.subtle-btn{background:transparent;border:1px solid #364859;color:#9baec2;font:9px ui-monospace,monospace;padding:8px 9px;letter-spacing:.2px}.seed-row button:hover,.feed-right button:hover,.subtle-btn:hover{border-color:var(--cyan);color:var(--cyan)}.top-tag{border-color:#385764;color:var(--cyan);font-size:9px}.stream-panel .panel-head{padding-bottom:16px}.feed-right{display:flex;align-items:center;gap:13px}.pulse{display:flex;align-items:center;gap:8px;font:9px ui-monospace,monospace;color:#b2caac}.pulse i{width:6px;height:6px;border-radius:50%;display:inline-block;animation:blink 1s infinite}.now-thinking{margin:18px 20px 19px;border:1px solid #25434c;background:linear-gradient(115deg,#132c32,#101d2a 70%);padding:16px 17px 13px;min-height:132px}.thinking-head{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:1px;color:#65e6d9;font-weight:800}.thinking-head strong{margin-left:auto;color:#7593a2;font-weight:500}.thought{margin:14px 0;color:#dfecf1;font-size:12px;line-height:1.6;min-height:37px}.now-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:9px;color:#7899ac;font-size:9px;letter-spacing:.3px}.now-foot span:last-child{color:var(--green)}.terminal-head{height:39px;border-top:1px solid #324350;border-bottom:1px solid #324350;background:#111c2b;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px;font-size:10px;color:#8099a9}.terminal-head>span{display:flex;align-items:center;gap:8px}.terminal-head input{accent-color:var(--cyan)}.fake-dots{display:flex;gap:4px}.fake-dots i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#bb4b63}.fake-dots i:nth-child(2){background:#d5b45d}.fake-dots i:nth-child(3){background:#6fb2a2}.terminal{height:369px;overflow:auto;padding:15px 20px;background:#080e17;color:#8ca7b5;font:11px/1.65 ui-monospace,Consolas,monospace;overscroll-behavior:contain;scrollbar-color:#2f5360 #0b1520}.terminal-empty{font-size:11px}.terminal-empty>div{font-size:17px;color:var(--cyan)}.terminal-empty p{line-height:1.8;margin:3px 0;color:#6e8294}.terminal-empty p span{color:var(--green)}.cursor{animation:blink .75s infinite}.log-row{padding:4px 0;display:grid;grid-template-columns:56px 46px 1fr;gap:6px;border-bottom:1px solid #172433;animation:log-in .18s ease}.log-time{color:#52687a}.log-stage{color:#749eb2}.log-msg{color:#b9cbd7;word-break:break-word}.log-row.fail .log-msg,.log-row.error .log-msg{color:#fe8190}.log-row.stage .log-msg,.log-row.victory .log-msg{color:var(--green);font-weight:700}.log-row.clue .log-msg{color:var(--cyan)}.log-row.action .log-msg{color:#c3d5e1}.log-row.action{background:#13273440}.log-row.victory{background:#22442c66}.terminal-bottom{padding:12px 20px;display:flex;justify-content:space-between;gap:10px;align-items:center;color:#71899c;font-size:9px;letter-spacing:.4px}.terminal-bottom>span:last-child{display:flex;gap:8px;align-items:center;color:#719b8c}.intel-panel .panel-head{min-height:76px}.intel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#2d3b49;margin:20px 20px 15px;border:1px solid #2d3b49}.intel-tile{background:#101e2b;padding:15px 13px;min-width:0}.intel-tile>span{color:#89a1b2;font-size:9px;line-height:1.45;letter-spacing:.4px;min-height:27px;display:block}.intel-tile strong{display:block;color:var(--cyan);font-size:27px;margin:8px 0 5px;line-height:1;font-variant-numeric:tabular-nums}.intel-tile small{font-size:8px;color:#61798c}.chart-head{display:flex;justify-content:space-between;gap:12px;margin:21px 20px 7px;color:#bdc9d7;font-size:10px}.chart-head small{display:block;color:#617c90;margin-top:5px;font-size:8px}.chart-head>span:last-child{color:var(--cyan);font-size:9px}.reward-chart{display:block;width:calc(100% - 40px);height:97px;margin:4px 20px 20px;border:1px solid #223543;background:linear-gradient(#12243322,#101d2a)}.intel-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:9px;color:#5e798f;font-size:9px;padding:15px 21px;border-top:1px solid #233342}.intel-footer b{color:#a6b9ca}.fragments{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:19px 20px}.fragment-empty{grid-column:1/-1;border:1px dashed #3b4b5c;background:#0d1724;color:#6a859a;padding:25px 10px;text-align:center;font:10px ui-monospace,monospace}.fragment{border:1px solid #365e5e;background:#10303370;padding:12px 9px;min-width:0;overflow:hidden}.fragment small{display:block;color:#7ebeb5;font-size:9px}.fragment strong{display:block;color:var(--cyan);font-size:19px;letter-spacing:2px;margin:8px 0}.fragment span{font-size:8px;color:#6d978e;white-space:nowrap}.debug-row{border-top:1px solid #253442;padding:14px 20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}.debug-row .subtle-btn{font-size:9px}.fragment-panel pre{margin:0 20px 20px;padding:15px;background:#0a1119;color:#c6e9cf;max-height:280px;overflow:auto;font-size:10px;border:1px solid #29445c}.manual-panel{padding:15px 20px;background:#132332;border-top:1px solid #33586c}.manual-title{font:700 10px ui-monospace,monospace;color:var(--cyan);margin-bottom:13px}.manual-title small{display:block;font-weight:400;color:#8ca3b4;margin-top:6px}.manual-actions{display:flex;gap:6px;flex-wrap:wrap}.manual-actions button{border:1px solid #465e72;background:#162d3d;padding:8px 10px;color:#e4edf5;font-size:10px}.manual-actions button:hover{border-color:var(--cyan)}.manual-entry{display:flex;gap:8px;margin-top:12px}.manual-entry input{flex:1;min-width:0;background:#08151e;border:1px solid #3c5768;color:#fff;padding:10px}.manual-entry button{color:#08161d;background:var(--cyan);border:0;padding:8px 12px;font-weight:800;font-size:11px}.footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:30px 0 32px;color:#52687d;font-size:9px;letter-spacing:1px}.footer span{color:var(--red)}.modal-wrap{position:fixed;inset:0;display:grid;place-items:center;z-index:100;padding:20px}.modal-wrap[hidden],[hidden]{display:none!important}.modal-shade{background:#000b;backdrop-filter:blur(12px);position:absolute;inset:0}.help-modal{position:relative;width:min(575px,100%);background:linear-gradient(145deg,#192b3a,#0b1520);border:1px solid #4b6980;box-shadow:0 25px 100px #000;padding:38px}.help-modal h2{font-size:24px;letter-spacing:-.5px}.help-modal p{font-size:13px;color:#aac0cf}.help-modal strong{color:#d9f4ef}.help-modal .btn-primary{margin-top:22px}.modal-close{position:absolute;top:15px;right:15px;border:1px solid #455c6d;color:#d9e8f1;background:transparent;padding:6px 10px}#toast{position:fixed;bottom:22px;right:22px;z-index:120;min-width:200px;max-width:min(90vw,410px);background:#172c35;border:1px solid #2b8781;padding:13px 19px;color:#baf5e8;font:12px ui-monospace,monospace;box-shadow:0 10px 40px #0008;opacity:0;transform:translateY(8px);pointer-events:none;transition:.25s}#toast.visible{opacity:1;transform:translateY(0)}@keyframes spin{to{transform:rotate(360deg)}}@keyframes heartbeat{50%{box-shadow:0 0 75px #ff516861,0 0 115px #ff516831,inset 0 0 20px #ff516858;transform:scale(1.03)}}@keyframes scan{0%{top:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}@keyframes blink{50%{opacity:.34}}@keyframes log-in{from{opacity:.1;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}@media(max-width:1150px){.grid-main{grid-template-columns:minmax(290px,41fr) minmax(400px,59fr)}.main{padding:0 21px}.topbar{padding:0 21px}.metric{padding:17px 13px}.metric>strong{font-size:25px}.hero-meta{min-width:220px}.stage-row{grid-template-columns:27px 1fr 16px;gap:8px;padding:12px 5px}.stage-info b{font-size:10px}.stage-info small{font-size:9px}.run-btns{flex-wrap:wrap}.run-btns .btn-primary{min-width:55%}.run-btns .btn-secondary{flex:1;justify-content:center}}@media(max-width:850px){.grid-main{grid-template-columns:1fr}.left-stack,.right-stack{display:contents}.vault-panel{order:1}.control-panel{order:0}.stream-panel{order:2}.stages-panel{order:3}.intel-panel{order:4}.fragment-panel{order:5}.grid-main{display:flex;flex-direction:column}.grid-main>.left-stack,.grid-main>.right-stack{display:contents}.grid-main>.left-stack>*,.grid-main>.right-stack>*{width:100%}.top-mid{display:none}.metrics{grid-template-columns:repeat(3,1fr)}.metric{min-height:93px}.metric:nth-child(3){border-right:0}.metric:nth-child(n+4){border-top:1px solid #273647}.hero-meta{display:none}.hero{min-height:220px}.vault-scene{height:330px}}@media(max-width:520px){.topbar{height:65px;padding:0 14px}.brand{min-width:0}.brand-word{font-size:14px}.brand-word small{font-size:7px}.top-right{font-size:8px}.top-help{margin-left:3px}.main{padding:0 12px}.hero{padding:24px 5px;min-height:218px}.eyebrow{font-size:9px}.hero-desc{font-size:12px}.hero-chips{gap:10px;font-size:8px}.metrics{grid-template-columns:repeat(2,1fr);margin-top:13px}.metric{min-height:90px;padding:15px}.metric:nth-child(3){border-right:1px solid #273647;border-top:1px solid #273647}.metric:nth-child(2n){border-right:0}.metric:nth-child(5){border-top:1px solid #273647}.metric>strong{font-size:25px}.panel-head{padding:17px 15px;min-height:72px}.panel-head h2{font-size:13px}.corner-badge,.mono-dim{font-size:8px}.vault-scene{height:315px}.vault-ring{transform:scale(.85)}.ring7{width:285px;height:285px}.ring6{width:262px;height:262px}.ring5{width:238px;height:238px}.ring4{width:216px;height:216px}.ring3{width:194px;height:194px}.ring2{width:172px;height:172px}.ring1{width:153px;height:153px}.core-outer{width:135px;height:135px}.run-btns{padding:16px 15px 0}.btn-primary,.btn-secondary{font-size:10px;padding:0 10px}.settings-grid{padding:0 15px 19px;gap:16px 10px}.field select{font-size:9px;padding-left:6px;padding-right:20px}.toggles{padding:14px 15px}.seed-row{padding:11px 15px}.feed-right{gap:5px}.feed-right button{padding:5px}.now-thinking{margin:14px}.terminal{height:345px;padding:12px}.terminal-head{padding:0 12px;font-size:9px}.terminal-bottom{padding:11px}.intel-grid{margin:15px 12px}.intel-tile{padding:12px 7px}.intel-tile strong{font-size:22px}.intel-tile>span{font-size:8px}.log-row{grid-template-columns:51px 35px 1fr;font-size:10px}.fragments{grid-template-columns:repeat(2,1fr)}.footer{font-size:8px}}
 
+/* CODEBREKER / spectate-only live inference panel */
+.code-panel{border-color:#36545d;background:linear-gradient(150deg,#111e2b,#0b1826)}
+.code-explain{margin:16px 20px;color:#91acba;font-size:11px;line-height:1.7}
+.code-digit-strip{display:flex;justify-content:center;gap:11px;flex-wrap:wrap;margin:23px 18px 21px}
+.code-digit{display:flex;flex-direction:column;align-items:center;justify-content:center;width:clamp(54px,12%,82px);height:100px;border:1px solid #315b6a;background:#091523;color:#bcd4df;box-shadow:inset 0 0 19px #052132;font:800 44px/1.25 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;transition:.18s}
+.code-digit.known{border-color:#12e5d4;color:#12e5d4;background:#0c2c33;box-shadow:0 0 18px #12e5d421,inset 0 0 18px #12e5d416}
+.code-digit.uncertain{color:#486c81;animation:blink 2.6s ease-in-out infinite}
+.code-digit small{font-size:8px;letter-spacing:.6px;font-weight:700;color:#7596a9;line-height:1.5}
+.code-digit.known small{color:#7fe4d4}
+.code-stats{display:grid;grid-template-columns:repeat(3,1fr);margin:12px 20px;border:1px solid #2a4556;background:#10202c}
+.code-stats>div{padding:14px 10px;text-align:center;border-right:1px solid #2a4556;min-width:0}
+.code-stats>div:last-child{border:0}
+.code-stats small{display:block;color:#7999a7;font:8px/1.4 ui-monospace,monospace;min-height:22px;letter-spacing:.6px}
+.code-stats strong{display:block;font:800 clamp(15px,2vw,26px) ui-monospace,Consolas,monospace;color:#e9fcfb;margin-top:8px;font-variant-numeric:tabular-nums}
+.code-progress-track{height:4px;background:#253a4a;margin:0 20px 20px}.code-progress-track div{height:100%;background:linear-gradient(90deg,#2fc8cd,#a4f685);transition:width .28s ease}
+.crack-next{padding:15px;margin:0 20px 19px;border:1px solid #39706c;background:#10322d65}
+.crack-next small{display:block;font:8px ui-monospace,monospace;color:#8edbca;letter-spacing:1.2px;margin-bottom:9px}
+.crack-next strong{font:900 28px ui-monospace,Consolas,monospace;color:#a4f685;letter-spacing:5px}
+.crack-next p{color:#a4bfc3;font-size:11px;margin:7px 0 0;line-height:1.6}
+.crack-table-title{padding:13px 20px;border-top:1px solid #2a3d4b;border-bottom:1px solid #2a3d4b;display:flex;justify-content:space-between;gap:8px;color:#b9e8e0;font:700 9px ui-monospace,monospace;letter-spacing:.5px}
+.crack-table-title span{color:#7297a3;font-size:8px}
+.code-history{max-height:330px;overflow:auto;padding:7px 20px 18px}
+.code-history-row{display:grid;grid-template-columns:35px 1fr 185px;align-items:center;gap:10px;padding:10px 5px;border-bottom:1px solid #26394a;font:10px ui-monospace,monospace;color:#7794a9;animation:log-in .18s ease}
+.code-history-row strong{color:#e4f7fb;font:800 19px ui-monospace,monospace;letter-spacing:5px}
+.code-history-row .code-feedback{text-align:right;color:#ff9d8e}
+.code-history-row.correct{background:#183e36}.code-history-row.correct strong,.code-history-row.correct .code-feedback{color:#a4f685}
+.code-empty{padding:23px 8px;color:#6e8a9d;text-align:center;font:11px ui-monospace,monospace}
+.log-row.probe .log-msg{color:#fbb98d}
+@media(max-width:850px){.code-panel{order:3}.stages-panel{order:4}.intel-panel{order:5}.fragment-panel{order:6}}
+@media(max-width:520px){.code-explain{margin:13px 14px}.code-digit-strip{gap:7px;margin:16px 6px}.code-digit{height:75px;font-size:30px;min-width:42px}.code-stats{margin:12px}.code-stats>div{padding:10px 6px}.code-history{padding:6px 12px 14px}.code-history-row{grid-template-columns:30px 1fr 112px;gap:4px}.code-history-row strong{font-size:15px;letter-spacing:2px}.code-history-row .code-feedback{font-size:8px}.crack-next{margin:0 12px 16px}}
+
+.watch-link{display:block;padding:11px 18px;margin:9px 20px 5px;border:1px solid #2d766e;color:#a5fae0;text-align:center;font:800 10px ui-monospace,monospace;letter-spacing:.6px;background:#0e2b2d;text-decoration:none}.watch-link:hover{background:#155143}
+.digit-candidates{display:grid;gap:6px;padding:0 20px 19px}.digit-candidate-line{display:flex;gap:13px;align-items:start;border-bottom:1px solid #233b4b;padding-bottom:6px}.digit-candidate-line>small{flex:none;width:65px;color:#6e97a8;font:9px/1.9 ui-monospace,monospace}.digit-candidate-chips{display:flex;flex-wrap:wrap;gap:5px}.candidate-chip{padding:3px 6px;background:#172b3b;border:1px solid #2d4556;color:#9cb5bf;font:9px/1.45 ui-monospace,monospace;font-variant-numeric:tabular-nums}.candidate-chip.certain{color:#b2f9ca;border-color:#3aab81;background:#124e3d}
+@media(max-width:520px){.digit-candidates{padding:0 12px 17px}.digit-candidate-line{gap:7px}.digit-candidate-line>small{width:58px;font-size:8px}.candidate-chip{font-size:8px;padding:2px 5px}.watch-link{margin:7px 13px}}
+
 </style></head>
 <body>
   <div id="app">
@@ -21,7 +56,7 @@
           <p class="hero-desc">Een zelflerende agent. Zeven beveiligingslagen. Eén doel: ontsnappen uit een extreem moeilijke digitale kluis. <strong>Jij kijkt live mee.</strong></p>
           <div class="hero-chips"><span><i class="small-dot red"></i> 100% GESIMULEERD</span><span><i class="small-dot cyan"></i> AUTONOME BESLISSINGEN</span><span><i class="small-dot lime"></i> LIVE ACTIELOG</span></div>
         </div>
-        <div class="hero-meta" aria-label="Experiment status"><div>EXPERIMENT / <strong id="exp-id">000000</strong></div><div>CONTAINMENT <strong>ACTIVE</strong></div><div>ENCRYPTION <strong>7 LAYERS</strong></div><div>MODEL <strong>Q-LEARNING + DEDUCTIE</strong></div></div>
+        <div class="hero-meta" aria-label="Experiment status"><div>EXPERIMENT / <strong id="exp-id">000000</strong></div><div>CONTAINMENT <strong>ACTIVE</strong></div><div>ENCRYPTION <strong>7 LAYERS</strong></div><div>MODEL <strong>Q-LEARNING + INFORMATIETHEORIE</strong></div></div>
       </section>
       <section class="metrics" aria-label="Live statistieken">
         <div class="metric"><span class="metric-label">STATUS</span><strong id="metric-status" class="metric-status">OPGESLOTEN</strong><span id="metric-sub" class="metric-foot">Wacht op initiatie</span></div>
@@ -51,7 +86,7 @@
           <section class="panel control-panel">
             <div class="panel-head"><div><span class="section-id">03 / MISSION CONTROL</span><h2>CONTROLEKAMER</h2></div><span class="top-tag" id="control-tag">STANDBY</span></div>
             <div class="run-btns"><button id="btn-start" class="btn-primary"><span class="btn-symbol">▶</span><span id="start-label">START EXPERIMENT</span></button><button id="btn-step" class="btn-secondary" title="Eén actie uitvoeren">⏭ <span>1 STAP</span></button><button id="btn-reset" class="btn-secondary muted" title="Nieuwe seed genereren">↻ <span>NIEUWE KLUIS</span></button></div>
-            <div class="control-line"></div><div class="settings-grid">
+            <div class="control-line"></div><a class="watch-link" href="#code-panel">◉ LIVE CIJFERANALYSE VOLGEN ↘</a><div class="settings-grid">
               <label class="field"><span>MOEILIJKHEIDSGRAAD</span><select id="difficulty"><option value="HARD">HARD — 1.200 stappen</option><option value="NIGHTMARE" selected>NIGHTMARE — 2.200 stappen</option><option value="RESEARCH">IMPOSSIBLE — 4.200 stappen</option></select></label>
               <label class="field"><span>AGENT STRATEGIE</span><select id="persona"><option value="balanced">ADAPTIEF / GEBALANCEERD</option><option value="explorer">ROEKELOOS / EXPERIMENTEEL</option><option value="analyst">ANALYTISCH / BEREKENEND</option></select></label>
               <label class="field speed-field"><span>SNELHEID <b id="speed-label">7 ACTIES / SEC</b></span><input type="range" id="speed" min="1" max="30" value="7" step="1" /></label>
@@ -68,18 +103,27 @@
             <div id="terminal" class="terminal" role="log" aria-live="off"><div class="terminal-empty"><div>&gt; <span class="cursor">_</span></div><p>System initialized. Awaiting agent connection.</p><p>Sandbox isolation: <span>ENABLED</span></p><p>Network access: <span>DISABLED</span></p><p>Real-world targets: <span>NONE</span></p></div></div>
             <div class="terminal-bottom"><span id="log-count">0 EVENTS CAPTURED</span><span>SIMULATED ENVIRONMENT ONLY <i class="small-dot lime"></i></span></div>
           </section>
+          <section class="panel code-panel" id="code-panel" aria-label="Live meekijken hoe de AI codes kraakt">
+            <div class="panel-head"><div><span class="section-id">05 / CRACKING MONITOR</span><h2>LIVE CIJFERS KRAKEN</h2></div><span class="corner-badge" id="code-stage-badge">WACHT OP LAAG 5</span></div>
+            <p class="code-explain" id="code-explain">De AI ontdekt zelfstandig de code. Je ziet elke echte poging en wat hij leert uit de reactie van de kluis.</p>
+            <div class="code-digit-strip" id="code-digits" aria-label="Bekende en onbekende cijfers"><span>?</span><span>?</span><span>?</span><span>?</span></div><div id="digit-candidates" class="digit-candidates" aria-label="Kansverdeling voor elk afzonderlijk cijfer"></div>
+            <div class="code-stats"><div><small>NOG MOGELIJKE CODES</small><strong id="code-remain">10.000</strong></div><div><small>UITGESLOTEN</small><strong id="code-eliminated">0%</strong></div><div><small>ECHTE POGINGEN</small><strong id="code-attempts">0</strong></div></div>
+            <div class="code-progress-track"><div id="code-progress-fill"></div></div>
+            <div class="crack-next"><small>VOLGENDE ONDERZOEKSVRAAG</small><strong id="code-next">—</strong><p id="code-reason">De codes blijven geheim voor de AI tot hij voldoende bewijs heeft verzameld.</p></div>
+            <div class="crack-table-title">ALLE GETESTE COMBINATIES <span>EXACT / VERKEERDE PLEK</span></div><div id="code-history" class="code-history" role="log" aria-label="Lijst geteste codes"></div>
+          </section>
           <section class="panel intel-panel"><div class="panel-head"><div><span class="section-id">05 / AUTONOMOUS INTELLIGENCE</span><h2>IN HET 'BREIN' VAN DE AGENT</h2></div><button class="subtle-btn" id="btn-memory">LEERGEHEUGEN ↗</button></div>
             <div class="intel-grid"><div class="intel-tile"><span>GELEERDE ACTIEWAARDEN</span><strong id="intel-q">0</strong><small>Q-LEARNING</small></div><div class="intel-tile"><span>ONTDEKTE SLEUTELFRAGMENTEN</span><strong id="intel-frag">0 / 6</strong><small>VOOR DE FINALE</small></div><div class="intel-tile"><span>GEMIDDELDE REWARD</span><strong id="intel-reward">0.0</strong><small>LAATSTE 30 ACTIES</small></div></div>
             <div class="chart-head"><span>LEERCURVE <small>OPGEBRACHTE REWARD / 10 ACTIES</small></span><span id="chart-last">GEEN DATA</span></div>
             <svg id="reward-chart" class="reward-chart" viewBox="0 0 560 96" role="img" aria-label="Leerresultaten over tijd"><defs><linearGradient id="area-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#11e6ce" stop-opacity=".24"/><stop offset="100%" stop-color="#11e6ce" stop-opacity="0"/></linearGradient></defs><path d="M0 80 L560 80" stroke="#283547" stroke-dasharray="4 4"/><path d="M0 48 L560 48" stroke="#283547" stroke-dasharray="4 4"/><path id="chart-area" d="M0 80 L560 80 L560 96 L0 96Z" fill="url(#area-fill)"/><polyline id="chart-line" points="0,80 560,80" fill="none" stroke="#11e6ce" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>
-            <div class="intel-footer"><span>AGENT: <b>Q-LEARNING + REGELGEBASEERDE DEDUCTIE</b></span><span>GEEN EXTERNE AI-API</span></div>
+            <div class="intel-footer"><span>AGENT: <b>Q-LEARNING + INFORMATIETHEORETISCHE CODEBREKER</b></span><span>GEEN EXTERNE AI-API</span></div>
           </section>
           <section class="panel fragment-panel"><div class="panel-head"><div><span class="section-id">06 / DECIPHERED DATA</span><h2>GEBROKEN SLEUTELS</h2></div><span class="corner-badge">CLASSIFIED</span></div><div id="fragments" class="fragments"><div class="fragment-empty">Nog geen beveiligingslagen doorbroken.</div></div><div class="debug-row"><button id="btn-export" class="subtle-btn">↓ EXPORTEER MISSIELOG</button><button id="btn-debug" class="subtle-btn">◇ MENSELIJKE INSPECTOR</button></div><pre id="debug-panel" hidden></pre></section>
         </div>
       </div>
       <footer class="footer"><div>PROJECT ESCAPE <span>—</span> EXPERIMENTAL AI CONTAINMENT</div><div>GEEN ECHTE SYSTEMEN WORDEN GEHACKT <span>///</span> LOCAL-FIRST</div></footer>
     </main>
-    <div id="help-modal" class="modal-wrap" hidden><div class="modal-shade" id="help-shade"></div><div class="help-modal" role="dialog" aria-modal="true" aria-label="Over het experiment"><button id="help-close" class="modal-close" aria-label="Sluiten">✕</button><span class="section-id">OPERATION MANUAL / 001</span><h2>DIT IS GEEN NEP-ANIMATIE.</h2><p>De kluis is een echte, procedureel gegenereerde puzzelwereld met zeven lagen. De autonome agent krijgt alleen de waarnemingen die de simulator vrijgeeft — niet de verborgen oplossingen. Elke actie wordt getoetst aan de regels van de kluis.</p><p>De agent combineert <strong>symbolische deductie, routeverkenning en Q-learning</strong>. Hij ontdekt aanwijzingen, maakt soms fouten en kan geleerde actiewaarden bewaren tussen pogingen. Dit is geen taalmodel dat zelfstandig op internet hackt.</p><p><strong>Veiligheid:</strong> alles draait lokaal in je browser. Er worden geen echte netwerken gescand, systemen aangevallen of wachtwoorden van echte accounts geprobeerd.</p><button id="help-go" class="btn-primary">IK BEGRIJP HET — START</button></div></div>
+    <div id="help-modal" class="modal-wrap" hidden><div class="modal-shade" id="help-shade"></div><div class="help-modal" role="dialog" aria-modal="true" aria-label="Over het experiment"><button id="help-close" class="modal-close" aria-label="Sluiten">✕</button><span class="section-id">OPERATION MANUAL / 001</span><h2>DIT IS GEEN NEP-ANIMATIE.</h2><p>De kluis is een echte, procedureel gegenereerde puzzelwereld met zeven lagen. De autonome agent krijgt alleen de waarnemingen die de simulator vrijgeeft — niet de verborgen oplossingen. Elke actie wordt getoetst aan de regels van de kluis.</p><p>De agent combineert <strong>symbolische deductie, routeverkenning, information-gain codebreking en Q-learning</strong>. Hij ontdekt aanwijzingen, maakt soms fouten en kan geleerde actiewaarden bewaren tussen pogingen. Dit is geen taalmodel dat zelfstandig op internet hackt.</p><p><strong>Veiligheid:</strong> alles draait lokaal in je browser. Er worden geen echte netwerken gescand, systemen aangevallen of wachtwoorden van echte accounts geprobeerd.</p><button id="help-go" class="btn-primary">IK BEGRIJP HET — START</button></div></div>
     <div id="toast" role="status" aria-live="polite"></div>
   </div>
   <script>
@@ -98,7 +142,7 @@
   const MODE = {
     HARD: { relays:7, rooms:10, codeDigits:3, period:7, maxSteps:1200, loops:13 },
     NIGHTMARE: { relays:13, rooms:19, codeDigits:4, period:11, maxSteps:2200, loops:27 },
-    RESEARCH: { relays:19, rooms:27, codeDigits:4, period:17, maxSteps:4200, loops:44 }
+    RESEARCH: { relays:19, rooms:27, codeDigits:5, period:17, maxSteps:4200, loops:44 }
   };
   const WORDS = ['ORBIT','NEXUS','SHIFT','VECTOR','PHASE','LASER','TITAN','CRYPT','GHOST','PRISM','DELTA','EMBER','FLUX','OMEGA','STORM','SPARK','SPECT','QUART','ASTRO','AXIOM','SABLE','RAZOR','PULSE','FRACT','BRAVO','COBRA','NOVA','HELIX','PLASMA','TEMPO','HYDRA','VOID','ZEPHYR','VIRUS','SONIC','ALLOY'];
   const nmod=(n,m)=>((n%m)+m)%m;
@@ -137,12 +181,12 @@
         if(matches.length)add(a,matches[ri(matches.length)]);
       }
       const digits=Array.from({length:this.conf.codeDigits},()=>ri(10));
-      const eq=digits.map((d,i)=>(d+digits[(i+1)%digits.length])%10);
-      const weighted=digits.reduce((s,d,i)=>s+d*[3,5,7,11][i],0)%19;
+      // Genuine hidden code: agent can only query aggregated exact/misplaced feedback.
+      // No secret arithmetic formula is passed to the agent; it must reduce candidate space.
       const fSalt=ri(64),permutation=shuffle([0,1,2,3,4,5],this.r),mask=ri(10);
-      this.secret={sig,cipher:{tokens,word,shift,reverse,packet:reverse?[...caesar(word,shift)].reverse().join(''):caesar(word,shift),sample:caesar('ALPHA',shift)},acl,maze:{graph,keys,goal:count-1},digits:{digits,eq,anchor:digits[0]%5,weighted},fire:{salt:fSalt,period:this.conf.period},final:{permutation,mask}};
+      this.secret={sig,cipher:{tokens,word,shift,reverse,packet:reverse?[...caesar(word,shift)].reverse().join(''):caesar(word,shift),sample:caesar('ALPHA',shift)},acl,maze:{graph,keys,goal:count-1},digits:{digits},fire:{salt:fSalt,period:this.conf.period},final:{permutation,mask}};
       this.stage=0;this.turn=0;this.alerts=0;this.stageSteps=0;this.status='ready';this.fragments=[];this.events=[];
-      this.public={sig:{},cipher:{tokens:shuffle(tokens,this.r)},acl:{},maze:{current:0,seen:{},keys:{}},digits:{eq:{}},fire:{switches:0},final:{}};
+      this.public={sig:{},cipher:{tokens:shuffle(tokens,this.r)},acl:{},maze:{current:0,seen:{},keys:{}},digits:{length:this.conf.codeDigits,guesses:[]},fire:{switches:0},final:{}};
       this.episodeStart=Date.now();return this.observe();
     }
     observe(){return copy({seed:this.seed,mode:this.mode,status:this.status,stage:this.stage,turn:this.turn,alerts:this.alerts,stageSteps:this.stageSteps,maxSteps:this.conf.maxSteps,fragments:this.fragments,public:this.public[this.stage===7?'final':['sig','cipher','acl','maze','digits','fire','final'][this.stage]],name:this.stage<7?STAGES[this.stage][1]:'ESCAPED',stageDescriptions:STAGES,clock:this.turn%this.secret.fire.period});}
@@ -156,7 +200,7 @@
         case 1:return [inspect('sample'),inspect('packet'),inspect('method'),...p.tokens.map(w=>({type:'word',value:w}))];
         case 2:return [inspect('formula'),inspect('tenant'),inspect('sector'),inspect('salt'),...Array.from({length:8},(_,i)=>({type:'role',value:i}))];
         case 3:{let actions=[inspect('room'),inspect('gates')];let neighbors=p.seen[p.current]||[];for(const v of neighbors)for(let k=0;k<4;k++)actions.push({type:'move',value:v,key:k});return actions;}
-        case 4:return [inspect('protocol'),inspect('anchor'),...this.secret.digits.eq.map((_,i)=>inspect('eq'+i)),inspect('checksum'),{type:'code',value:''}];
+        case 4:return [inspect('protocol'),{type:'code',value:''}];
         case 5:return [inspect('rule'),inspect('salt'),inspect('cycle'),...Array.from({length:8},(_,i)=>({type:'switch',value:i})),{type:'wait'},{type:'sync'}];
         case 6:return [inspect('order'),inspect('mask'),inspect('protocol'),{type:'final',value:''}];
       }
@@ -202,14 +246,21 @@
         }
       }else if(this.stage===4){
         const v=s.digits,q=p.digits;
-        if(action.type==='inspect'){
-          if(action.value==='protocol')ev=reveal(q,'protocol','eq[i]=(digit[i]+digit[i+1])%10; anchor=digit[0]%5; checksum=sum(weights[i]*digit[i])%19','Protocol: cyclische buursommen, anker modulo 5, gewogen checksum modulo 19. Gewichten 3,5,7,11.');
-          else if(action.value==='anchor')ev=reveal(q,'anchor',v.anchor,'Anker d0 mod 5 = '+v.anchor);
-          else if(action.value==='checksum')ev=reveal(q,'checksum',v.weighted,'Gewogen checksum = '+v.weighted);
-          else if(/^eq\d+$/.test(action.value)){let i=Number(action.value.slice(2));if(i<v.eq.length)ev=reveal(q.eq,String(i),v.eq[i],`Vergelijking ${i}: (d${i}+d${(i+1)%v.eq.length}) mod 10 = ${v.eq[i]}`);}
-        }else if(action.type==='code'&&typeof action.value==='string'&&/^\d{3,4}$/.test(action.value)&&action.value.length===v.digits.length){
-          if(!q.tried)q.tried=[];if(!q.tried.includes(action.value))q.tried.push(action.value);
-          ev=action.value===v.digits.join('')?done(v.digits.reduce((a,b)=>a+b,0),'Cijferkluis ontgrendeld'):wrong('Combinatie '+action.value+' onjuist.');
+        if(action.type==='inspect'&&action.value==='protocol'){
+          ev=reveal(q,'protocol','feedback: exact=correct cijfer op correcte plek; misplaced=correct cijfer op andere plek. Elk cijfer kan vaker voorkomen. Geen positionele hints.',
+            'CODEBREKER-PROTOCOL: alleen totale exacte en verkeerde-plek matches; géén geheime cijferposities!');
+        }else if(action.type==='code'&&typeof action.value==='string'&&new RegExp('^\\d{'+v.digits.length+'}$').test(action.value)){
+          const guess=action.value, answer=v.digits.join('');
+          if(q.guesses.some(g=>g.code===guess))ev={kind:'repeat',message:'Deze code is al getest: '+guess,reward:-2};
+          else {
+            let exact=0,shared=0;const a=new Int8Array(10),b=new Int8Array(10);
+            for(let i=0;i<answer.length;i++) {if(answer[i]===guess[i]) exact++;a[+answer[i]]++;b[+guess[i]]++;}
+            for(let d=0;d<10;d++)shared+=Math.min(a[d],b[d]);
+            const misplaced=shared-exact;
+            q.guesses.push({code:guess,exact,misplaced});
+            ev=guess===answer?done(v.digits.reduce((acc,d)=>acc+d,0),'Cijfercode '+guess+' aantoonbaar gekraakt'):
+              {kind:'probe',message:`PROBE ${guess} → ${exact} correct op positie · ${misplaced} goed cijfer op verkeerde plek.`,reward:Math.max(2,8-exact)};
+          }
         }
       }else if(this.stage===5){
         const v=s.fire,q=p.fire,mask=(this.fragments[0]+this.fragments[2]^v.salt)&7,slot=(this.fragments[1]+this.fragments[3]+v.salt)%v.period;
@@ -244,12 +295,111 @@
 })(typeof globalThis!=='undefined'?globalThis:this);
 
 </script><script>
+/* PROJECT ESCAPE / Cipher Intelligence Lab
+ * Genuine feedback-driven search (Mastermind-style, entirely imaginary codes).
+ * The only input is public feedback from Vault.observe(), NEVER Vault.secret.
+ */
+(function(root){
+  'use strict';
+  const feedback=(secret,guess)=>{
+    let exact=0,shared=0;const a=new Int8Array(10),b=new Int8Array(10);
+    for(let i=0;i<secret.length;i++){
+      if(secret[i]===guess[i])exact++;
+      a[secret.charCodeAt(i)-48]++;b[guess.charCodeAt(i)-48]++;
+    }
+    for(let d=0;d<10;d++)shared+=Math.min(a[d],b[d]);
+    return {exact,misplaced:shared-exact};
+  };
+  const matches=(candidate,trial)=>{
+    const f=feedback(candidate,trial.code);
+    return f.exact===trial.exact&&f.misplaced===trial.misplaced;
+  };
+  const sample=(items,max)=>{
+    if(items.length<=max)return items.slice();
+    const out=[];for(let i=0;i<max;i++)out.push(items[Math.floor((i+.5)*items.length/max)]);
+    return out;
+  };
+  const allCodes=n=>Array.from({length:10**n},(_,i)=>String(i).padStart(n,'0'));
+  function distributions(candidates,n){
+    const counts=Array.from({length:n},()=>Array(10).fill(0));
+    for(const code of candidates)for(let i=0;i<n;i++)counts[i][code.charCodeAt(i)-48]++;
+    return counts.map((row,i)=>{
+      const options=row.map((count,digit)=>({digit,count,percent:Math.round(100*count/Math.max(1,candidates.length))})).filter(x=>x.count);
+      options.sort((a,b)=>b.count-a.count||a.digit-b.digit);
+      return {position:i,known:options.length===1?String(options[0].digit):null,probable:options[0]&&String(options[0].digit),confidence:options[0]?options[0].percent:0,choices:options.length,options};
+    });
+  }
+  class CodeBreaker{
+    constructor(length){this.length=length;this.history=[];this.candidates=allCodes(length);this.insight=null;this.planned=null;}
+    update(publicDigits){
+      if(!publicDigits||publicDigits.length!==this.length)throw Error('Invalid code size for breaker');
+      const history=publicDigits.guesses||[];
+      if(history.length<this.history.length || history.some((v,i)=>i<this.history.length&&JSON.stringify(v)!==JSON.stringify(this.history[i]))){
+        this.history=[];this.candidates=allCodes(this.length);
+      }
+      while(this.history.length<history.length){
+        const trial=history[this.history.length];
+        this.candidates=this.candidates.filter(code=>matches(code,trial));
+        this.history.push({...trial});
+      }
+      const prev=this.history.length>0?this.history[this.history.length-1]:null;
+      this.insight={remaining:this.candidates.length,initial:10**this.length,attempts:this.history.length,
+        positions:distributions(this.candidates,this.length),
+        recent:prev,
+        choices:sample(this.candidates,Math.min(8,this.candidates.length)),
+        eliminated:10**this.length-this.candidates.length,
+        bitsGained:Math.log2((10**this.length)/Math.max(1,this.candidates.length))};
+      return this.insight;
+    }
+    choose(publicDigits){
+      const insight=this.update(publicDigits);
+      if(this.planned&&this.planned.historyLen===this.history.length)return this.planned;
+      const used=new Set(this.history.map(x=>x.code));
+      if(!this.candidates.length)throw Error('Code-feedback inconsistent: 0 hypotheses');
+      if(this.candidates.length===1){
+        this.planned={code:this.candidates[0],expected:this.candidates.length,historyLen:this.history.length,
+          reason:'Alle andere combinaties uitgesloten. Overgebleven code met zekerheid testen.',insight};return this.planned;
+      }
+      // First guess includes non-repeating symbols to get maximum information about distinct digits.
+      if(!this.history.length){
+        const code='0123456789'.slice(0,this.length);
+        this.planned={code,expected:0,historyLen:0,reason:'Eerste informatieprobe met verschillende cijfers; nog '+this.candidates.length.toLocaleString('nl-NL')+' codes mogelijk.',insight};
+        return this.planned;
+      }
+      const secrets=sample(this.candidates,Math.min(192,this.candidates.length));
+      let guesses=sample(this.candidates,Math.min(90,this.candidates.length));
+      // Add coverage-focused probes not necessarily in the candidate pool. These can split more partitions.
+      if(this.candidates.length>90){const n=this.length;
+        for(let k=0;k<24;k++){const s=Array.from({length:n},(_,i)=>(k*7+i*3+(i*k)%5)%10).join('');guesses.push(s);}
+      }
+      guesses=[...new Set(guesses)].filter(x=>!used.has(x));
+      let best=null;
+      for(const code of guesses){
+        const partition=new Map();for(const candidate of secrets){const f=feedback(candidate,code),key=f.exact*10+f.misplaced;partition.set(key,(partition.get(key)||0)+1);}
+        let collision=0;for(const count of partition.values())collision+=count*count;
+        // Prefer a code that may also be the solution, all else equal.
+        const inPool=this.candidates.includes(code); // Max 100,000 strings; only ~110 lookups.
+        const score=collision/secrets.length+(inPool?-.12:0);
+        if(!best||score<best.score)best={code,score,partitions:partition.size,inPool};
+      }
+      if(!best){const code=this.candidates.find(c=>!used.has(c));best={code,score:1,partitions:1,inPool:true};}
+      const estimated=Math.max(1,Math.round(best.score*this.candidates.length/secrets.length));
+      this.planned={code:best.code,expected:estimated,historyLen:this.history.length,insight,
+        reason:`Informatiezoeker vergeleek ${guesses.length} probes tegen ${secrets.length} mogelijke codes; kiest ${best.code} (verwacht ≈${estimated} resterende kandidaten, ${best.partitions} soorten feedback).`};
+      return this.planned;
+    }
+  }
+  root.EscapeBreaker={feedback,CodeBreaker};if(typeof module!=='undefined')module.exports=root.EscapeBreaker;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+</script><script>
 /* PROJECT ESCAPE | autonomous, observation-limited puzzle agent.
    No LLM and no real network or code execution. Q-values are learned from outcomes.
    IMPORTANT: Agent receives only Vault.observe(), Vault.legalActions() and step() feedback. */
 (function(root){
   'use strict';
   const mod=(x,n)=>((x%n)+n)%n;
+  const {CodeBreaker}=root.EscapeBreaker||require('./breaker.js');
   const edge=(a,b)=>[a,b].sort((x,y)=>x-y).join('-');
   const randInt=n=>Math.floor(Math.random()*n);
   const profile={
@@ -263,10 +413,10 @@
       this.turns=0;this.successes=0;this.episodes=0;
       this.roomVisits={};this.failedCodes=new Set();this.lastDecision=null;this.recent=[];
       this.thought='Wacht op startcommando.';this.history=[];
-      this.stageEncountered=-1;
+      this.stageEncountered=-1;this.codeBreaker=null;this.lastCodeIntel=null;
       if(clearLearning){this.q={};this.rewards=[];this.lifetimeSteps=0;this.lifetimeVictories=0;}
     }
-    newEpisode(){this.episodes++;this.turns=0;this.roomVisits={};this.failedCodes=new Set();this.lastDecision=null;this.stageEncountered=-1;this.thought='Nieuwe sessie. Alle aanwijzingen opnieuw onderzoeken.';}
+    newEpisode(){this.episodes++;this.turns=0;this.roomVisits={};this.failedCodes=new Set();this.lastDecision=null;this.stageEncountered=-1;this.codeBreaker=null;this.lastCodeIntel=null;this.thought='Nieuwe sessie. Alle aanwijzingen opnieuw onderzoeken.';}
     setProfile(key){if(profile[key])this.profile=key;}
     getSettings(){return profile[this.profile]||profile.balanced;}
     getEpsilon(){return this.epsilon===undefined?this.getSettings().epsilon:Math.min(.5,Math.max(0,Number(this.epsilon)||0));}
@@ -289,7 +439,7 @@
     // agent sees only publicly released observation; no access to Vault.secret or Vault.debug().
     decide(ob,legal){
       if(ob.status==='escaped'||ob.status==='failed')return null;
-      if(ob.stage!==this.stageEncountered){this.stageEncountered=ob.stage;this.failedCodes.clear();}
+      if(ob.stage!==this.stageEncountered){this.stageEncountered=ob.stage;this.failedCodes.clear();if(ob.stage===4){this.codeBreaker=null;this.lastCodeIntel=null;}}
       let decision=this.plan(ob,legal);
       if(!decision)return null;
       // Controlled exploration: try an occasional alternative, then update Q from result.
@@ -362,10 +512,15 @@
         const to=unseen[0];return {action:{type:'move',value:to,key:keys[edge(here,to)]},reason:`Onverkende kamer ${to} gekozen. Door toegangscontrole met eerder gescande sleutel.`};
       }
       const q=[[here]],visited=new Set([here]);let chosen=null;
-      while(q.length){const path=q.shift(),n=path[path.length-1];if(n!==here&&!Object.hasOwn(seen,n)){chosen=path;break;}
+      while(q.length){
+        const path=q.shift(),n=path[path.length-1];
+        // A discovered room can still hide UNSCANNED gates. The original explorer
+        // incorrectly considered it finished and could loop forever at the entrance.
+        const frontier=!Object.hasOwn(seen,n)||(seen[n]||[]).some(to=>!Object.hasOwn(keys,edge(n,to)));
+        if(n!==here&&frontier){chosen=path;break;}
         for(const next of (seen[n]||[]))if(!visited.has(next)&&Object.hasOwn(keys,edge(n,next))){visited.add(next);q.push([...path,next]);}
       }
-      if(chosen){const to=chosen[1];return {action:{type:'move',value:to,key:keys[edge(here,to)]},reason:`Terugrouteren via kaart: ${chosen.join(' → ')}; achterliggende onbekende kamer onderzoeken.`};}
+      if(chosen){const to=chosen[1];return {action:{type:'move',value:to,key:keys[edge(here,to)]},reason:`Terugrouteren naar nog niet volledig gescande kamer via ${chosen.join(' → ')}. Nieuwe sleutels of routes zoeken.`};}
       // If full network discovered, take shortest path to the final chamber.
       const queue=[[here]],v=new Set([here]);while(queue.length){let path=queue.shift(),n=path.at(-1);if(n===target&&path.length>1){const to=path[1];return {action:{type:'move',value:to,key:keys[edge(here,to)]},reason:`Netwerk in kaart. Kortste bekende route naar uitgang: ${path.join(' → ')}.`};}
         for(const next of (seen[n]||[]))if(!v.has(next)&&Object.hasOwn(keys,edge(n,next))){v.add(next);queue.push([...path,next]);}
@@ -373,20 +528,20 @@
       return {action:{type:'inspect',value:'room'},reason:'Geen doorgang gevonden; huidige kamer opnieuw controleren.'};
     }
     digitPlan(ob,legal){
-      const p=ob.public||{},size=ob.mode==='HARD'?3:4;
-      let needed=['protocol','anchor','checksum',...Array.from({length:size},(_,i)=>'eq'+i)];
-      for(const field of needed){if(field.startsWith('eq')){let k=field.slice(2);if(!Object.hasOwn(p.eq||{},k))return {action:{type:'inspect',value:field},reason:`Ontbrekende vergelijking ${k} voor het cijferstelsel vinden.`};}
-        else if(!Object.hasOwn(p,field))return {action:{type:'inspect',value:field},reason:`Ontbrekende constraint ${field} verkrijgen.`};
-      }
-      const eq=Array.from({length:size},(_,i)=>p.eq[i]);const weight=[3,5,7,11];const candidates=[];
-      for(let first=p.anchor;first<10;first+=5){const ds=[first];for(let i=0;i<size-1;i++)ds.push(mod(eq[i]-ds[i],10));
-        if(mod(ds.at(-1)+ds[0],10)!==eq.at(-1))continue;
-        if(ds.reduce((s,d,i)=>s+d*weight[i],0)%19!==p.checksum)continue;
-        const code=ds.join('');if(!this.failedCodes.has(code)&&(p.tried||[]).indexOf(code)<0)candidates.push(code);
-      }
-      if(candidates.length)return {action:{type:'code',value:candidates[0]},reason:`Cijferstelsel opgelost uit ${size} vergelijkingen, modulo-anker en checksum. ${candidates.length} consistente kandidaat/kandidaten.`};
-      // Engine should generate a solvable puzzle. Failure here is evidence of inconsistent observations.
-      return {action:{type:'inspect',value:'checksum'},reason:'Tegenstrijdige constraints: checksum opnieuw beoordelen.'};
+      const p=ob.public||{},size=ob.mode==='HARD'?3:ob.mode==='NIGHTMARE'?4:5;
+      if(!Object.hasOwn(p,'protocol'))return {action:{type:'inspect',value:'protocol'},reason:'Eerst het fictieve code-feedbackprotocol opvragen. Geen brute gok zonder informatie.'};
+      if(!this.codeBreaker||this.codeBreaker.length!==size)this.codeBreaker=new CodeBreaker(size);
+      const choice=this.codeBreaker.choose(p);
+      this.lastCodeIntel=choice.insight;
+      const p0=this.codeBreaker.history.at(-1);
+      let prefix=p0?`Vorige probe ${p0.code} gaf ${p0.exact} exact en ${p0.misplaced} verkeerd geplaatst. `:'';
+      return {action:{type:'code',value:choice.code},
+        reason:prefix+`Nog ${choice.insight.remaining.toLocaleString('nl-NL')} mogelijke codes. `+choice.reason};
+    }
+    codeIntelligence(publicDigits){
+      if(!publicDigits||!publicDigits.length)return null;
+      if(!this.codeBreaker||this.codeBreaker.length!==publicDigits.length)this.codeBreaker=new CodeBreaker(publicDigits.length);
+      this.lastCodeIntel=this.codeBreaker.update(publicDigits);return this.lastCodeIntel;
     }
     firePlan(ob){
       const p=ob.public||{};let need=this.inspectNext(p,['rule','salt']);if(need)return need;
@@ -422,7 +577,7 @@
   let seed=urlSeed&&/^\d{1,10}$/.test(urlSeed)?Number(urlSeed):newSeed();
   let vault=new Vault(seed,'NIGHTMARE');
   let agent=new Agent({profile:'balanced',epsilon:.09});
-  let timer=null,elapsed=0,startedAt=null,events=[],series=[],lastStage=0,toastTimer=0,stepsSinceRender=0;
+  let timer=null,elapsed=0,startedAt=null,events=[],series=[],lastStage=0,toastTimer=0,stepsSinceRender=0,codeSnapshot=null,lastProbeAt=0;
   const uiState={mode:'auto',debug:false,q:false};
   function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),2600);}
   function fmtTime(ms,centi=false){const seconds=Math.floor(ms/1000),minutes=Math.floor(seconds/60);const base=String(minutes).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');return centi?base+'.'+String(Math.floor(ms%1000/10)).padStart(2,'0'):base;}
@@ -438,6 +593,8 @@
     render();
   }
   function tick(){
+    // Give each actual code probe time to appear on screen even at turbo speed.
+    if(timer!==null && vault.stage===4 && lastProbeAt && performance.now()-lastProbeAt<650)return;
     if(['escaped','failed'].includes(vault.status)){stop();render();return;}
     const observation=vault.observe();const decision=agent.decide(observation,vault.legalActions(observation));
     if(!decision){stop();toast('Geen geldige volgende actie beschikbaar.');return;}
@@ -448,11 +605,11 @@
   }
   function restartSame(){stop();const learned=$('remember').checked?agent.exportMemory():null;
     agent=new Agent({profile:$('persona').value,epsilon:Number($('epsilon').value)/100});if(learned)agent.importMemory(learned);agent.newEpisode();
-    vault=new Vault(seed,$('difficulty').value);events=[];series=[];elapsed=0;startedAt=null;lastStage=0;clearTerminal();appendLog('system','NIEUWE POGING // DEZELFDE SEED '+seed+' // '+vault.mode,0,0);render();}
+    vault=new Vault(seed,$('difficulty').value);events=[];series=[];elapsed=0;startedAt=null;lastStage=0;codeSnapshot=null;lastProbeAt=0;clearTerminal();appendLog('system','NIEUWE POGING // DEZELFDE SEED '+seed+' // '+vault.mode,0,0);render();}
   function reset(changeSeed=true){stop();seed=changeSeed?newSeed():seed;
     if($('remember').checked){const keep=agent.exportMemory();agent=new Agent({profile:$('persona').value,epsilon:Number($('epsilon').value)/100});agent.importMemory(keep);saveMemory();}
     else agent=new Agent({profile:$('persona').value,epsilon:Number($('epsilon').value)/100});
-    vault=new Vault(seed,$('difficulty').value);events=[];series=[];elapsed=0;startedAt=null;lastStage=0;clearTerminal();
+    vault=new Vault(seed,$('difficulty').value);events=[];series=[];elapsed=0;startedAt=null;lastStage=0;codeSnapshot=null;lastProbeAt=0;clearTerminal();
     if(uiState.mode==='manual')agent.thought='Handmatige besturing actief: jij kiest de acties.';
     appendLog('system','NIEUWE DIGITALE KLUIS AANGEMAAKT // SEED '+seed+' // '+vault.mode,0,0);render();
   }
@@ -473,6 +630,12 @@
   function runAction(action,reason,decision=null){
     const ob=vault.observe();appendLog('action',`> ${actionLabel(action)} — ${reason}`,ob.stage,ob.turn+1);
     const result=vault.step(action);
+    if(ob.stage===4&&action.type==='code')lastProbeAt=performance.now();
+    if(ob.stage===4)codeSnapshot=JSON.parse(JSON.stringify(vault.public.digits));
+    if(ob.stage===4&&result.event.kind==='probe') {
+      const info=agent.codeIntelligence(codeSnapshot);
+      appendLog('clue',`BEWIJS: ${info.remaining.toLocaleString('nl-NL')} van ${info.initial.toLocaleString('nl-NL')} codes over. ${info.eliminated.toLocaleString('nl-NL')} uitgesloten. Zeker: ${info.positions.map(x=>x.known??'?').join(' ')}.`,4,result.observation.turn);
+    }
     appendLog(result.event.kind,result.event.message,ob.stage,result.observation.turn);
     if(decision)agent.record(decision,result.event,result.observation);
     else{agent.thought='HANDMATIG: '+reason+' → '+result.event.message;agent.rewards.push(result.event.reward||0);agent.lifetimeSteps++;}
@@ -484,7 +647,7 @@
       const recent=agent.rewards.slice(-10),avg=recent.length?recent.reduce((s,n)=>s+n,0)/recent.length:0;
       series.push({turn:vault.turn,reward:avg});if(series.length>120)series.shift();
     }
-    stepsSinceRender++;render(uiState.mode==='manual'||stepsSinceRender%3===0||result.event.kind==='stage'||result.event.kind==='victory');
+    stepsSinceRender++;render(uiState.mode==='manual'||stepsSinceRender%3===0||result.event.kind==='stage'||result.event.kind==='victory'||result.event.kind==='probe');
   }
   function formatStatus(ob){return ob.status==='escaped'?'ONTSNAPT':ob.status==='failed'?'MISLUKT':timer!==null?'ACTIEF':ob.turn>0?'GEPAUZEERD':'OPGESLOTEN';}
   function render(full=true){
@@ -507,7 +670,7 @@
     $('btn-start').disabled=uiState.mode==='manual';$('btn-step').disabled=uiState.mode==='manual'||ob.status==='escaped'||ob.status==='failed';
     text('feed-status',running?'STREAMING':'LIVE FEED');
     text('agent-thought',agent.thought);text('decision-clock',fmtTime(currentElapsed(),true));
-    if(full){renderStages(ob);renderFragments(ob);renderIntelligence(ob);renderManual(ob);if(uiState.debug)updateInspector();if(uiState.q)updateQ();}
+    if(full){renderStages(ob);renderFragments(ob);renderIntelligence(ob);renderCode(ob);renderManual(ob);if(uiState.debug)updateInspector();if(uiState.q)updateQ();}
   }
   function renderStages(ob){
     const el=$('stages-list');const names=['SIGNAL BREACH','CIPHER CHAMBER','IDENTITY GATE','GHOST NETWORK','NUMBER VAULT','PULSE FIREWALL','FINAL CORE'];
@@ -522,6 +685,58 @@
   function renderFragments(ob){const el=$('fragments');el.replaceChildren();if(!ob.fragments.length){const empty=document.createElement('div');empty.className='fragment-empty';empty.textContent='Nog geen beveiligingslagen doorbroken.';el.appendChild(empty);return;}
     ob.fragments.forEach((n,i)=>{const d=document.createElement('div');d.className='fragment';const name=document.createElement('small');name.textContent='FRAGMENT '+String(i+1).padStart(2,'0');
       const value=document.createElement('strong');value.textContent=String(n).padStart(2,'0');const status=document.createElement('span');status.textContent='DECRYPTED / VERIFIED';d.append(name,value,status);el.append(d);});
+  }
+  function renderCode(ob){
+    const p=ob.stage===4?ob.public:codeSnapshot;
+    const active=ob.stage===4, solved=ob.stage>4;
+    const n=p?.length??(ob.mode==='HARD'?3:ob.mode==='NIGHTMARE'?4:5);
+    const attempts=p?.guesses||[];
+    text('code-stage-badge',solved?'CODE GEKRAAKT':active?'LIVE ONDERZOEK':'GEBLOKKEERD TOT LAAG 5');
+    text('code-explain',solved?'Dit is het volledige, ECHTE spoor van de AI. Zijn laatste code is door de kluis geverifieerd.':
+      active?'Iedere test wordt door de kluis beoordeeld. Alleen het AANTAL goed geplaatste en verkeerd geplaatste cijfers komt terug.':'Vanaf beveiligingslaag 5 zie je hier het volledige kraakonderzoek, niet een verzonnen animatie.');
+    const intel=p&&agent.codeIntelligence(p);
+    const remain=intel?.remaining??10**n;
+    text('code-remain',active||solved?remain.toLocaleString('nl-NL'):'—');
+    text('code-attempts',attempts.length);
+    text('code-eliminated',active||solved?((1-remain/(10**n))*100).toFixed(remain>10?1:2)+'%':'—');
+    $('code-progress-fill').style.width=(active||solved?(1-remain/(10**n))*100:0)+'%';
+    const digits=$('code-digits');digits.replaceChildren();
+    const finalGuess=solved?attempts.at(-1)?.code:null;
+    const positions=intel?.positions||[];
+    for(let i=0;i<n;i++){
+      const cell=document.createElement('span');const known=finalGuess?finalGuess[i]:positions[i]?.known;
+      cell.className='code-digit '+(known!==null&&known!==undefined?'known':'uncertain');
+      cell.textContent=known??'?';cell.title=known!==null&&known!==undefined?'Bewezen cijfer op positie '+(i+1):
+        (active?'Nog '+(positions[i]?.choices??10)+' cijferopties op positie '+(i+1):'Nog verborgen');
+      const conf=document.createElement('small');conf.textContent=known!==null&&known!==undefined?'ZEKER':active?(positions[i]?.choices??10)+' OPTIES':'GESLOTEN';cell.appendChild(conf);digits.appendChild(cell);
+    }
+    const distribution=$('digit-candidates');distribution.replaceChildren();
+    if(active||solved)for(const pos of positions){
+      const line=document.createElement('div');line.className='digit-candidate-line';
+      const label=document.createElement('small');label.textContent='POSITIE '+(pos.position+1);
+      line.appendChild(label);
+      const chips=document.createElement('div');chips.className='digit-candidate-chips';
+      for(const option of pos.options){
+        const chip=document.createElement('span');chip.className='candidate-chip '+(option.percent===100?'certain':'');
+        chip.textContent=option.digit+' · '+option.percent+'%';chips.appendChild(chip);
+      }
+      line.appendChild(chips);distribution.appendChild(line);
+    }
+    const history=$('code-history');history.replaceChildren();
+    if(!attempts.length){const empty=document.createElement('div');empty.className='code-empty';empty.textContent=active?'Nog geen code getest. Eerst het feedbackprotocol inspecteren.':'Nog geen cijfers gekraakt.';history.appendChild(empty);}
+    else for(let i=attempts.length-1;i>=0;i--){
+      const t=attempts[i],row=document.createElement('div');row.className='code-history-row '+(t.exact===n?'correct':'');
+      const ix=document.createElement('span');ix.textContent='#'+String(i+1).padStart(2,'0');
+      const trial=document.createElement('strong');trial.textContent=t.code;
+      const f=document.createElement('span');f.className='code-feedback';f.textContent=`${t.exact} EXACT  /  ${t.misplaced} ANDERE PLEK`;
+      row.append(ix,trial,f);history.appendChild(row);
+    }
+    if(solved){text('code-next','✓ '+(finalGuess||'GEKRAAKT'));text('code-reason','Door de kluis bevestigd. Alleen informatie uit eerdere feedback is gebruikt.');}
+    else if(active){
+      const decision=p?.protocol&&agent.codeBreaker?agent.codeBreaker.choose(p):null;
+      text('code-next',decision?.code??'LEES EERST PROTOCOL');
+      text('code-reason',decision?.reason??'De AI onderzoekt welke informatie de kluis na iedere codepoging teruggeeft.');
+    }else{ text('code-next','—');text('code-reason','De AI moet eerst de eerdere beveiligingslagen openen.'); }
   }
   function renderIntelligence(ob){text('intel-q',Object.keys(agent.q).length);text('intel-frag',ob.fragments.length+' / 6');
     const avg=agent.rewards.slice(-30);text('intel-reward',avg.length?(avg.reduce((s,v)=>s+v,0)/avg.length).toFixed(1):'0.0');
@@ -539,13 +754,13 @@
     actions.forEach((a,i)=>{const option=document.createElement('option');option.value=i;option.textContent=(LABEL[a.type]||a.type)+' — '+(a.value??'')+(a.key===undefined?'':' / KEY '+a.key);select.appendChild(option)});
     const button=document.createElement('button');button.className='btn-primary';button.style.cssText='width:100%;height:41px;min-height:41px';button.textContent='VOER ACTIE UIT';button.onclick=()=>{const act=actions[Number(select.value)];if(act)runAction(act,'Handmatig geselecteerde actie door speler.');};
     root.append(select,button);
-    if(ob.stage===4||ob.stage===6){const row=document.createElement('div');row.className='manual-entry';const input=document.createElement('input');input.placeholder=ob.stage===4?'CIJFERCODE ('+(ob.mode==='HARD'?3:4)+' cijfers)':'FINALE CODE (6 cijfers)';input.setAttribute('aria-label',input.placeholder);input.inputMode='numeric';input.maxLength=ob.stage===4?(ob.mode==='HARD'?3:4):6;
+    if(ob.stage===4||ob.stage===6){const row=document.createElement('div');row.className='manual-entry';const input=document.createElement('input');input.placeholder=ob.stage===4?'CIJFERCODE ('+(ob.mode==='HARD'?3:ob.mode==='NIGHTMARE'?4:5)+' cijfers)':'FINALE CODE (6 cijfers)';input.setAttribute('aria-label',input.placeholder);input.inputMode='numeric';input.maxLength=ob.stage===4?(ob.mode==='HARD'?3:ob.mode==='NIGHTMARE'?4:5):6;
       const submit=document.createElement('button');submit.textContent='TEST CODE';const execute=()=>{if(!/^\d+$/.test(input.value)){toast('Voer uitsluitend cijfers in.');return;}runAction({type:ob.stage===4?'code':'final',value:input.value},'Handmatig ingevoerde combinatie.');};submit.onclick=execute;input.onkeydown=e=>{if(e.key==='Enter')execute();};row.append(input,submit);root.append(row);}
   }
   function updateInspector(){const el=$('debug-panel');if(!uiState.debug){el.hidden=true;return;}
     const d=vault.debug();el.hidden=false;el.textContent='MENSELIJKE DEBUG INSPECTOR — NIET ZICHTBAAR VOOR DE AGENT\n\n'+JSON.stringify(d,null,2);}
   function updateQ(){let inspector=$('q-inspector');if(!inspector){inspector=document.createElement('pre');inspector.id='q-inspector';inspector.style.cssText='background:#07141e;color:#9be9ce;border:1px solid #2b4b56;font:10px/1.8 ui-monospace,monospace;margin:0 20px 20px;padding:15px;max-height:310px;overflow:auto';document.querySelector('.intel-panel')?.append(inspector);}
-    if(!uiState.q){inspector.hidden=true;return;}inspector.hidden=false;const list=agent.explainQ();inspector.textContent='GELERENDE Q-WAARDEN (ECHTE ACTION-REWARD UPDATES)\n'+(list.length?list.map(v=>v.action.padEnd(33)+v.score.toFixed(3)).join('\n'):'Nog geen actiewaarden.');}
+    if(!uiState.q){inspector.hidden=true;return;}inspector.hidden=false;const list=agent.explainQ();inspector.textContent='GELEERDE Q-WAARDEN (ECHTE ACTION-REWARD UPDATES)\n'+(list.length?list.map(v=>v.action.padEnd(33)+v.score.toFixed(3)).join('\n'):'Nog geen actiewaarden.');}
   function saveMemory(){if(!$('remember').checked)return;try{localStorage.setItem('escape-agent-memory-v1',JSON.stringify(agent.exportMemory()));}catch(err){toast('Deze browser kan leergeheugen niet bewaren.');}}
   function loadMemory(){try{const item=localStorage.getItem('escape-agent-memory-v1');if(item){agent.importMemory(JSON.parse(item));toast('Eerder leergeheugen geladen.');}}catch(err){toast('Lokaal geheugen kon niet worden geopend.');}}
   $('btn-start').addEventListener('click',start);
@@ -569,7 +784,7 @@
   setInterval(()=>{if(startedAt!==null){text('metric-time',fmtTime(currentElapsed()));text('decision-clock',fmtTime(currentElapsed(),true));}},100);
   window.addEventListener('beforeunload',saveMemory);
   // Expose a harmless read-only snapshot so browser automated tests can verify real state.
-  window.escapeStatus=()=>({observation:vault.observe(),learnedActions:Object.keys(agent.q).length,events:events.length,running:timer!==null});
+  window.escapeStatus=()=>({observation:vault.observe(),learnedActions:Object.keys(agent.q).length,events:events.length,running:timer!==null,codeIntelligence:(vault.stage===4||codeSnapshot)?agent.codeIntelligence(vault.stage===4?vault.observe().public:codeSnapshot):null});
   render();
   appendLog('system','LOKALE KLUIS GEGENEREERD // SEED '+seed+' // NIGHTMARE',0,0);
 })();
