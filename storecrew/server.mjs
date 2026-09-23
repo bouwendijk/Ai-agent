@@ -51,7 +51,7 @@ async function design(req,res){
  const history=Array.isArray(data.history)?data.history.filter(t=>t&&typeof t.text==='string').slice(-6).map(t=>({role:t.role==='user'?'user':'assistant',text:t.text.slice(0,300)})):[];
  // Always compute a usable instant offline fallback, even when AI quota is exceeded.
  const fallback=revise(spec,prompt);
- if(Date.now()>remoteRetryAfter){
+ if(process.env.DISABLE_EXTERNAL_AI!=='1'&&Date.now()>remoteRetryAfter){
    try{
       const ai=await remoteDesign(spec,prompt,history);
       if(JSON.stringify(ai.spec)!==JSON.stringify(spec))return reply(res,200,ai);
