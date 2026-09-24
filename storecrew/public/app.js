@@ -71,7 +71,7 @@ function localProgress(progress) { if (!busy) return; const value = Number(progr
 async function localEngine() {
   if (localEnginePromise) return localEnginePromise;
   if (!localAISupported()) throw Error('Dit apparaat ondersteunt geen WebGPU. Open StoreCrew op een recente desktopbrowser om lokale AI te gebruiken.');
-  localEnginePromise = import('https://esm.run/@mlc-ai/web-llm').then(({ CreateMLCEngine }) => { if (typeof CreateMLCEngine !== 'function') throw Error('De lokale AI-engine kon niet worden geladen.'); return CreateMLCEngine(LOCAL_MODEL, { initProgressCallback: localProgress }); }).then(engine => { localAIReady = true; updateCapacity(); return engine; }).catch(error => { localEnginePromise = null; throw error; });
+  localEnginePromise = import('/vendor/webllm.bundle.mjs').then(({ CreateMLCEngine }) => { if (typeof CreateMLCEngine !== 'function') throw Error('De lokale AI-engine kon niet worden geladen.'); return CreateMLCEngine(LOCAL_MODEL, { initProgressCallback: localProgress }); }).then(engine => { localAIReady = true; updateCapacity(); return engine; }).catch(error => { localEnginePromise = null; throw error; });
   return localEnginePromise;
 }
 function parseLocalJSON(content) { const raw = String(content || '').replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim(), start = raw.indexOf('{'), end = raw.lastIndexOf('}'); if (start < 0 || end <= start) throw Error('Lokale AI gaf geen ontwerp-JSON terug.'); return JSON.parse(raw.slice(start, end + 1)); }
