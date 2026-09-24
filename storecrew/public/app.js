@@ -36,7 +36,7 @@ async function loadPreview(route = project.route || '/') {
 function updateRouteSelect(route) { const path = route.startsWith('/?view=') ? route : route.split('?')[0]; $('pageSelect').value = path.startsWith('/products/') ? 'product' : path.startsWith('/collections/') ? '/collections/all' : ['/cart', '/?view=about', '/?view=contact', '/search'].includes(path) ? path : '/'; }
 async function addVersion(design, label, memory = project.memory, provider = 'Handmatig') { approval = null; project.versions.push({ id: crypto.randomUUID(), design: clone(design), label, at: Date.now(), memory, provider }); project.current = project.versions.length - 1; project.memory = memory; project.name = design.brand; renderProject(); await save(); await refreshProjects(); await loadPreview(); }
 function setBusy(value) { busy = value; $('working').hidden = !value; $('send').disabled = value; $('applyDesign').disabled = value; $('newProject').disabled = value; $('projects').disabled = value; $('reviewOpen').disabled = value; $('conversationScroll').scrollTop = $('conversationScroll').scrollHeight; }
-async function poll(id) { const deadline = Date.now() + 300000; while (Date.now() < deadline) { const job = await api('/api/jobs/' + encodeURIComponent(id)); if (job.status === 'complete') return job.result; if (job.status === 'failed') { const e = new Error(job.error?.message || 'De taak is niet afgerond.'); e.code = job.error?.code; e.partial = job.result; throw e; } await new Promise(r => setTimeout(r, 1700)); } throw Error('De server verwerkt het verzoek nog. Ververs om de status opnieuw op te vragen.'); }
+async function poll(id) { const deadline = Date.now() + 300000; let delay = 350; while (Date.now() < deadline) { const job = await api('/api/jobs/' + encodeURIComponent(id)); if (job.status === 'complete') return job.result; if (job.status === 'failed') { const e = new Error(job.error?.message || 'De taak is niet afgerond.'); e.code = job.error?.code; e.partial = job.result; throw e; } await new Promise(r => setTimeout(r, delay)); delay = Math.min(1000, delay + 100); } throw Error('De server verwerkt het verzoek nog. Ververs om de status opnieuw op te vragen.'); }
 async function finishGeneration(jobId) {
   setBusy(true);
   try {
@@ -64,7 +64,7 @@ function setupDialog() {
   else { paragraph(card, 'Voeg GEMINI_API_KEY toe aan de omgevingsvariabelen van StoreCrew op Render. Het standaardmodel is gemini-2.5-flash. Gebruik GEMINI_MODEL om een ander geschikt model te kiezen.', ''); paragraph(card, 'Een andere aanbieder kan via AI_API_KEY, AI_BASE_URL en AI_MODEL. Sleutels komen nooit in je thema, projectdownload of browsercode.', ''); }
   body.append(card);
   paragraph(body, 'StoreCrew rekent zelf niets. Sommige AI-modellen bieden gratis capaciteit met limieten. Facturatie, modelkeuze en quota bij je aanbieder bepalen of er kosten ontstaan. Er is geen garantie op onbeperkte gratis AI. Het Shopify-abonnement staat hier los van.');
-  paragraph(body, 'Je bericht, merkbrief en productinformatie gaan bij een ontwerpverzoek naar de ingestelde AI-aanbieder. Deel hier geen klantgegevens of andere vertrouwelijke informatie.');
+  paragraph(body, 'Bij gratis Gemini-capaciteit kan Google invoer gebruiken om producten te verbeteren. Je bericht, merkbrief en productinformatie gaan bij een ontwerpverzoek naar de ingestelde AI-aanbieder. Deel hier geen klantgegevens of andere vertrouwelijke informatie.');
   const actions = el('div', 'dialog-actions'); body.append(actions); link(actions, 'Render-instellingen ↗', 'https://dashboard.render.com/web/srv-dapu4io473hc73c98h3g/env'); link(actions, 'Gemini: sleutels & gratis quota ↗', 'https://aistudio.google.com/apikey');
   action(actions, 'Verbinding opnieuw controleren', async () => { session = await api('/api/session'); updateCapacity(); setupDialog(); });
 }
@@ -131,6 +131,7 @@ window.addEventListener('message', async event => {
   } catch (e) { notify(e.message, true); }
 });
 $('send').onclick = send;
+$('pastePrompt').onclick = async () => { const input = $('prompt'); try { if (!navigator.clipboard?.readText) throw Error('Gebruik lang indrukken in het tekstveld om te plakken.'); const pasted = await navigator.clipboard.readText(); if (!pasted) return notify('Je klembord bevat geen tekst.'); const room = Math.max(0, 6000 - input.value.length); input.value = input.value + pasted.slice(0, room); input.dispatchEvent(new Event('input', { bubbles: true })); input.focus(); notify('Tekst geplakt.'); } catch { input.focus(); notify('Houd het tekstveld ingedrukt en kies Plak.'); } };
 $('prompt').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } };
 let draftTimer; $('prompt').oninput = () => { if (!project) return; project.draft = $('prompt').value; clearTimeout(draftTimer); draftTimer = setTimeout(save, 500); };
 document.querySelectorAll('[data-prompt]').forEach(b => b.onclick = () => { $('prompt').value = b.dataset.prompt; $('prompt').focus(); project.draft = b.dataset.prompt; save(); });

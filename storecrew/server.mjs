@@ -16,13 +16,13 @@ export function createApp({ env = process.env, fetcher = fetch, logger = console
   const secret = env.STORECREW_SESSION_SECRET || env.SESSION_SECRET || random() + random(), seal = sealer(secret), ai = makeAI(env, fetcher);
   const shopifyConfigured = !!(env.SHOPIFY_API_KEY && env.SHOPIFY_API_SECRET && (env.STORECREW_SESSION_SECRET || env.SESSION_SECRET)?.length >= 32 && secure);
   const uploadEnabled = env.SHOPIFY_THEME_UPLOAD_ENABLED === '1';
-  const jobs = new Map(), previews = new Map(), uploads = new Map(), usedStates = new Map();
+  const jobs = new Map(), previews = new Map(), uploads = new Map(), usedStates = new Map(), themeCache = new Map(), renderCache = new Map();
   const ipGate = rateGate(160), generationGate = rateGate(6), previewGate = rateGate(60);
   const clean = () => { for (const map of [jobs, previews, uploads, usedStates]) for (const [key, value] of map) if (value.exp < Date.now()) map.delete(key); };
   const cleanup = setInterval(clean, 60000); cleanup.unref();
   const json = (res, status, data) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)); };
   const safeHeaders = res => { res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'no-referrer'); res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()'); if (secure) res.setHeader('Strict-Transport-Security', 'max-age=31536000'); };
-  function project(data) { let design, catalog; try { design = validateDesign(data?.design); catalog = normalizeCatalog(data?.catalog); } catch { throw new AppError(400, 'INVALID_PROJECT', 'Het project bevat geen geldig ontwerp of catalogus.'); } const compiled = compileTheme(design); return { ...compiled, catalog, catalogDigest: hash(catalog), warnings: reviewDesign(design, catalog) }; }
+  function project(data) { let design, catalog; try { design = validateDesign(data?.design); catalog = normalizeCatalog(data?.catalog); } catch { throw new AppError(400, 'INVALID_PROJECT', 'Het project bevat geen geldig ontwerp of catalogus.'); } const themeKey = hash(design); let compiled = themeCache.get(themeKey); if (!compiled) { compiled = compileTheme(design); themeCache.set(themeKey, compiled); if (themeCache.size > 40) themeCache.delete(themeCache.keys().next().value); } return { ...compiled, catalog, catalogDigest: hash(catalog), warnings: reviewDesign(design, catalog) }; }
   function approve(data, sid) { const p = project(data); const approval = seal.open(data.approval); if (!approval || approval.kind !== 'approval' || approval.sid !== sid || approval.digest !== p.digest || approval.catalogDigest !== p.catalogDigest) throw new AppError(409, 'APPROVAL_REQUIRED', 'Beoordeel en keur deze exacte versie eerst goed.'); return { ...p, approval }; }
   const publicConnection = connection => connection ? { connected: true, shop: connection.shop, scopes: connection.scopes || [], uploadAvailable: uploadEnabled && connection.scopes?.includes('write_themes'), exemptionVerified: false } : { connected: false, uploadAvailable: false };
   async function handle(req, res) {
@@ -60,7 +60,7 @@ export function createApp({ env = process.env, fetcher = fetch, logger = console
       }
       if (route.startsWith('/api/jobs/') && req.method === 'GET') { const job = jobs.get(route.split('/').at(-1)); if (!job || job.sid !== sid || job.exp < Date.now()) throw new AppError(404, 'JOB_MISSING', 'De server is mogelijk herstart. Je opgeslagen ontwerp blijft intact; probeer opnieuw.'); return json(res, 200, { status: job.status, result: job.result, error: job.error }); }
       if (route === '/api/preview' && req.method === 'POST') {
-        previewGate(sid); const data = await readJSON(req, 8000000), p = project(data), html = await renderTheme(p.files, p.catalog, text(data.route, 300) || '/', data.cart);
+        previewGate(sid); const data = await readJSON(req, 8000000), p = project(data), routeKey = text(data.route, 300) || '/', cartKey = Array.isArray(data.cart) ? data.cart : [], renderKey = hash({ digest: p.digest, catalogDigest: p.catalogDigest, route: routeKey, cart: cartKey }); let html = renderCache.get(renderKey); if (!html) { html = await renderTheme(p.files, p.catalog, routeKey, cartKey); renderCache.set(renderKey, html); if (renderCache.size > 80) renderCache.delete(renderCache.keys().next().value); }
         const id = random(), previous = [...previews].filter(([, value]) => value.sid === sid); for (const [key] of previous.slice(0, -7)) previews.delete(key);
         if (previews.size > 500) throw new AppError(429, 'PREVIEW_BUSY', 'De preview is even bezet.');
         previews.set(id, { sid, html, exp: Date.now() + 3600000 });
