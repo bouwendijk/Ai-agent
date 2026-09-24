@@ -1,20 +1,27 @@
-name: StoreCrew smoke tests
+name: StoreCrew verification
 on:
   push:
     branches: [storecrew-studio-v1]
     paths:
       - 'storecrew/**'
       - '.github/workflows/storecrew-smoke.yml'
+  pull_request:
+    paths: ['storecrew/**']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  smoke:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --check storecrew/engine.mjs && node --check storecrew/server.mjs
-      - run: node storecrew/test/smoke.test.mjs
+      - name: Check JavaScript syntax
+        run: |
+          for file in storecrew/*.mjs storecrew/public/app.js; do
+            node --check "$file"
+          done
+      - name: Verify shared theme rendering, OAuth, approval and AI
+        run: npm test --prefix storecrew
