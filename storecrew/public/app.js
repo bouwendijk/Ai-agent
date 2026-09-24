@@ -1,1 +1,213 @@
-m��-�����?����ڦ��6�.r��+v*�r�+
+const $ = id => document.getElementById(id);
+const el = (tag, className = '', content = '') => { const n = document.createElement(tag); n.className = className; n.textContent = content; return n; };
+const clone = value => structuredClone(value);
+let session, project, db, busy = false, previewSerial = 0, digest = '', warnings = [], approval = null, previewURL = '', toastTimer;
+const LOCAL_MODEL = 'Llama-3.2-3B-Instruct-q4f16_1-MLC';
+let localEnginePromise = null, localAIReady = false;
+const emptyCatalog = () => ({ products: [], collections: [], currency: 'EUR', shop: '', name: '' });
+const snapshot = () => project.versions[project.current];
+const payload = () => ({ design: snapshot().design, catalog: project.catalog });
+function notify(message, error = false) { $('toast').textContent = message; $('toast').classList.toggle('error', error); $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').hidden = true, error ? 9000 : 5000); }
+async function openDB() { return new Promise((resolve, reject) => { const request = indexedDB.open('storecrew-studio-v2', 1); request.onupgradeneeded = () => request.result.createObjectStore('projects', { keyPath: 'id' }); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); }); }
+async function dbAction(mode, operation) { if (!db) throw Error('Opslag is niet beschikbaar'); return new Promise((resolve, reject) => { const t = db.transaction('projects', mode); const request = operation(t.objectStore('projects')); t.oncomplete = () => resolve(request?.result); t.onerror = () => reject(t.error); t.onabort = () => reject(t.error); }); }
+async function save() { project.updatedAt = Date.now(); try { await dbAction('readwrite', s => s.put(project)); localStorage.setItem('storecrew-current-v2', project.id); $('saveStatus').textContent = 'Op dit apparaat bewaard'; } catch { $('saveStatus').textContent = 'Download een projectkopie'; notify('Opslaan op dit apparaat lukt niet. Download je project via Ontwerp aanpassen.', true); } }
+async function refreshProjects() { const projects = db ? await dbAction('readonly', s => s.getAll()) : [project]; $('projects').replaceChildren(...projects.sort((a, b) => b.updatedAt - a.updatedAt).map(p => { const option = el('option', '', p.name); option.value = p.id; option.selected = p.id === project.id; return option; })); }
+function makeProject() { const design = clone(session.defaultDesign); return { format: 'storecrew-project-v2', id: crypto.randomUUID(), name: 'Mijn eerste ontwerp', createdAt: Date.now(), updatedAt: Date.now(), current: 0, versions: [{ id: crypto.randomUUID(), design, label: 'Voorbeeldontwerp', at: Date.now(), memory: '' }], history: [], memory: '', catalog: emptyCatalog(), cart: [], route: '/', draft: '' }; }
+async function api(path, body, raw = false) {
+  const controller = new AbortController(), timer = setTimeout(() => controller.abort(), path.includes('/import') ? 300000 : 45000);
+  try {
+    const response = await fetch(path, { method: body === undefined ? 'GET' : 'POST', credentials: 'same-origin', headers: body === undefined ? {} : { 'Content-Type': 'application/json', 'X-CSRF-Token': session.csrf }, body: body === undefined ? undefined : JSON.stringify(body), signal: controller.signal });
+    if (!response.ok) { const data = await response.json().catch(() => ({})); const error = new Error(data.error || 'De server is niet bereikbaar. Probeer opnieuw.'); error.code = data.code; throw error; }
+    return raw ? response : response.json();
+  } catch (error) { if (error.name === 'AbortError') throw Error('Het verzoek duurde te lang. Je opgeslagen ontwerp blijft bewaard.'); throw error; } finally { clearTimeout(timer); }
+}
+function localAISupported() { return Boolean(globalThis.navigator?.gpu); }
+function updateCapacity() {
+  const ai = session.ai, label = ai.configured ? `${ai.providers[0].name} gekoppeld` : localAIReady ? 'Lokale AI klaar' : localAISupported() ? 'Lokale AI zonder key' : 'Lokale AI starten';
+  $('aiStatus').textContent = label; $('aiStatus').className = 'status-pill ' + ((ai.configured || localAIReady) ? 'ready' : 'pending');
+  $('setupBanner').hidden = ai.configured || localAIReady;
+  const banner = $('setupBanner'), title = $('setupTitle') || banner?.querySelector('strong'), copy = $('setupCopy') || banner?.querySelector('p'), activate = $('activateAI');
+  if (title) title.textContent = ai.configured ? 'AI is gekoppeld' : 'Echte AI zonder API-key';
+  if (copy) copy.textContent = ai.configured ? 'De server-AI staat klaar. Je kunt in gewone taal ontwerpen en verfijnen.' : localAISupported() ? 'StoreCrew kan het model gratis in je browser laden. De eerste keer wordt een model gedownload; daarna blijven je gesprekken op dit apparaat.' : 'Dit apparaat meldt geen WebGPU. Gebruik een recente desktopbrowser voor lokale AI, of configureer later een serverprovider.';
+  if (activate) activate.textContent = ai.configured ? 'Bekijk AI-status ↗' : 'Lokale AI starten ↗';
+}
+function renderMessages() { $('messages').replaceChildren(...project.history.map(m => { const n = el('div', 'chat-message ' + (m.error ? 'error' : m.role)); n.append(el('span', 'message-label', m.role === 'user' ? 'Jij' : 'StoreCrew'), el('div', '', m.content)); if (m.version) n.append(el('span', 'message-version', 'Versie ' + m.version + ' · ' + (m.provider || 'Ontwerp'))); return n; })); document.querySelector('.welcome').hidden = project.history.length > 0; $('conversationScroll').scrollTop = $('conversationScroll').scrollHeight; }
+function populateDesign() { const d = snapshot().design; $('brandName').value = d.brand; $('bgColor').value = d.tokens.background; $('accentColor').value = d.tokens.accent; $('textColor').value = d.tokens.text; $('headingFont').value = d.tokens.headingFont; $('heroTitle').value = d.sections.find(s => s.type === 'hero')?.title || ''; $('sectionList').replaceChildren(...d.sections.map((s, i) => { const item = el('li'); item.append(el('span', '', String(i + 1).padStart(2, '0') + '  ' + ({ hero: 'Hero', products: 'Producten', story: 'Merkverhaal', faq: 'Veelgestelde vragen', features: 'Kenmerken', collections: 'Collecties', statement: 'Statement' }[s.type] || s.type))); const up = el('button', '', '↑'), down = el('button', '', '↓'); up.setAttribute('aria-label', `${s.type} omhoog`); down.setAttribute('aria-label', `${s.type} omlaag`); up.disabled = i <= 1; down.disabled = i === 0 || i === d.sections.length - 1; up.onclick = () => moveSection(i, i - 1); down.onclick = () => moveSection(i, i + 1); item.append(up, down); return item; })); }
+function renderProject() { renderMessages(); populateDesign(); $('prompt').value = project.draft || ''; $('versionLabel').textContent = 'V' + String(project.current + 1).padStart(2, '0'); $('previewLabel').textContent = snapshot().label + ' · ' + snapshot().design.brand; $('send').disabled = busy; }
+async function loadPreview(route = project.route || '/') {
+  const serial = ++previewSerial; $('previewLoading').hidden = false; $('previewLoading').lastElementChild.textContent = 'Voorbeeld wordt bijgewerkt'; $('reviewOpen').disabled = true;
+  try {
+    const result = await api('/api/preview', { ...payload(), route, cart: project.cart });
+    if (serial !== previewSerial) return;
+    digest = result.digest; warnings = result.warnings; previewURL = result.url;
+    $('preview').onload = () => { if (serial === previewSerial) $('previewLoading').hidden = true; };
+    $('preview').src = result.url; project.route = route; updateRouteSelect(route); $('reviewOpen').disabled = busy;
+  } catch (e) { if (serial === previewSerial) { $('previewLoading').hidden = true; notify('Voorbeeld: ' + e.message, true); } }
+}
+function updateRouteSelect(route) { const path = route.startsWith('/?view=') ? route : route.split('?')[0]; $('pageSelect').value = path.startsWith('/products/') ? 'product' : path.startsWith('/collections/') ? '/collections/all' : ['/cart', '/?view=about', '/?view=contact', '/search'].includes(path) ? path : '/'; }
+async function addVersion(design, label, memory = project.memory, provider = 'Handmatig') { approval = null; project.versions.push({ id: crypto.randomUUID(), design: clone(design), label, at: Date.now(), memory, provider }); project.current = project.versions.length - 1; project.memory = memory; project.name = design.brand; renderProject(); await save(); await refreshProjects(); await loadPreview(); }
+function setBusy(value) { busy = value; $('working').hidden = !value; $('send').disabled = value; $('applyDesign').disabled = value; $('newProject').disabled = value; $('projects').disabled = value; $('reviewOpen').disabled = value; $('conversationScroll').scrollTop = $('conversationScroll').scrollHeight; }
+async function poll(id) { const deadline = Date.now() + 300000; let delay = 350; while (Date.now() < deadline) { const job = await api('/api/jobs/' + encodeURIComponent(id)); if (job.status === 'complete') return job.result; if (job.status === 'failed') { const e = new Error(job.error?.message || 'De taak is niet afgerond.'); e.code = job.error?.code; e.partial = job.result; throw e; } await new Promise(r => setTimeout(r, delay)); delay = Math.min(1000, delay + 100); } throw Error('De server verwerkt het verzoek nog. Ververs om de status opnieuw op te vragen.'); }
+async function finishGeneration(jobId) {
+  setBusy(true);
+  try {
+    const result = await poll(jobId);
+    project.history.push({ role: 'assistant', content: result.message, version: project.versions.length + 1, provider: result.provider, at: Date.now() });
+    await addVersion(result.design, 'AI-ontwerp', result.memory, result.provider); notify('Je nieuwe ontwerp is klaar.');
+  } catch (e) { project.history.push({ role: 'assistant', content: e.message, error: true, at: Date.now() }); renderMessages(); notify(e.message, true); }
+  finally { delete project.pendingJob; setBusy(false); await save(); session.ai = await api('/api/capacity').catch(() => session.ai); updateCapacity(); }
+}
+const LOCAL_SYSTEM = `Je bent StoreCrew Local: een senior creative director, Shopify-thema-ontwerper en conversiespecialist. Je werkt volledig lokaal in de browser. Ontwerp geen generieke template maar een onderscheidende, premium winkel die logisch verkoopt.
+
+Antwoord uitsluitend met één geldig JSON-object, zonder markdown of codeblokken. Behoud alles wat de gebruiker niet vraagt; verander alleen wat logisch uit het nieuwe verzoek volgt. Neem de merkbrief en recente gesprekken serieus. De merkbrief is duurzaam geheugen: bewaar merknaam, doelgroep, taal, sfeer, kleuren, typografie, producten, verboden claims, vaste keuzes en open beslissingen. Verwijder harde voorkeuren nooit zonder expliciet verzoek.
+
+Gebruik uitsluitend product handles en afbeeldings-URL's uit de catalogus. Verzin nooit producten, prijzen, reviews, aantallen klanten, keurmerken, garanties, voorraad of verzendbeloftes. Schrijf in de taal van het ontwerp (nl of en). Producttitels en productbeschrijvingen blijven inhoudelijk onvertaald. Maak de hero als eerste sectie met precies één h1. Gebruik sterke hiërarchie, rustige witruimte, duidelijke CTA's, premium editorial ritme en mobiele leesbaarheid. Gebruik geen Liquid, HTML, CSS, scripts of externe fonts in tekstvelden. Gebruik maximaal 8 secties en maximaal 12 unieke product handles.
+
+Geef exact dit JSON-formaat terug: {"message":"korte Nederlandse uitleg van de wijzigingen","memory":"compacte merkbrief met alle blijvende voorkeuren en besluiten","design":{"brand":"...","language":"nl of en","description":"...","announcement":"...","tokens":{"background":"#000000","text":"#000000","surface":"#000000","accent":"#000000","accentText":"#ffffff","muted":"#000000","headingFont":"sans|serif|mono","radius":2,"maxWidth":1320,"spacing":88,"headingScale":86},"nav":[{"label":"...","url":"/collections/all"}],"sections":[{"id":"hero","type":"hero|products|story|features|faq|collections|statement","layout":"split|full|center|editorial","kicker":"...","title":"...","text":"...","buttonLabel":"...","buttonUrl":"/collections/all","image":"","imageAlt":"...","productHandles":[],"items":[{"title":"...","text":"...","image":"","url":"/collections/all"}]}],"seo":{"title":"...","description":"..."}}}`;
+const clipLocal = (value, max) => String(value || '').replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max);
+function compactLocalDesign(design) { return { ...design, description: clipLocal(design.description, 260), announcement: clipLocal(design.announcement, 120), nav: (design.nav || []).slice(0, 5), sections: (design.sections || []).slice(0, 8).map(s => ({ ...s, kicker: clipLocal(s.kicker, 80), title: clipLocal(s.title, 150), text: clipLocal(s.text, 600), items: (s.items || []).slice(0, 4).map(i => ({ title: clipLocal(i.title, 90), text: clipLocal(i.text, 260), image: i.image, url: i.url })) })), seo: design.seo }; }
+function localInput(prompt, history, memory) { const catalog = project.catalog || emptyCatalog(); return { request: clipLocal(prompt, 4000), memory: clipLocal(memory, 3500) || '(nog geen merkbrief; bouw die na dit antwoord op)', currentDesign: compactLocalDesign(snapshot().design), recentConversation: history.slice(-12).map(m => ({ role: m.role, content: clipLocal(m.content, 650) })), catalog: { currency: catalog.currency, products: catalog.products.slice(0, 40).map(p => ({ handle: p.handle, title: clipLocal(p.title, 100), price: p.price, image: p.image, available: p.available })), collections: catalog.collections.slice(0, 20).map(c => ({ handle: c.handle, title: clipLocal(c.title, 80), image: c.image })) } }; }
+function localProgress(progress) { if (!busy) return; const value = Number(progress?.progress); $('workingTitle').textContent = Number.isFinite(value) && value > 0 ? `Lokale AI wordt geladen (${Math.round(value * 100)}%)` : 'Lokale AI wordt klaargezet'; }
+async function localBundle() {
+  const parts = await Promise.all(['00', '01', '02', '03'].map(id => fetch('/vendor/webllm.bundle.mjs.part' + id, { cache: 'force-cache' }).then(r => { if (!r.ok) throw Error('Een deel van de lokale AI-engine ontbreekt.'); return r.arrayBuffer(); })));
+  const bytes = new Uint8Array(parts.reduce((n, part) => n + part.byteLength, 0)); let offset = 0;
+  for (const part of parts) { bytes.set(new Uint8Array(part), offset); offset += part.byteLength; }
+  if (!('DecompressionStream' in globalThis)) throw Error('Deze browser kan de lokale AI-engine niet uitpakken. Gebruik een recente Chrome, Edge of Safari.');
+  const code = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+  const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+  try { return await import(url); } finally { URL.revokeObjectURL(url); }
+}
+async function localEngine() {
+  if (localEnginePromise) return localEnginePromise;
+  if (!localAISupported()) throw Error('Dit apparaat ondersteunt geen WebGPU. Open StoreCrew op een recente desktopbrowser om lokale AI te gebruiken.');
+  localEnginePromise = localBundle().then(({ CreateMLCEngine }) => { if (typeof CreateMLCEngine !== 'function') throw Error('De lokale AI-engine kon niet worden geladen.'); return CreateMLCEngine(LOCAL_MODEL, { initProgressCallback: localProgress }); }).then(engine => { localAIReady = true; updateCapacity(); return engine; }).catch(error => { localEnginePromise = null; throw error; });
+  return localEnginePromise;
+}
+function parseLocalJSON(content) { const raw = String(content || '').replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim(), start = raw.indexOf('{'), end = raw.lastIndexOf('}'); if (start < 0 || end <= start) throw Error('Lokale AI gaf geen ontwerp-JSON terug.'); return JSON.parse(raw.slice(start, end + 1)); }
+function sanitizeLocalDesign(design) { const catalog = project.catalog || emptyCatalog(), allowedImages = new Set([...(catalog.products || []).flatMap(p => [p.image, ...(p.images || [])]), ...(catalog.collections || []).map(c => c.image)].filter(Boolean)), handles = new Set((catalog.products || []).map(p => p.handle)); const out = clone(design); for (const section of out.sections || []) { if (section.image && !allowedImages.has(section.image)) section.image = ''; section.productHandles = (section.productHandles || []).filter(h => handles.has(h)); for (const item of section.items || []) if (item.image && !allowedImages.has(item.image)) item.image = ''; } return out; }
+async function generateLocally(prompt, history, memory) {
+  const engine = await localEngine(), input = localInput(prompt, history, memory); let repair = '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const user = JSON.stringify(input) + (repair ? `\nCorrigeer je vorige JSON volledig. Validatiefout: ${clipLocal(repair, 350)}` : '');
+    const completion = await engine.chat.completions.create({ messages: [{ role: 'system', content: LOCAL_SYSTEM }, { role: 'user', content: user }], temperature: 0.55, max_tokens: 5200, response_format: { type: 'json_object' } });
+    try { const parsed = parseLocalJSON(completion.choices?.[0]?.message?.content); if (!parsed.design || !parsed.message) throw Error('Het lokale antwoord mist een ontwerp of uitleg.'); const design = sanitizeLocalDesign(parsed.design), checked = await api('/api/preview', { design, catalog: project.catalog, route: '/', cart: project.cart }); return { design, message: clipLocal(parsed.message, 3000), memory: clipLocal(parsed.memory, 5000) || memory, provider: 'Lokale AI', model: LOCAL_MODEL, digest: checked.digest, warnings: checked.warnings, mode: 'local' }; } catch (error) { repair = error.message; if (attempt === 1) throw error; }
+  }
+  throw Error('Lokale AI kon dit ontwerp niet valideren.');
+}
+async function send() {
+  const prompt = $('prompt').value.trim(); if (busy || !prompt) return;
+  project.history.push({ role: 'user', content: prompt, at: Date.now() }); project.draft = ''; $('prompt').value = ''; renderMessages(); setBusy(true); await save();
+  try {
+    if (session.ai.configured) { const result = await api('/api/generate', { ...payload(), prompt, history: project.history.slice(0, -1), memory: project.memory }); project.pendingJob = result.jobId; await save(); await finishGeneration(result.jobId); }
+    else { $('workingTitle').textContent = 'Lokale AI denkt mee'; const result = await generateLocally(prompt, project.history.slice(0, -1), project.memory); project.history.push({ role: 'assistant', content: result.message, version: project.versions.length + 1, provider: result.provider, at: Date.now() }); await addVersion(result.design, 'Lokaal AI-ontwerp', result.memory, result.provider); notify('Lokale AI heeft je nieuwe ontwerp gemaakt.'); setBusy(false); }
+  } catch (e) { project.history.push({ role: 'assistant', content: e.message, error: true, at: Date.now() }); project.draft = prompt; $('prompt').value = prompt; renderMessages(); setBusy(false); await save(); notify(e.message, true); if (!session.ai.configured) setupDialog(); }
+}
+function openDialog(title, eyebrow = 'STORECREW STUDIO') { $('dialogEyebrow').textContent = eyebrow; $('dialogBody').replaceChildren(el('h2', 'dialog-title', title)); if (!$('dialog').open) $('dialog').showModal(); return $('dialogBody'); }
+function paragraph(parent, content, className = 'dialog-copy') { const n = el('p', className, content); parent.append(n); return n; }
+function action(parent, label, handler, primary = false) { const b = el('button', 'button' + (primary ? ' primary' : ''), label); b.onclick = async () => { b.disabled = true; try { await handler(b); } catch (e) { parent.append(el('p', 'dialog-error', e.message)); } finally { if (b.isConnected) b.disabled = false; } }; parent.append(b); return b; }
+function link(parent, label, href) { const a = el('a', 'button', label); a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer'; parent.append(a); return a; }
+function setupDialog() {
+  const body = openDialog(session.ai.configured ? 'AI & beschikbare capaciteit' : 'Echte AI zonder externe API', 'LOKALE AI-INSTELLING');
+  paragraph(body, 'Als er geen serverprovider is ingesteld, draait StoreCrew lokaal in je browser. Er is dan geen Google-, OpenRouter- of andere API-key nodig. Je projectgeheugen blijft op dit apparaat.');
+  const card = el('div', 'dialog-card'); card.append(el('h3', '', session.ai.configured ? 'Huidige serververbinding' : 'Lokale AI klaarzetten'));
+  if (session.ai.configured) paragraph(card, session.ai.providers.map(p => p.name + ' · ' + p.model).join('\n'), 'wrap-text');
+  else { paragraph(card, localAISupported() ? `Model: ${LOCAL_MODEL}. De eerste start downloadt het model in je browsercache. Daarna kun je zonder API-key blijven verfijnen.` : 'Dit apparaat meldt geen WebGPU. Open de studio op een recente desktopbrowser om de lokale AI te starten.', ''); paragraph(card, 'De AI ontvangt alleen je actuele ontwerp, merkbrief, recente berichten en geïmporteerde catalogus in deze browser. Er wordt geen serverfallback of regelmotor gebruikt.', ''); }
+  body.append(card);
+  paragraph(body, 'Lokale AI is gratis, maar het model kan op een telefoon langzamer zijn en vraagt een eenmalige download. Als je later overal dezelfde snelle generatie wilt, kun je alsnog een serverprovider toevoegen.');
+  const actions = el('div', 'dialog-actions'); body.append(actions);
+  if (!session.ai.configured) action(actions, localAIReady ? 'Lokale AI is klaar' : 'Lokale AI starten', async b => { if (localAIReady) return; b.textContent = 'Model laden…'; setBusy(true); try { await localEngine(); notify('Lokale AI is klaar. Schrijf nu je ontwerpverzoek.'); $('dialog').close(); } finally { setBusy(false); } }, true);
+  if (session.ai.configured) link(actions, 'Render-instellingen ↗', 'https://dashboard.render.com/web/srv-dapu4io473hc73c98h3g/env');
+  action(actions, 'Status opnieuw controleren', async () => { session = await api('/api/session'); updateCapacity(); setupDialog(); });
+}
+function memoryDialog() { const body = openDialog('Je bewaarde merkbrief', 'GESPREKSGEHEUGEN'); body.append(el('div', 'memory-copy', project.memory || 'Je AI-merkbrief wordt na het eerste geslaagde ontwerp opgebouwd. Vertel je doelgroep, stijl, taal en wat absoluut behouden moet blijven.')); paragraph(body, 'Het volledige gesprek en alle versies staan op dit apparaat. De AI krijgt je actuele ontwerp, merkbrief en de laatste 40 berichten. Download een projectkopie om op een ander apparaat verder te gaan.'); const actions = el('div', 'dialog-actions'); body.append(actions); action(actions, 'Projectkopie downloaden', backup); }
+async function historyDialog() { const body = openDialog('Elke richting blijft bewaard.', 'VERSIEGESCHIEDENIS'); paragraph(body, 'Kies een versie om verder te werken. Je andere ontwerpen blijven bewaard.'); const list = el('div', 'history-list'); body.append(list); project.versions.forEach((v, i) => { const item = el('button', 'history-item' + (i === project.current ? ' current' : '')); const left = el('span', '', `V${String(i + 1).padStart(2, '0')} · ${v.design.brand}`); left.append(el('small', '', `${v.label} · ${new Date(v.at).toLocaleString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`)); item.append(left, el('span', '', i === project.current ? 'Actief' : 'Herstel ↗')); item.disabled = busy; item.onclick = async () => { project.current = i; project.memory = v.memory || ''; approval = null; renderProject(); await save(); $('dialog').close(); await loadPreview('/'); notify('Versie ' + (i + 1) + ' hersteld.'); }; list.prepend(item); }); const actions = el('div', 'dialog-actions'); body.append(actions); action(actions, 'Nieuw project beginnen', () => $('newProject').click()); if (db) { const projects = await dbAction('readonly', s => s.getAll()); projects.filter(p => p.id !== project.id).forEach(p => action(actions, 'Open ' + p.name, async () => { if (busy) return; await save(); project = p; approval = null; await save(); await refreshProjects(); renderProject(); await loadPreview('/'); $('dialog').close(); })); } }
+async function shopDialog() {
+  const body = openDialog('Jouw producten. Jouw winkel.', 'SHOPIFY-KOPPELING');
+  paragraph(body, 'Autoriseer je winkel om producten, afbeeldingen en collecties te importeren. De koppeling leest je catalogus. Een thema toevoegen vraagt daarna een aparte goedkeuring.');
+  if (!session.shopify.configured) { const card = el('div', 'dialog-card warning'); card.append(el('h3', '', 'De StoreCrew-app moet nog worden ingesteld')); paragraph(card, 'Voeg SHOPIFY_API_KEY (Client ID) en SHOPIFY_API_SECRET toe op Render. Registreer onderstaande callback bij dezelfde Shopify-app.', ''); card.append(el('code', '', location.origin + '/auth/shopify/callback')); paragraph(card, 'Voor import is read_products voldoende. De Shopify-verbinding in ChatGPT verleent deze website geen toegang.', ''); body.append(card); }
+  if (session.shopify.connected) {
+    const row = el('div', 'connection-line'); row.append(el('span', '', 'Gekoppeld'), el('strong', '', session.shopify.shop)); body.append(row);
+    const actions = el('div', 'dialog-actions'); body.append(actions); action(actions, project.catalog.products.length ? 'Catalogus opnieuw importeren' : 'Producten importeren', async b => { b.textContent = 'Producten ophalen…'; const result = await api('/api/shopify/import', {}); project.catalog = result.catalog; project.cart = []; approval = null; session.shopify.scopes = result.scopes; await save(); await loadPreview(); await shopDialog(); notify(`${result.catalog.products.length} producten en ${result.catalog.collections.length} collecties geïmporteerd.`); }, true);
+    action(actions, 'Verbinding verbreken', async () => { await api('/api/shopify/disconnect', {}); session.shopify.connected = false; session.shopify.uploadAvailable = false; await shopDialog(); });
+  } else {
+    const label = el('label', 'dialog-label', 'Je .myshopify.com-winkeladres'); label.htmlFor = 'shopDomain'; const input = el('input', 'dialog-input'); input.id = 'shopDomain'; input.placeholder = 'jouw-winkel.myshopify.com'; input.value = project.catalog.shop || ''; input.autocapitalize = 'none'; input.spellcheck = false; body.append(label, input);
+    const actions = el('div', 'dialog-actions'); body.append(actions); const b = action(actions, 'Veilig verbinden met Shopify ↗', async () => { await save(); const result = await api('/api/shopify/connect', { shop: input.value }); location.assign(result.url); }, true); b.disabled = !session.shopify.configured;
+    if (!session.shopify.configured) link(actions, 'App instellen in Render ↗', 'https://dashboard.render.com/web/srv-dapu4io473hc73c98h3g/env');
+  }
+  if (project.catalog.products.length) { paragraph(body, `${project.catalog.products.length} producten · ${project.catalog.collections.length} collecties · ${project.catalog.currency}${project.catalog.partial ? ' · Gedeeltelijke import' : ''}`, 'catalog-details'); const list = el('div', 'product-list'); for (const p of project.catalog.products.slice(0, 12)) { const item = el('div', 'product-item'); if (/^https:\/\//.test(p.image)) { const img = el('img'); img.src = p.image; img.alt = p.title; item.append(img); } const caption = el('div', '', p.title); caption.append(el('span', '', (p.price / 100).toLocaleString('nl-NL', { style: 'currency', currency: project.catalog.currency }))); item.append(caption); list.append(item); } body.append(list); }
+  const note = el('div', 'dialog-card'); note.append(el('h3', '', 'Thema rechtstreeks toevoegen')); paragraph(note, 'Dit vereist write_themes én een door Shopify goedgekeurde Theme API-uitzondering voor jouw app. StoreCrew maakt uitsluitend een nieuw ongepubliceerd concept aan. ZIP-export is ook zonder die toegang beschikbaar.', ''); body.append(note);
+}
+async function reviewDialog() {
+  if (busy || !digest) return;
+  const body = openDialog('Klaar voor de volgende stap?', 'BEOORDEEL DEZE VERSIE');
+  paragraph(body, `Je beoordeelt versie ${project.current + 1} van ${snapshot().design.brand}. Het ZIP-bestand wordt uit dezelfde Liquid-bestanden opgebouwd als dit voorbeeld.`);
+  if (warnings.length) { const card = el('div', 'dialog-card warning'); card.append(el('h3', '', 'Nog controleren')); const list = el('ul'); warnings.forEach(w => list.append(el('li', '', w))); card.append(list); body.append(card); }
+  paragraph(body, 'Controleer mobiel, productvarianten en je teksten. Shopify-checkout, apps, Markets en pagina-inhoud uit je winkel worden pas in een echt Shopify-concept volledig zichtbaar.', 'preview-notice');
+  const approved = approval?.digest === digest && approval.expiresAt > Date.now();
+  if (!approved) {
+    const label = el('label', 'review-check'); const check = el('input'); check.type = 'checkbox'; check.id = 'approveCheck'; label.append(check, el('span', '', 'Ik heb deze versie bekeken en keur dit ontwerp goed voor export.')); body.append(label);
+    const actions = el('div', 'dialog-actions'); body.append(actions); const b = action(actions, 'Dit ontwerp goedkeuren', async () => { approval = await api('/api/approve', { ...payload(), digest, confirm: true }); await reviewDialog(); }, true); b.disabled = true; check.onchange = () => b.disabled = !check.checked; return;
+  }
+  const status = el('div', 'dialog-card'); status.append(el('h3', '', '✓ Deze versie is goedgekeurd')); paragraph(status, 'Een wijziging aan het ontwerp of de catalogus vraagt opnieuw om goedkeuring.', ''); body.append(status);
+  const actions = el('div', 'dialog-actions'); body.append(actions); action(actions, 'Download Shopify ZIP ↓', downloadTheme, true);
+  if (session.shopify.connected && session.shopify.uploadAvailable) action(actions, 'Voeg ongepubliceerd concept toe ↗', uploadDialog);
+  else action(actions, 'Shopify-koppeling bekijken', shopDialog);
+  const steps = el('div', 'dialog-card'); steps.append(el('h3', '', 'ZIP in Shopify gebruiken')); const list = el('ol'); ['Open Online store → Themes → Add theme → Upload ZIP.', 'Bekijk het nieuwe ongepubliceerde thema en controleer je echte producten.', 'De merk- en contactpagina werken als themavarianten, zonder bestaande pagina’s te wijzigen.', 'Publiceer zelf in Shopify wanneer je tevreden bent.'].forEach(s => list.append(el('li', '', s))); steps.append(list); body.append(steps);
+  if (session.shopify.connected) link(body, 'Open mijn themabibliotheek ↗', `https://${session.shopify.shop}/admin/themes`);
+}
+function downloadFile(blob, filename) { const url = URL.createObjectURL(blob), a = el('a'); a.href = url; a.download = filename; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000); }
+async function downloadTheme() { const response = await api('/api/export', { ...payload(), approval: approval.approval }, true); downloadFile(await response.blob(), 'storecrew-' + snapshot().design.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.zip'); notify('Je Shopify-thema is gedownload.'); }
+async function uploadDialog() {
+  const body = openDialog('Een nieuw Shopify-concept', 'EXPLICIETE GOEDKEURING'); paragraph(body, `StoreCrew voegt deze versie als nieuw, ongepubliceerd thema toe aan ${session.shopify.shop}.`);
+  const checkLabel = el('label', 'review-check'), check = el('input'); check.type = 'checkbox'; checkLabel.append(check, el('span', '', 'Ik geef toestemming om dit nieuwe ongepubliceerde thema aan mijn winkel toe te voegen.')); body.append(checkLabel);
+  const actions = el('div', 'dialog-actions'); body.append(actions);
+  const button = action(actions, 'Nieuw concept toevoegen', async b => { b.textContent = 'Shopify verwerkt je concept…'; const result = await api('/api/shopify/upload', { ...payload(), approval: approval.approval, confirmUpload: true }); try { const done = await poll(result.jobId); const panel = openDialog('Je concept staat in Shopify.', 'ONGEPUBLICEERD'); paragraph(panel, done.theme.name); const row = el('div', 'dialog-actions'); panel.append(row); link(row, 'Bekijk Shopify-concept ↗', done.previewUrl); link(row, 'Open thema-editor ↗', done.adminUrl); } catch (e) { if (e.partial?.adminUrl) link(body, 'Controleer de themabibliotheek ↗', e.partial.adminUrl); throw e; } }, true); button.disabled = true; check.onchange = () => button.disabled = !check.checked;
+}
+function parityDialog() { const body = openDialog('Eén ontwerp. Eén themabron.', 'PREVIEW & EXPORT'); paragraph(body, 'StoreCrew compileert één set Shopify Liquid-bestanden. Het live voorbeeld rendert precies deze bestanden met je geïmporteerde productgegevens. De ZIP bevat dezelfde set, gecontroleerd met een bestandshash.'); paragraph(body, 'De preview gebruikt een momentopname van de catalogus. Shopify gebruikt actuele winkeldata. Checkout, Shopify-apps, Markets, belastingen en platformcode kunnen in Shopify extra inhoud of gedrag toevoegen. Controleer daarom altijd het ongepubliceerde Shopify-concept vóór publicatie.'); body.append(el('div', 'dialog-card wrap-text', 'Bronversie: ' + digest.slice(0, 16))); }
+async function backup() { const copy = clone(project); delete copy.pendingJob; downloadFile(new Blob([JSON.stringify(copy, null, 2)], { type: 'application/json' }), 'storecrew-' + snapshot().design.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-project.json'); }
+async function moveSection(from, to) { if (busy) return; const d = clone(snapshot().design); [d.sections[from], d.sections[to]] = [d.sections[to], d.sections[from]]; await addVersion(d, 'Secties verplaatst'); }
+function showView(view) { document.querySelector('.studio').dataset.view = view; document.querySelectorAll('[data-view]').forEach(b => { if (b.tagName !== 'BUTTON') return; b.classList.toggle('active', b.dataset.view === view); b.setAttribute('aria-pressed', String(b.dataset.view === view)); }); }
+async function navigate(route) { if (!/^\/(?!\/)/.test(route)) { notify('Externe links controleer je na upload in Shopify.'); return; } await loadPreview(route); await save(); }
+window.addEventListener('message', async event => {
+  if (event.source !== $('preview').contentWindow || event.origin !== 'null' || !event.data || typeof event.data !== 'object') return;
+  try {
+    const m = event.data;
+    if (m.type === 'storecrew:navigate' && typeof m.url === 'string') return navigate(m.url);
+    if (m.type !== 'storecrew:form' || !Array.isArray(m.data)) return;
+    const data = Object.fromEntries(m.data);
+    if (m.action === '/cart/add') { const id = String(data.id || ''); if (!project.catalog.products.some(p => p.variants.some(v => v.id === id && v.available))) return notify('Dit product is niet beschikbaar in de geïmporteerde catalogus.'); const quantity = Math.min(99, Math.max(1, Number(data.quantity) || 1)), line = project.cart.find(i => i.id === id); if (line) line.quantity = Math.min(99, line.quantity + quantity); else project.cart.push({ id, quantity }); await navigate('/cart'); notify('Toegevoegd aan je preview-winkelmand.'); }
+    else if (m.action === '/cart') { if (m.submit === 'checkout') return notify('Afrekenen werkt in Shopify. In dit voorbeeld wordt geen bestelling geplaatst.'); const quantities = m.data.filter(([k]) => k === 'updates[]').map(([, v]) => Math.min(99, Math.max(0, Number(v) || 0))); project.cart = project.cart.map((line, i) => ({ ...line, quantity: quantities[i] ?? line.quantity })).filter(line => line.quantity > 0); await navigate('/cart'); }
+    else if (m.action === '/search') await navigate('/search?q=' + encodeURIComponent(String(data.q || '').slice(0, 150)));
+    else notify('Dit is een formuliercontrole. Vanuit de preview wordt geen bericht verzonden.');
+  } catch (e) { notify(e.message, true); }
+});
+$('send').onclick = send;
+$('pastePrompt').onclick = async () => { const input = $('prompt'); try { if (!navigator.clipboard?.readText) throw Error('Gebruik lang indrukken in het tekstveld om te plakken.'); const pasted = await navigator.clipboard.readText(); if (!pasted) return notify('Je klembord bevat geen tekst.'); const room = Math.max(0, 6000 - input.value.length); input.value = input.value + pasted.slice(0, room); input.dispatchEvent(new Event('input', { bubbles: true })); input.focus(); notify('Tekst geplakt.'); } catch { input.focus(); notify('Houd het tekstveld ingedrukt en kies Plak.'); } };
+$('prompt').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } };
+let draftTimer; $('prompt').oninput = () => { if (!project) return; project.draft = $('prompt').value; clearTimeout(draftTimer); draftTimer = setTimeout(save, 500); };
+document.querySelectorAll('[data-prompt]').forEach(b => b.onclick = () => { $('prompt').value = b.dataset.prompt; $('prompt').focus(); project.draft = b.dataset.prompt; save(); });
+$('chatTab').onclick = () => { $('chatPanel').hidden = false; $('designPanel').hidden = true; $('chatTab').setAttribute('aria-selected', 'true'); $('designTab').setAttribute('aria-selected', 'false'); };
+$('designTab').onclick = () => { $('chatPanel').hidden = true; $('designPanel').hidden = false; $('chatTab').setAttribute('aria-selected', 'false'); $('designTab').setAttribute('aria-selected', 'true'); populateDesign(); };
+$('applyDesign').onclick = async () => { try { const d = clone(snapshot().design); d.brand = $('brandName').value.trim() || d.brand; d.tokens.background = $('bgColor').value; d.tokens.accent = $('accentColor').value; d.tokens.text = $('textColor').value; d.tokens.headingFont = $('headingFont').value; const hero = d.sections.find(s => s.type === 'hero'); if (hero) hero.title = $('heroTitle').value; await addVersion(d, 'Handmatig verfijnd'); notify('Wijzigingen bewaard als nieuwe versie.'); } catch (e) { notify(e.message, true); } };
+$('aiStatus').onclick = setupDialog; $('activateAI').onclick = setupDialog; $('briefOpen').onclick = memoryDialog; $('historyOpen').onclick = historyDialog; $('shopOpen').onclick = shopDialog; $('mobileShop').onclick = shopDialog; $('reviewOpen').onclick = reviewDialog; $('parityInfo').onclick = parityDialog;
+$('closeDialog').onclick = () => $('dialog').close(); $('dialog').addEventListener('click', e => { if (e.target === $('dialog') && e.clientX < $('dialog').getBoundingClientRect().left) $('dialog').close(); });
+$('desktop').onclick = () => { $('previewFrame').classList.remove('mobile'); $('desktop').classList.add('active'); $('mobile').classList.remove('active'); $('desktop').setAttribute('aria-pressed', 'true'); $('mobile').setAttribute('aria-pressed', 'false'); };
+$('mobile').onclick = () => { $('previewFrame').classList.add('mobile'); $('mobile').classList.add('active'); $('desktop').classList.remove('active'); $('mobile').setAttribute('aria-pressed', 'true'); $('desktop').setAttribute('aria-pressed', 'false'); };
+$('refreshPreview').onclick = () => loadPreview(); $('expandPreview').onclick = () => document.body.classList.toggle('expanded');
+$('pageSelect').onchange = () => { let route = $('pageSelect').value; if (route === 'product') { if (!project.catalog.products.length) { notify('Importeer eerst je producten via Shopify.'); updateRouteSelect(project.route || '/'); return; } route = '/products/' + project.catalog.products[0].handle; } navigate(route); };
+document.querySelectorAll('button[data-view]').forEach(b => b.onclick = () => showView(b.dataset.view));
+$('newProject').onclick = () => { const body = openDialog('Een nieuw idee beginnen?'); paragraph(body, 'Je huidige project blijft op dit apparaat bewaard. Je kunt het later terugvinden in de projectkeuze.'); const actions = el('div', 'dialog-actions'); body.append(actions); action(actions, 'Nieuw project maken', async () => { await save(); project = makeProject(); project.name = 'Nieuw ontwerp'; approval = null; await save(); await refreshProjects(); renderProject(); await loadPreview('/'); $('dialog').close(); }, true); };
+$('projects').onchange = async () => { if (busy) return; await save(); project = await dbAction('readonly', s => s.get($('projects').value)); approval = null; await save(); renderProject(); await loadPreview(); };
+$('backup').onclick = backup;
+$('restore').onchange = async e => { const file = e.target.files[0]; if (!file) return; try { if (file.size > 25000000) throw Error('Dit projectbestand is te groot.'); const p = JSON.parse(await file.text()); if (p.format !== 'storecrew-project-v2' || !Array.isArray(p.versions) || !p.versions.length || !p.versions[p.current]?.design || !Array.isArray(p.history)) throw Error('Dit is geen geldig StoreCrew-project.'); const result = await api('/api/preview', { design: p.versions[p.current].design, catalog: p.catalog, route: '/' }); if (!result.digest) throw Error('Het ontwerp is niet geldig.'); await save(); p.id = crypto.randomUUID(); p.pendingJob = undefined; p.cart = []; p.route = '/'; project = p; approval = null; await save(); await refreshProjects(); renderProject(); await loadPreview(); notify('Project teruggezet.'); } catch (error) { notify(error.message, true); } finally { e.target.value = ''; } };
+async function boot() {
+  try {
+    session = await api('/api/session'); updateCapacity();
+    try { db = await openDB(); const id = localStorage.getItem('storecrew-current-v2'); if (id) project = await dbAction('readonly', s => s.get(id)); } catch { db = null; }
+    if (!project) { project = makeProject(); try { const old = JSON.parse(localStorage.getItem('storecrew-free-ai') || 'null'); if (old?.versions?.length) { const raw = old.versions.at(-1), d = project.versions[0].design; d.brand = raw.brand || d.brand; d.language = raw.language || d.language; d.tokens.background = raw.bg || d.tokens.background; d.tokens.text = raw.ink || d.tokens.text; d.tokens.accent = raw.accent || d.tokens.accent; const hero = d.sections[0]; hero.title = raw.hero || hero.title; hero.text = raw.subtitle || hero.text; hero.buttonLabel = raw.cta || hero.buttonLabel; hero.image = ''; project.versions[0].label = 'Bestaand project overgenomen'; project.name = d.brand; project.history = (old.messages || []).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: String(m.text || '') })); } } catch {} }
+    renderProject(); await save(); await refreshProjects(); await loadPreview();
+    if (project.pendingJob) finishGeneration(project.pendingJob);
+    if (new URLSearchParams(location.search).get('shopify') === 'connected') { history.replaceState(null, '', '/'); await shopDialog(); notify('Shopify verbonden. Je kunt nu je producten importeren.'); }
+  } catch (e) { $('previewLoading').lastElementChild.textContent = 'StoreCrew kon niet verbinden. Ververs de pagina.'; $('aiStatus').textContent = 'Niet verbonden'; $('saveStatus').textContent = 'Niet verbonden'; notify(e.message, true); }
+}
+boot();
