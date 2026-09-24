@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonFitness Traffic Machine</title>
+<style>
+:root{--b:#090b0e;--p:#12161b;--p2:#171c22;--l:#28303a;--t:#f6f8fa;--m:#96a0ad;--a:#d8ff52}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#08090c,#11161c);color:var(--t);font:14px Inter,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}.side{padding:22px 16px;border-right:1px solid var(--l);background:#090b0edb;position:sticky;top:0;height:100vh}.brand{font-size:21px;font-weight:900;letter-spacing:-.04em}.tag{font-size:12px;color:var(--m);margin:6px 0 22px}.nav{display:grid;gap:7px}.nav button,.btn{border:1px solid var(--l);background:var(--p2);color:#fff;padding:10px 12px;border-radius:11px;font-weight:800;cursor:pointer}.nav button{border:0;text-align:left;background:transparent}.nav button.on,.nav button:hover{background:var(--p2)}.btn.a{background:var(--a);color:#0a0c0f;border-color:var(--a)}.main{padding:26px;max-width:1250px;width:100%}.eye{color:var(--a);font-size:11px;font-weight:900;letter-spacing:.12em}.h1{font-size:32px;font-weight:900;letter-spacing:-.04em;margin:5px 0 4px}.muted{color:var(--m)}.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.card{background:linear-gradient(180deg,var(--p),#0d1014);border:1px solid var(--l);border-radius:18px;padding:17px}.metric{font-size:30px;font-weight:900;letter-spacing:-.04em}.hero{background:radial-gradient(circle at 90% 10%,#d8ff5222,transparent 35%),var(--p);border:1px solid #34404d;border-radius:20px;padding:22px}.hero h2{font-size:27px;margin:7px 0}.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.space{display:flex;justify-content:space-between;gap:10px;align-items:center}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#20262e;color:#dbe0e6;font-size:11px;font-weight:800}.pill.a{background:var(--a);color:#0a0c0f}.task{border:1px solid var(--l);border-radius:14px;background:#0d1014;padding:14px}.task.done{opacity:.52}.body{white-space:pre-wrap;color:#dbe0e6;line-height:1.5;margin:9px 0 11px}.field{display:grid;gap:6px}.field label{color:var(--m);font-size:12px;font-weight:700}.field input,.field select,.field textarea{background:#0b0e12;border:1px solid var(--l);color:white;border-radius:10px;padding:10px;width:100%}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;border-bottom:1px solid var(--l);text-align:left;font-size:12px}.table th{color:var(--m)}.notice{padding:12px;border:1px solid #3a4654;background:#101720;border-radius:12px;color:#cfe0f7}.score{font-size:23px;font-weight:900}.bar{height:9px;background:#252c35;border-radius:99px;overflow:hidden}.bar span{display:block;height:100%;background:var(--a)}.mobile{display:none}.hide{display:none}
+@media(max-width:820px){.app{grid-template-columns:1fr}.side{display:none}.main{padding:16px 12px 76px}.g4,.g2{grid-template-columns:1fr 1fr}.mobile{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;bottom:0;left:0;right:0;background:#0a0c0f;border-top:1px solid var(--l);z-index:9}.mobile button{border:0;background:transparent;color:#b9c1cc;padding:11px 4px;font-size:10px;font-weight:800}.mobile button.on{color:var(--a)}}
+@media(max-width:560px){.g4,.g2{grid-template-columns:1fr}.h1{font-size:27px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(function(){
+var KEY='sf-traffic-lite-v1';
+var products=[
+{id:'push',name:'Foldable Push-Up Board',price:29.95,score:8.5},
+{id:'bands',name:'5-Level Resistance Bands Set',price:24.95,score:8.4},
+{id:'ring',name:'Pilates Resistance Ring',price:18.95,score:8.0},
+{id:'hand',name:'Rechargeable Handheld Massager',price:36.63,score:7.8},
+{id:'calf',name:'Pulse Calf & Leg Massager',price:49.20,score:7.0}
+];
+var creators=[
+['@homegymhannah','Instagram','Home workouts'],['@pushupdaily','TikTok','Calisthenics'],['@apartmentathlete','TikTok','Small-space fitness'],['@thebandworkout','Instagram','Resistance bands'],['@pilateswithnoor','Instagram','Pilates']
+];
+var hooks=[
+'You do not need a gym membership for this upper-body workout.',
+'My whole home gym fits under the couch.',
+'30 days of this before I judge whether it works.',
+'Small apartment. Zero machines. Still training.',
+'If you only have 10 minutes, do this exact routine.',
+'The beginner mistake that kills your push-up progress.',
+'One product, four movements, six minutes.'
+];
+var state;
+try{state=Object.assign({view:'today',focus:'push',tasks:{},links:[],logs:[],creators:creators.map(function(x,i){return{id:i,h:x[0],p:x[1],n:x[2],s:'New'}})},JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){state={view:'today',focus:'push',tasks:{},links:[],logs:[],creators:[]}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function q(s){return document.querySelector(s)} function qa(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
+function esc(s){return String(s||'').replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
+function p(){return products.filter(function(x){return x.id===state.focus})[0]||products[0]}
+function today(){return new Date().toISOString().slice(0,10)}
+function key(id){return today()+'|'+state.focus+'|'+id}
+function task(id,title,text){var st=state.tasks[key(id)]||'open';return '<div class="task '+(st==='done'?'done':'')+'"><div class="space"><span class="pill">'+title+'</span><span class="muted">'+st+'</span></div><div class="body">'+esc(text)+'</div><div class="row"><button class="btn" data-copy="'+id+'">Copy</button><button class="btn" data-done="'+id+'">Done</button><button class="btn" data-skip="'+id+'">Skip</button></div></div>'}
+function tasks(){
+var x=p(),h=hooks[(new Date().getDate()+products.indexOf(x))%hooks.length];
+return[
+['h1','Short video hook',h+' '+x.name+'.'],
+['h2','Second hook','€'+x.price.toFixed(0)+' vs another month of a gym you do not use. Show '+x.name+' in the first 2 seconds.'],
+['ig','Instagram caption','Four positions. One compact setup. Zero gym commute.\\n\\n'+x.name+' is for quick home sessions when consistency matters more than complexity.\\n\\nSave this and hit the link in bio.\\n\\n#homeworkout #homegym #fitnessathome #simonfitness'],
+['tt','TikTok caption','no gym, no problem 🏠 '+x.name+' + 6 minutes #homeworkout #fitnesstok #homegym'],
+['dm','Creator DM','Hey — I like your practical fitness content. I run SimonFitness and would like to gift you our '+x.name+'. No posting obligation. If it genuinely fits your content, a short demo would be great. Interested?'],
+['seo','SEO action','Create one useful page targeting a clear buyer question around '+x.name+'. Add 5 FAQs and link it back to the product page.'],
+['community','Community action','Answer 3 real home-fitness questions today with useful advice. Do not drop a store link unless the community rules allow it.']
+]}
+function shell(body,title,sub){
+var nav=[['today','Today'],['focus','Product Focus'],['outreach','Creators'],['links','Traffic Links'],['score','Scoreboard']];
+var n=nav.map(function(x){return '<button data-nav="'+x[0]+'" class="'+(state.view===x[0]?'on':'')+'">'+x[1]+'</button>'}).join('');
+return '<div class="app"><aside class="side"><div class="brand">SimonFitness</div><div class="tag">Traffic Machine · Turn products into daily traffic actions.</div><div class="nav">'+n+'</div><div class="card" style="margin-top:22px"><b>Live baseline</b><div class="muted" style="margin-top:6px">816 sessions / 30d<br>5 social sessions<br>~6/day recently<br>0 completed checkouts observed</div></div></aside><main class="main"><div class="eye">ORGANIC TRAFFIC SYSTEM</div><div class="h1">'+title+'</div><div class="muted" style="margin-bottom:18px">'+sub+'</div>'+body+'</main></div><div class="mobile">'+nav.slice(0,4).map(function(x){return '<button data-nav="'+x[0]+'" class="'+(state.view===x[0]?'on':'')+'">'+x[1]+'</button>'}).join('')+'</div>'
+}
+function vToday(){
+var t=tasks(),done=t.filter(function(x){return state.tasks[key(x[0])]==='done'}).length;
+var html='<div class="hero"><span class="pill a">TODAY</span><h2>Do the work that creates distribution.</h2><p class="muted">Your first bottleneck is acquisition: only 5 social sessions in 30 days. Publish and outreach before obsessing over conversion.</p><div class="row"><span class="pill">'+done+'/'+t.length+' done</span><button class="btn a" id="resetToday">Reset today</button></div></div><div class="grid g4" style="margin-top:14px"><div class="card"><div class="muted">30d sessions</div><div class="metric">816</div></div><div class="card"><div class="muted">Social</div><div class="metric">5</div></div><div class="card"><div class="muted">Recent/day</div><div class="metric">6</div></div><div class="card"><div class="muted">Checkout</div><div class="metric">0</div></div></div><div class="grid" style="margin-top:14px">'+t.map(function(x){return task(x[0],x[1],x[2])}).join('')+'</div>';
+return shell(html,'Today','One focused sprint every day: publish, distribute, measure.')
+}
+function vFocus(){
+var html='<div class="notice">Keep one primary focus product for 7–14 days so you repeatedly promote the same offer instead of spreading attention across the full catalog.</div><div class="grid g2" style="margin-top:14px">'+products.map(function(x){return '<div class="card"><div class="space"><div><b>'+esc(x.name)+'</b><div class="muted">€'+x.price.toFixed(2)+'</div></div><div class="score">'+x.score.toFixed(1)+'</div></div><div class="bar" style="margin:13px 0"><span style="width:'+(x.score*10)+'%"></span></div><button class="btn '+(state.focus===x.id?'a':'')+'" data-focus="'+x.id+'">'+(state.focus===x.id?'Current focus':'Make focus')+'</button></div>'}).join('')+'</div>';
+return shell(html,'Product Focus','A working traffic score based on demo value, clarity, price friction and repeatable content.')
+}
+function vOutreach(){
+var html='<div class="grid g2"><div class="card"><div class="muted">Daily goal</div><div class="metric">20</div><div class="muted">personalized messages</div></div><div class="card"><div class="muted">Contacted</div><div class="metric">'+state.creators.filter(function(c){return c.s!=='New'}).length+'</div></div></div><div class="card" style="margin-top:14px"><table class="table"><thead><tr><th>Creator</th><th>Platform</th><th>Niche</th><th>Status</th><th>DM</th></tr></thead><tbody>'+state.creators.map(function(c){return '<tr><td>'+esc(c.h)+'</td><td>'+esc(c.p)+'</td><td>'+esc(c.n)+'</td><td><select data-c="'+c.id+'"><option>New</option><option '+(c.s==='Contacted'?'selected':'')+'>Contacted</option><option '+(c.s==='Replied'?'selected':'')+'>Replied</option><option '+(c.s==='Posted'?'selected':'')+'>Posted</option></select></td><td><button class="btn" data-cdm="'+c.id+'">Copy DM</button></td></tr>'}).join('')+'</tbody></table></div>';
+return shell(html,'Creator Outreach','Micro-creators can create both traffic and reusable UGC. Keep outreach human and personalized.')
+}
+function utm(base,s,m,c,k){try{var u=new URL(base);u.searchParams.set('utm_source',s);u.searchParams.set('utm_medium',m);u.searchParams.set('utm_campaign',c);u.searchParams.set('utm_content',k);return u.toString()}catch(e){return''}}
+function vLinks(){
+var html='<div class="grid g2"><div class="card"><div class="field"><label>Destination</label><input id="base" value="https://simonfitness-store.myshopify.com"></div><div class="field"><label>Source</label><input id="source" value="instagram"></div><div class="field"><label>Medium</label><input id="medium" value="social"></div><div class="field"><label>Campaign</label><input id="campaign" value="organic-traffic"></div><div class="field"><label>Content</label><input id="content" value="bio"></div><div class="notice" id="out" style="margin:10px 0"></div><div class="row"><button class="btn a" id="saveLink">Save</button><button class="btn" id="copyLink">Copy</button></div></div><div class="card"><b>Rule</b><p class="muted">Give Instagram bio, TikTok, Pinterest, creators and communities different UTM content values. Repeat channels that send clicks, not just views.</p></div></div><div class="card" style="margin-top:14px"><b>Saved tracked links</b><div style="margin-top:8px">'+(state.links.length?state.links.map(function(l,i){return '<div class="task"><div class="space"><span>'+esc(l.source)+' / '+esc(l.content)+'</span><button class="btn" data-lcopy="'+i+'">Copy</button></div><div class="muted" style="word-break:break-all;margin-top:7px">'+esc(l.url)+'</div></div>'}).join(''):'<span class="muted">No links saved yet.</span>')+'</div></div>';
+return shell(html,'Traffic Links','Track where every visitor came from.')
+}
+function vScore(){
+var clicks=state.logs.reduce(function(a,x){return a+(x.clicks||0)},0),posts=state.logs.reduce(function(a,x){return a+(x.posts||0)},0),outreach=state.logs.reduce(function(a,x){return a+(x.outreach||0)},0);
+var html='<div class="grid g4"><div class="card"><div class="muted">Tracked clicks</div><div class="metric">'+clicks+'</div></div><div class="card"><div class="muted">Posts logged</div><div class="metric">'+posts+'</div></div><div class="card"><div class="muted">Outreach logged</div><div class="metric">'+outreach+'</div></div><div class="card"><div class="muted">Baseline social sessions</div><div class="metric">5</div></div></div><div class="grid g2" style="margin-top:14px"><div class="card"><h3>Current bottleneck</h3><div class="metric" style="color:var(--a)">Acquisition</div><p class="muted">You need more qualified visitors before conversion data is meaningful. Target: first get consistent 50–100 tracked social visits/week.</p></div><div class="card"><h3>Log today's work</h3><div class="field"><label>Posts published</label><input type="number" id="lp" value="0"></div><div class="field"><label>Creator outreach sent</label><input type="number" id="lo" value="0"></div><div class="field"><label>Tracked clicks</label><input type="number" id="lc" value="0"></div><button class="btn a" id="log" style="margin-top:9px">Save today</button></div></div><div class="notice" style="margin-top:14px"><b>Weekly rule:</b> if a post format or creator produces 2× your normal tracked clicks, remake that format within 72 hours with a new hook.</div>';
+return shell(html,'Scoreboard','Measure traffic actions and repeat what produces clicks.')
+}
+function render(){var fn={today:vToday,focus:vFocus,outreach:vOutreach,links:vLinks,score:vScore}[state.view]||vToday;q('#root').innerHTML=fn();bind();if(state.view==='links')update()}
+function bind(){
+qa('[data-nav]').forEach(function(b){b.onclick=function(){state.view=b.getAttribute('data-nav');save();render()}});
+qa('[data-focus]').forEach(function(b){b.onclick=function(){state.focus=b.getAttribute('data-focus');save();render()}});
+qa('[data-copy]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-copy'),x=tasks().filter(function(t){return t[0]===id})[0];navigator.clipboard.writeText(x[2])}});
+qa('[data-done]').forEach(function(b){b.onclick=function(){state.tasks[key(b.getAttribute('data-done'))]='done';save();render()}});
+qa('[data-skip]').forEach(function(b){b.onclick=function(){state.tasks[key(b.getAttribute('data-skip'))]='skipped';save();render()}});
+if(q('#resetToday'))q('#resetToday').onclick=function(){tasks().forEach(function(t){delete state.tasks[key(t[0])]});save();render()};
+qa('[data-c]').forEach(function(s){s.value=(state.creators.filter(function(c){return String(c.id)===s.getAttribute('data-c')})[0]||{}).s||'New';s.onchange=function(){var c=state.creators.filter(function(x){return String(x.id)===s.getAttribute('data-c')})[0];c.s=s.value;save();render()}});
+qa('[data-cdm]').forEach(function(b){b.onclick=function(){var txt=tasks().filter(function(t){return t[0]==='dm'})[0][2];navigator.clipboard.writeText(txt)}});
+['base','source','medium','campaign','content'].forEach(function(id){if(q('#'+id))q('#'+id).oninput=update});
+if(q('#saveLink'))q('#saveLink').onclick=function(){var x=current();state.links.push(x);save();render()};
+if(q('#copyLink'))q('#copyLink').onclick=function(){navigator.clipboard.writeText(current().url)};
+qa('[data-lcopy]').forEach(function(b){b.onclick=function(){navigator.clipboard.writeText(state.links[+b.getAttribute('data-lcopy')].url)}});
+if(q('#log'))q('#log').onclick=function(){state.logs.push({date:today(),posts:+q('#lp').value,outreach:+q('#lo').value,clicks:+q('#lc').value});save();render()}
+}
+function current(){return{source:q('#source').value,medium:q('#medium').value,campaign:q('#campaign').value,content:q('#content').value,url:utm(q('#base').value,q('#source').value,q('#medium').value,q('#campaign').value,q('#content').value)}}
+function update(){if(q('#out'))q('#out').textContent=current().url||'Enter a valid URL'}
+render()
+})();
+</script>
+</body>
+</html>
