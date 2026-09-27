@@ -1,0 +1,37 @@
+name: SimonFitness Store Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 5 * * *"
+  push:
+    branches:
+      - simonfitness-traffic-machine
+    paths:
+      - ".github/workflows/simonfitness-store-audit.yml"
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Unlighthouse
+        run: npm install -g @unlighthouse/cli puppeteer
+
+      - name: Audit simonfitness.store
+        run: unlighthouse-ci --site https://simonfitness.store --build-static --reporter jsonExpanded --output-path .unlighthouse
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simonfitness-unlighthouse-report
+          path: .unlighthouse
+          if-no-files-found: warn
+          retention-days: 14
