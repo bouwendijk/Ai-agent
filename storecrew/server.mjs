@@ -17,6 +17,9 @@ export function createApp({ env = process.env, fetcher = fetch, logger = console
   const shopifyConfigured = !!(env.SHOPIFY_API_KEY && env.SHOPIFY_API_SECRET && (env.STORECREW_SESSION_SECRET || env.SESSION_SECRET)?.length >= 32 && secure);
   const uploadEnabled = env.SHOPIFY_THEME_UPLOAD_ENABLED === '1';
   const jobs = new Map(), previews = new Map(), uploads = new Map(), usedStates = new Map(), themeCache = new Map(), renderCache = new Map();
+  const webhookPathToken = String(env.SHOPIFY_WEBHOOK_PATH_TOKEN || '');
+  const expectedShop = String(env.SHOPIFY_EXPECTED_SHOP || '').toLowerCase();
+  const recentShopifyEvents = [];
   const ipGate = rateGate(160), generationGate = rateGate(6), previewGate = rateGate(60);
   const clean = () => { for (const map of [jobs, previews, uploads, usedStates]) for (const [key, value] of map) if (value.exp < Date.now()) map.delete(key); };
   const cleanup = setInterval(clean, 60000); cleanup.unref();
@@ -28,7 +31,27 @@ export function createApp({ env = process.env, fetcher = fetch, logger = console
   async function handle(req, res) {
     safeHeaders(res); const u = new URL(req.url, origin), route = u.pathname;
     try {
-      if (route === '/health') return json(res, 200, { ok: true, version: VERSION, aiConfigured: ai.stats().configured, shopifyConfigured, themeSource: 'shared-liquid', commit: env.RENDER_GIT_COMMIT?.slice(0, 12) || 'local' });
+      if (route === '/health') return json(res, 200, { ok: true, version: VERSION, aiConfigured: ai.stats().configured, shopifyConfigured, webhookBusConfigured: !!(webhookPathToken && expectedShop), themeSource: 'shared-liquid', commit: env.RENDER_GIT_COMMIT?.slice(0, 12) || 'local' });
+      if (webhookPathToken && route === `/api/shopify/events/${webhookPathToken}` && req.method === 'POST') {
+        const shop = String(req.headers['x-shopify-shop-domain'] || '').toLowerCase();
+        if (!expectedShop || shop !== expectedShop) throw new AppError(403, 'SHOP_MISMATCH', 'Unexpected Shopify shop');
+        let bytes = 0; for await (const chunk of req) { bytes += chunk.length; if (bytes > 1000000) throw new AppError(413, 'TOO_LARGE', 'Request too large'); }
+        const event = {
+          topic: String(req.headers['x-shopify-topic'] || 'unknown').slice(0, 100),
+          eventId: String(req.headers['x-shopify-event-id'] || '').slice(0, 120),
+          webhookId: String(req.headers['x-shopify-webhook-id'] || '').slice(0, 120),
+          shop,
+          bytes,
+          receivedAt: new Date().toISOString(),
+        };
+        recentShopifyEvents.unshift(event);
+        if (recentShopifyEvents.length > 100) recentShopifyEvents.length = 100;
+        logger.info(JSON.stringify({ event: 'shopify_event_received', ...event }));
+        return json(res, 200, { ok: true });
+      }
+      if (webhookPathToken && route === `/api/shopify/events/${webhookPathToken}/status` && req.method === 'GET') {
+        return json(res, 200, { ok: true, shop: expectedShop, count: recentShopifyEvents.length, recent: recentShopifyEvents.slice(0, 20) });
+      }
       if (route === '/api/shopify/webhooks' && req.method === 'POST') {
         const chunks = []; let n = 0; for await (const chunk of req) { n += chunk.length; if (n > 1000000) throw new AppError(413, 'TOO_LARGE', 'Request too large'); chunks.push(chunk); }
         if (!env.SHOPIFY_API_SECRET || !equal(createHmac('sha256', env.SHOPIFY_API_SECRET).update(Buffer.concat(chunks)).digest('base64'), req.headers['x-shopify-hmac-sha256'])) throw new AppError(401, 'HMAC_INVALID', 'Invalid signature');
