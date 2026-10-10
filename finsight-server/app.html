@@ -1603,9 +1603,18 @@ function waarStaIk() {
       ${kant != null ? rij("🏘️", "Immanuelkantstraat", kant, "toggleHh()", "aparte woning — tik om te wisselen") : ""}
     </div>
     <div class="row spread" style="border-top:1px solid var(--hair);padding:9px 2px 2px;font-size:14px"><b>Totaal bezit</b><b class="num">${euro(bezit)}</b></div>
-    ${schuld > 0 ? `
-    <div class="row spread" style="padding:7px 2px 2px;font-size:14px;cursor:pointer" onclick="go('lasten')"><span style="color:var(--ink-2)">🧾 Schuld open</span><b class="num" style="color:var(--red)">− ${euro(schuld)}</b></div>
-    <div class="row spread" style="border-top:1px solid var(--hair);margin-top:7px;padding:9px 2px 2px;font-size:15px"><b>Netto positie</b><b class="num" style="color:${netto < 0 ? "var(--red)" : "var(--green)"}">${euroS(netto)}</b></div>` : ""}
+    ${(() => {
+      const doelen = (state.config.goals || []).filter((g) => g.saved > 0);
+      const opzij = doelen.reduce((a, g) => a + g.saved, 0);
+      const vrij = bezit - opzij - schuld;
+      return `
+      ${doelen.length
+        ? `<div class="row spread" style="padding:7px 2px 2px;font-size:14px;cursor:pointer;flex-wrap:nowrap" onclick="go('doelen')"><span style="color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🎯 Opzij in ${doelen.length === 1 ? `potje "${esc(doelen[0].name)}"` : doelen.length + " potjes"}</span><b class="num" style="color:var(--orange);white-space:nowrap">− ${euro(opzij)}</b></div>`
+        : `<div class="row spread" style="padding:7px 2px 2px;font-size:13.5px;cursor:pointer" onclick="openGoal()"><span style="color:var(--blue)">🎯 ＋ Maak een potje (bijv. Verhuizing)</span><span class="chev">›</span></div>`}
+      ${schuld > 0 ? `<div class="row spread" style="padding:7px 2px 2px;font-size:14px;cursor:pointer" onclick="go('lasten')"><span style="color:var(--ink-2)">🧾 Schuld open</span><b class="num" style="color:var(--red)">− ${euro(schuld)}</b></div>` : ""}
+      ${schuld > 0 || opzij > 0 ? `<div class="row spread" style="border-top:1px solid var(--hair);margin-top:7px;padding:9px 2px 2px;font-size:15px"><b>${opzij > 0 ? "Vrij besteedbaar" : "Netto positie"}</b><b class="num" style="color:${(opzij > 0 ? vrij : netto) < 0 ? "var(--red)" : "var(--green)"}">${euroS(opzij > 0 ? vrij : netto)}</b></div>` : ""}
+      ${opzij > 0 && schuld > 0 ? `<p class="muted" style="margin:2px 2px 4px;font-size:11.5px">Netto positie (bezit − schuld): <b class="num">${euroS(netto)}</b> · potjes tellen als gereserveerd</p>` : ""}`;
+    })()}
   </div>`;
 }
 function txRow(t) {
@@ -1800,6 +1809,11 @@ function periodeKolommen(mode, stats) {
   const today = new Date();
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const cols = [];
+  if (mode === "jaar") {
+    const jaren = [...new Set(allTx().map((t) => t.date.slice(0, 4)))].sort().slice(-6);
+    if (!jaren.length) jaren.push(String(today.getFullYear()));
+    return jaren.map((y) => ({ key: y, label: y, from: y + "-01-01", to: y + "-12-31" }));
+  }
   if (mode === "maand")
     return stats.slice(-6).map((s) => ({ key: s.month, label: MONTH_NAMES[+s.month.slice(5) - 1], from: s.month + "-01", to: s.month + "-31", m: s.month }));
   if (mode === "week") {
@@ -1838,13 +1852,13 @@ function inzichtA(stats) {
   const curIn = inc[cur.key] || 0, curUit = uit[cur.key] || 0, netto = curIn - curUit;
   const maxUit = Math.max(1, ...cols.map((c) => uit[c.key] || 0));
   const spark = cols.length > 1 ? `<div class="sparkA">${cols.map((c, i) => `<i class="${i === cols.length - 1 ? "hi" : ""}" style="height:${Math.max(9, Math.round((uit[c.key] || 0) / maxUit * 100))}%"></i>`).join("")}</div>` : "";
-  const perLabel = mode === "maand" ? maandNaam(cur.m) : mode === "week" ? `deze week (${datum(cur.from)} – ${datum(cur.to)})` : "vandaag";
+  const perLabel = mode === "jaar" ? cur.label : mode === "maand" ? maandNaam(cur.m) : mode === "week" ? `deze week (${datum(cur.from)} – ${datum(cur.to)})` : "vandaag";
   const rijen = Object.entries(per).map(([id, p]) => ({
     id, cat: id === "_none" ? null : catById(id), m: p.m,
     cur: p.m[cur.key] || 0, prev: prev ? p.m[prev.key] || 0 : 0, n: p.n[cur.key] || 0,
     tot: Object.values(p.m).reduce((a, b) => a + b, 0),
   })).sort((a, b) => (b.cur - a.cur) || (b.tot - a.tot));
-  const eenheid = mode === "maand" ? "deze maand" : mode === "week" ? "deze week" : "vandaag";
+  const eenheid = mode === "jaar" ? "dit jaar" : mode === "maand" ? "deze maand" : mode === "week" ? "deze week" : "vandaag";
   const kaart = (r) => {
     const c = r.cat;
     const mx = Math.max(1, ...cols.map((x) => r.m[x.key] || 0));
@@ -1877,7 +1891,7 @@ function inzichtA(stats) {
   <div class="card" style="padding:4px 14px"><div class="rows">
     ${rijen.length ? rijen.map(kaart).join("") : '<p class="muted" style="padding:14px 2px">Geen uitgaven in deze periode.</p>'}
   </div></div>
-  ${cols.length > 1 ? `<p class="muted" style="text-align:center;margin:-2px 0 10px;font-size:12px">Staafjes = laatste ${cols.length} ${mode === "maand" ? "maanden" : mode === "week" ? "weken" : "dagen"} · blauw = nu · tik ↓ uit voor alle transacties</p>` : ""}`;
+  ${cols.length > 1 ? `<p class="muted" style="text-align:center;margin:-2px 0 10px;font-size:12px">Staafjes = laatste ${cols.length} ${mode === "jaar" ? "jaren" : mode === "maand" ? "maanden" : mode === "week" ? "weken" : "dagen"} · blauw = nu · tik ↓ uit voor alle transacties</p>` : ""}`;
 }
 
 function viewInzicht() {
@@ -1900,7 +1914,7 @@ function viewInzicht() {
   if (perCat[0]?.cat) tips.push([perCat[0].cat.glyph, `Grootste uitgavenpost deze maand: ${perCat[0].cat.name} (${euro(perCat[0].total)}).`]);
   return `
   <div><h1 class="page">Inzichten</h1><div class="sub">${state.hh ? "🏘️ Immanuelkantstraat" : maandNaam(month)}</div></div>
-  <div class="segA">${[["dag","Dag"],["week","Week"],["maand","Maand"]].map(([k, l]) => `<button class="${(state.hbMode || "maand") === k ? "on" : ""}" onclick="state.hbMode='${k}';render()">${l}</button>`).join("")}</div>
+  <div class="segA">${[["dag","Dag"],["week","Week"],["maand","Maand"],["jaar","Jaar"]].map(([k, l]) => `<button class="${(state.hbMode || "maand") === k ? "on" : ""}" onclick="state.hbMode='${k}';render()">${l}</button>`).join("")}</div>
   ${inzichtA(stats)}
   <div class="card">
     <div class="row spread"><h2>Vermogensverloop</h2><span class="pill num" style="font-size:12px">${net >= 0 ? "+" : "−"}${euro(Math.abs(Math.round(net)))}/mnd</span></div>
