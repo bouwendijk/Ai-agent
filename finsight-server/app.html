@@ -272,6 +272,12 @@ const CATS_DEFAULT = [
   { id: "gezondheid", name: "Gezondheid", color: "#ff453a", glyph: "💊", kind: "expense", budget: 10000 },
   { id: "sport", name: "Sport & kickboksen", color: "#ff6482", glyph: "🥊", kind: "expense", budget: null },
   { id: "werk", name: "Werk & zakelijk", color: "#5856d6", glyph: "💼", kind: "expense", budget: null },
+  { id: "vakantie", name: "Vakantie & reizen", color: "#00c7be", glyph: "🏖️", kind: "expense", budget: null },
+  { id: "uitjes", name: "Uitjes & entertainment", color: "#e0567f", glyph: "🎢", kind: "expense", budget: null },
+  { id: "cadeaus", name: "Cadeaus & bloemen", color: "#ff9500", glyph: "🎁", kind: "expense", budget: null },
+  { id: "goededoel", name: "Goede doelen", color: "#c0564f", glyph: "❤️", kind: "expense", budget: null },
+  { id: "bankkosten", name: "Bankkosten & rente", color: "#7a869a", glyph: "🏦", kind: "expense", budget: null },
+  { id: "onderwijs", name: "Onderwijs & cursus", color: "#2f9e60", glyph: "🎓", kind: "expense", budget: null },
   { id: "sparen", name: "Sparen", color: "#30d158", glyph: "🐷", kind: "expense", budget: null },
   { id: "overig", name: "Overig", color: "#8e8e93", glyph: "🏷️", kind: "expense", budget: null },
   { id: "kluis", name: "Kluis-opname", color: "#64748b", glyph: "💶", kind: "expense", budget: null },
@@ -289,11 +295,20 @@ const DICT = {
   kinderen: ["kinderopvang","bso ","basisschool","schoolgeld","intertoys","speelgoed","prenatal","babywinkel"],
   huisdieren: ["dierenarts","dierenwinkel","pets place","zooplus","dierenvriend","dierenkliniek","trimsalon"],
   internet: ["ziggo","kpn","odido","t-mobile","vodafone","lebara","simyo","youfone"],
-  vervoer: ["ns ","ns-","ns.nl","ov-chipkaart","ovpay","gvb","ret ","htm","shell","bp ","esso","total","tango","fastned","q-park","q park","qpark","parkeren","parking","anwb","swapfiets","felyx","gulf","avia","tinq","texaco","firezone","tankstation","pompstation","argos","autowas","air-serv","uber"],
+  vervoer: ["ns ","ns-","ns.nl","ov-chipkaart","ovpay","gvb","ret ","htm","shell","bp ","esso","total","tango","fastned","q-park","q park","qpark","parkeren","parking","anwb","swapfiets","felyx","gulf","avia ","tinq","texaco","firezone","tankstation","pompstation","argos","autowas","air-serv","uber"],
   abos: ["netflix","spotify","disney","videoland","hbo","prime","youtube premium","apple.com/bill","icloud","playstation","xbox","nintendo","duolingo","storytel","audible","viaplay","nent","google play","microsoft","lovable","myfamio"],
   uiteten: ["thuisbezorgd","ubereats","uber eats","deliveroo","dominos","mcdonald","burger king","kfc","subway","restaurant","cafe","bar ","starbucks","la place","bram ladage","broodje","snackwall","snack","cafetaria","kwalitaria","febo","doner","kebab","shoarma","pizzeria","pizza","cuisine","lunchroom","eetcafe","bistro","sushi","poke","simit","valinso","colosseum","zorgboulevard"],
   sport: ["kickboks","boks","sportschool","basic-fit","basic fit","sportcity","trainmore","fit for free","sportverenig","sportclub","zwemcentrum","zwembad","dojo","padel","voetbalver","judo","gym"],
   werk: ["karwei","gamma","praxis","hornbach","bouwmaat","toolstation","technische unie","hubo","boels","stiho","bouwmarkt","verfwinkel","shopify"],
+  /* wijst naar Brian's eigen label "Persoonlijk verzorging"; bestaat dat label
+     niet (verse installatie), dan slaat autoCat deze regel veilig over. */
+  "persoonlijk-verzorgi": ["kapper","kapsalon","barber","haarstudio","nagelstudio","nagels","beautysalon","schoonheids","pedicure","manicure","wellness","massage","zonnebank","tattoo"],
+  vakantie: ["booking.com","airbnb","hotel","hostel","transavia","ryanair","easyjet","klm ","vueling","wizz air","tui ","sunweb","corendon","camping","vakantiepark","center parcs","landal","roompot","vliegtic"],
+  uitjes: ["bioscoop","pathe","pathé","kinepolis","vue ","efteling","walibi","slagharen","toverland","duinrell","pretpark","dierentuin","blijdorp","artis","bowling","gamestate","escape room","lasergame","karten","museum","ticketmaster","eventim","concert","festival","theater","casino","holland casino"],
+  cadeaus: ["cadeau","giftcard","bloemen","bloemist","fleurop","greetz","hallmark","kadowinkel"],
+  goededoel: ["donatie","rode kruis","kwf","hartstichting","unicef","giro555","war child","artsen zonder grenzen","dierenbescherming","collecte"],
+  bankkosten: ["bunq bv","bankkosten","debetrente","creditrente","kosten betaalrekening","kosten tweede"],
+  onderwijs: ["cursus","opleiding","duo ","studiefinanc","udemy","coursera","examengeld","rijles","rijschool","cbr "],
   verzekeringen: ["zilveren kruis","vgz","cz ","menzis","dsw","ohra","centraal beheer","interpolis","nationale nederlanden","asr ","univé","unive","fbto","ditzo","verzekering"],
   winkelen: ["bol.com","bol ","coolblue","amazon","wehkamp","mediamarkt","action","hema","blokker","ikea","decathlon","kwantum","leen bakker"],
   gezondheid: ["kruidvat","etos","trekpleister","apotheek","huisarts","tandarts","fysio"],
@@ -1029,6 +1044,13 @@ function simDebt(v) {
 
 /* ========== AI-labelen: herkennen, vragen bij twijfel, nieuwe labels ========== */
 const KLEUR_POOL = ["#0a84ff","#ff9f0a","#30d158","#bf5af2","#ff375f","#64d2ff","#ffd60a","#5e5ce6","#ff453a","#40c8e0","#ac8e68","#8e8e93"];
+/* Slimme emoji-kiezer: nieuw label zonder gekozen icoontje krijgt automatisch
+   een passend plaatje op basis van de naam. */
+const EMOJI_GIDS = [["verzorg","💇"],["kapper","💇"],["kapsalon","💇"],["nagel","💅"],["beauty","💅"],["vakantie","🏖️"],["reis","✈️"],["reizen","✈️"],["rook","🚬"],["roken","🚬"],["tabak","🚬"],["sigaret","🚬"],["vape","💨"],["auto","🚗"],["fiets","🚲"],["scooter","🛵"],["kind","🧸"],["baby","🍼"],["hond","🐕"],["kat","🐈"],["dier","🐾"],["game","🎮"],["gam","🎮"],["muziek","🎵"],["boek","📚"],["school","🎓"],["cursus","🎓"],["studie","🎓"],["kleding","👕"],["schoen","👟"],["cadeau","🎁"],["feest","🎉"],["verjaardag","🎂"],["bier","🍺"],["drank","🍻"],["wijn","🍷"],["koffie","☕"],["sport","🏋️"],["boks","🥊"],["voetbal","⚽"],["zwem","🏊"],["vissen","🎣"],["werk","💼"],["zakelijk","💼"],["eten","🍽️"],["lunch","🥪"],["snack","🍟"],["partner","❤️"],["liefde","❤️"],["maria","❤️"],["gok","🎰"],["loterij","🎟️"],["bioscoop","🎬"],["film","🎬"],["telefoon","📱"],["energie","💡"],["huis","🏠"],["tuin","🌱"],["klus","🔧"],["medic","💊"],["zorg","🩺"],["abonnement","🔁"],["spaar","🐷"],["belasting","🧾"],["bank","🏦"],["doneer","❤️"],["goed doel","❤️"],["uitje","🎢"],["entertainment","🎭"]];
+function raadGlyph(naam) {
+  const n = naam.toLowerCase();
+  return EMOJI_GIDS.find(([k]) => n.includes(k))?.[1] || "🏷️";
+}
 function addCategory(name, kind, glyph) {
   name = String(name || "").trim();
   if (!name) return null;
@@ -1037,7 +1059,7 @@ function addCategory(name, kind, glyph) {
   let id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 20) || "label";
   if (state.config.cats.some((c) => c.id === id)) id = id + "-" + uid().slice(0, 4);
   state.config.cats.push({ id, name, color: KLEUR_POOL[state.config.cats.length % KLEUR_POOL.length],
-    glyph: (glyph || "🏷️").slice(0, 4), kind: kind || "expense", budget: null });
+    glyph: (glyph || raadGlyph(name)).slice(0, 4), kind: kind || "expense", budget: null });
   saveConfig();
   return id;
 }
