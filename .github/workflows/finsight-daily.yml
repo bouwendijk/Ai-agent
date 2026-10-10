@@ -1,0 +1,45 @@
+name: FinSight dagrapport
+
+on:
+  schedule:
+    - cron: "49 5 * * *"   # dagelijks ~07:49 NL-tijd (05:49 UTC in de zomer)
+  workflow_dispatch: {}      # ook handmatig te starten via de Actions-tab
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  rapport:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bunq-apparaatregistratie cachen
+        uses: actions/cache@v4
+        with:
+          path: ~/.finsight
+          key: bunq-context-v1
+
+      - name: Dependencies installeren
+        run: pip install -r finsight/requirements.txt
+
+      - name: Rapport maken
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BUNQ_API_KEY: ${{ secrets.BUNQ_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python -m finsight.report
+
+      - name: Rapport bewaren als artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finsight-rapport
+          path: rapport.md
+          if-no-files-found: ignore
