@@ -1,0 +1,15 @@
+{
+  "_uitleg": "Kopieer dit bestand naar lasten.json en vul je echte cijfers in. lasten.json staat in .gitignore zodat je financiële gegevens nooit in git belanden.",
+  "vaste_lasten_per_maand": [
+    { "naam": "Huur", "bedrag": 1000.0, "wie": "Brian" },
+    { "naam": "Zorgverzekering", "bedrag": 150.0, "wie": "Brian" },
+    { "naam": "Boodschappen (budget)", "bedrag": 600.0, "wie": "gezamenlijk" }
+  ],
+  "inkomsten_per_maand": [
+    { "naam": "Salaris", "bedrag": 2500.0, "wie": "Brian" }
+  ],
+  "schulden": [
+    { "schuldeiser": "Belastingdienst IB 2024", "open": 10000.0, "status": "geen regeling" },
+    { "schuldeiser": "Gemeente", "open": 600.0, "status": "direct te betalen" }
+  ]
+}
