@@ -151,7 +151,10 @@ label.fl { display: grid; gap: 6px; font-size: 12.5px; color: var(--ink-2); font
   position: fixed; inset-inline: 0; bottom: 0; z-index: 30;
   background: var(--chrome); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
   border-top: 1px solid var(--hair);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* max(): in Safari is de safe-area soms 0, dan houden de labels alsnog lucht
+     tot de schermrand; translateZ dwingt een eigen laag af tegen scroll-flikker. */
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
+  transform: translateZ(0);
 }
 #tabbar .in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; }
 #tabbar button {
