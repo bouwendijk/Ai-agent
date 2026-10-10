@@ -52,6 +52,29 @@ def to_markdown(r: dict) -> str:
     return "\n".join(md) + "\n"
 
 
+def push_melding(r: dict) -> None:
+    """Pushmelding naar je telefoon via ntfy (zet NTFY_TOPIC als secret;
+    installeer de gratis ntfy-app en abonneer je daar op hetzelfde topic)."""
+    topic = os.getenv("NTFY_TOPIC")
+    if not topic or "error" in r:
+        return
+    mr = r.get("maandruimte") or {}
+    acties = r.get("acties") or []
+    regel1 = f"Score {r.get('score', '?')}/10 · ruimte € {mr.get('ruimte', 0):,.0f}/mnd"
+    regel2 = f"Vandaag: {acties[0]['actie']}" if acties else ""
+    try:
+        resp = requests.post(
+            f"https://ntfy.sh/{topic}",
+            data=(regel1 + ("\n" + regel2 if regel2 else "")).encode("utf-8"),
+            headers={"Title": "FinSight dagrapport", "Tags": "moneybag",
+                     "Priority": "high" if isinstance(r.get("score"), (int, float)) and r["score"] < 5 else "default"},
+            timeout=15,
+        )
+        print("Pushmelding:", "verzonden" if resp.ok else f"mislukt (HTTP {resp.status_code})")
+    except requests.RequestException as e:
+        print("Pushmelding mislukt:", e)
+
+
 def maak_issue(md: str) -> None:
     token, repo = os.getenv("GITHUB_TOKEN"), os.getenv("GITHUB_REPOSITORY")
     if not token or not repo:
@@ -88,11 +111,13 @@ def main() -> None:
     if accounts:
         summary["huidige_saldi"] = [{"rekening": a["naam"], "saldo": a["saldo"]} for a in accounts]
 
-    md = to_markdown(agent.analyze(summary, lasten))
+    rapport = agent.analyze(summary, lasten)
+    md = to_markdown(rapport)
     with open("rapport.md", "w", encoding="utf-8") as f:
         f.write(md)
     print(md)
     maak_issue(md)
+    push_melding(rapport)
 
 
 if __name__ == "__main__":

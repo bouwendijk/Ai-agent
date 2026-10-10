@@ -34,6 +34,7 @@ jobs:
           BUNQ_API_KEY: ${{ secrets.BUNQ_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: python -m finsight.report
 
       - name: Rapport bewaren als artifact
