@@ -340,7 +340,7 @@ const maandNaam = (ym) => { const [y,m] = ym.split("-"); return ["januari","febr
 const vandaag = () => new Date().toISOString().slice(0,10);
 const dezeMaand = () => vandaag().slice(0,7);
 const uid = () => Math.random().toString(36).slice(2,10);
-const allTxAll = () => Object.values(state.months).flat().sort((a,b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+const allTxAll = () => Object.values(state.months).flat().sort((a,b) => a.date < b.date ? 1 : a.date > b.date ? -1 : (b.tijd || "").localeCompare(a.tijd || ""));
 // Alle schermen kijken alleen naar de actieve administratie (privé of Kantstraat):
 const allTx = () => state.hh ? allTxAll().filter((t) => t.hh === state.hh) : allTxAll().filter((t) => !t.hh);
 const catById = (id) => state.config?.cats.find((c) => c.id === id) || null;
@@ -720,7 +720,7 @@ function openTx(txId) {
       <div class="grab"></div>
       <div class="row" style="gap:13px;margin-bottom:4px">${cicon(c, 50)}
         <div style="min-width:0;flex:1"><h3 style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.payee)}</h3>
-        <div class="muted">${datumL(t.date)}${t.desc ? " · " + esc(t.desc) : ""}</div></div>
+        <div class="muted">${datumL(t.date)}${t.tijd ? " om " + t.tijd : ""}${t.desc ? " · " + esc(t.desc) : ""}</div></div>
         <div class="tamt ${t.amount > 0 ? "in" : ""}" style="font-size:17px">${euroS(t.amount)}</div></div>
       <h2 style="margin:16px 0 10px">Categorie</h2>
       ${catPicker("t-cat", t.amount < 0 ? "expense" : "income", t.cat || "")}
@@ -1607,7 +1607,12 @@ function waarStaIk() {
       ${rij("🏦", "Bank", bank, "openCalibrate()")}
       ${rij("💶", "Cash-kluis", kluis, "openKluis()")}
       ${rij("🐷", "Spaarpot", spaar, "openSpaar()")}
-      ${kant != null ? rij("🏘️", "Immanuelkantstraat", kant, "toggleHh()", "aparte woning — tik om te wisselen") : ""}
+      ${kant != null ? rij("🏘️", "Immanuelkantstraat", kant, "toggleHh()", "aparte woning — tik om te wisselen")
+        : `<div class="trow" style="padding:9px 2px" onclick="toggleHh()">
+            <span style="font-size:19px;width:30px;text-align:center;flex:none">🏘️</span>
+            <div class="tmain"><div class="tname" style="font-size:14.5px">Immanuelkantstraat</div><div class="tsub">aparte woning — tik om te wisselen ⇄</div></div>
+            <span class="muted" style="font-size:12.5px">nog leeg</span>
+            <span class="chev" style="color:var(--ink-3)">›</span></div>`}
     </div>
     <div class="row spread" style="border-top:1px solid var(--hair);padding:9px 2px 2px;font-size:14px"><b>Totaal bezit</b><b class="num">${euro(bezit)}</b></div>
     ${(() => {
@@ -1627,7 +1632,7 @@ function waarStaIk() {
 function txRow(t) {
   const c = catById(t.cat);
   return `<div class="trow" onclick="openTx('${t.id}')">${cicon(c, 42)}
-    <div class="tmain"><div class="tname">${esc(t.payee)}</div><div class="tsub">${t.acc === "cash" ? "💶 cash · " : t.acc === "spaar" ? "🐷 spaarpot · " : ""}${datum(t.date)} · ${esc(c?.name || "Tik om te categoriseren")}</div></div>
+    <div class="tmain"><div class="tname">${esc(t.payee)}</div><div class="tsub">${t.acc === "cash" ? "💶 cash · " : t.acc === "spaar" ? "🐷 spaarpot · " : ""}${datum(t.date)}${t.tijd ? " " + t.tijd : ""} · ${esc(c?.name || "Tik om te categoriseren")}</div></div>
     <div class="tamt num ${t.amount > 0 ? "in" : ""}">${euroS(t.amount)}</div></div>`;
 }
 function drill(catId, month) {
@@ -2323,7 +2328,7 @@ function importCsv(input) {
 /* ========== render & boot ========== */
 function render() {
   const hb = $("#hhbtn");
-  if (hb) { hb.textContent = state.hh ? "🏘️ Kantstraat" : "🏠 Privé"; hb.classList.toggle("kant", !!state.hh); }
+  if (hb) { hb.textContent = state.hh ? "🏘️ Kantstraat ⇄" : "🏠 Privé ⇄"; hb.classList.toggle("kant", !!state.hh); }
   document.querySelectorAll("#tabbar button[data-tab]").forEach((b) => {
     const t = b.dataset.tab;
     b.classList.toggle("on", state.tab === t || (t === "meer" && ["doelen","abos","budget","meer","lasten"].includes(state.tab)));
@@ -2401,6 +2406,7 @@ async function serverSync(force) {
   const have = {};
   for (const t of allTxAll()) { const k = t.date + "|" + t.amount + "|" + t.payee; have[k] = (have[k] || 0) + 1; }
   const inF = {}; const dirty = new Set(); let nieuw = 0;
+  const zonderLabel = [];
   for (const r of d.rows || []) {
     if (r.iban !== FS_IBANS.hoofd && r.iban !== FS_IBANS.spaar) continue;
     const k = r.date + "|" + r.amount + "|" + r.payee;
@@ -2408,17 +2414,27 @@ async function serverSync(force) {
     if (inF[k] <= (have[k] || 0)) continue;
     const ym = r.date.slice(0, 7);
     const t = { id: uid(), date: r.date, amount: r.amount, payee: r.payee, desc: r.desc || "" };
+    if (r.time) t.tijd = r.time;
     if (r.iban === FS_IBANS.spaar) { t.acc = "spaar"; t.cat = "potje"; t.desc = t.desc || "Mijn Doel 5000"; }
     else {
       t.cat = autoCat(r.payee, r.desc || "", r.amount);
       if (!t.cat && r.payee === "B. Ouwendijk" && r.amount < 0 && r.amount >= -100) t.cat = "potje";
+      if (!t.cat && r.amount < 0) zonderLabel.push(r.payee);
     }
     (state.months[ym] = state.months[ym] || []).push(t);
     dirty.add(ym); nieuw++;
   }
   for (const ym of dirty) saveMonth(ym);
-  if (nieuw) { render(); toast(`🔄 ${nieuw} nieuwe transacties van bunq opgehaald.`); }
+  // Nieuwe onbekende winkels? Meteen vragen — zo leert de app het snelst.
+  let vragen = 0;
+  if (zonderLabel.length) {
+    const q = state.config.review = state.config.review || [];
+    for (const p of [...new Set(zonderLabel)]) if (!q.some((x) => x.payee === p)) { q.push({ payee: p, n: zonderLabel.filter((x) => x === p).length }); vragen++; }
+    if (vragen) saveConfig();
+  }
+  if (nieuw) { render(); toast(`🔄 ${nieuw} nieuwe van bunq${vragen ? ` · ${vragen} ${vragen === 1 ? "vraag" : "vragen"} voor jou` : ""}.`); }
   else if (force) toast("✓ Alles was al bij.");
+  if (vragen) openReview();
 }
 
 async function boot() {

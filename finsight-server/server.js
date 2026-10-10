@@ -82,6 +82,40 @@ app.get("/api/bunq/rows", auth, async (req, res) => {
   catch (e) { res.json({ error: String(e.message || e), rows: [] }); }
 });
 
+// Pushmelding-check: wordt elk uur aangeroepen door een externe wekker (GitHub
+// Actions), vergelijkt live bunq met de database en stuurt een ntfy-push naar
+// de telefoon bij nieuwe transacties die nog niet in de app staan.
+app.get("/api/notify-check", auth, async (_req, res) => {
+  try {
+    if (!process.env.BUNQ_API_KEY || !process.env.NTFY_TOPIC)
+      return res.json({ ok: false, reden: "BUNQ_API_KEY of NTFY_TOPIC ontbreekt op de server" });
+    const out = await new BunqClient(process.env.BUNQ_API_KEY, store).rows(3);
+    const docs = await store.list("months");
+    const have = {};
+    for (const d of docs) for (const t of d.data.txs || []) { const k = t.date + "|" + t.amount + "|" + t.payee; have[k] = (have[k] || 0) + 1; }
+    const inF = {};
+    const nieuw = [];
+    for (const r of out.rows) {
+      const k = r.date + "|" + r.amount + "|" + r.payee;
+      inF[k] = (inF[k] || 0) + 1;
+      if (inF[k] > (have[k] || 0)) nieuw.push(r);
+    }
+    const meldbaar = nieuw.filter((r) => r.amount < 0 && r.payee !== "B. Ouwendijk");
+    if (meldbaar.length) {
+      const namen = [...new Set(meldbaar.map((r) => r.payee))].slice(0, 3).join(", ");
+      const som = meldbaar.reduce((a, r) => a + -r.amount, 0);
+      await fetch("https://ntfy.sh/" + process.env.NTFY_TOPIC, {
+        method: "POST",
+        headers: { Title: "FinSight: nieuwe uitgaven", Tags: "moneybag", Click: "https://finsight-013x.onrender.com/" },
+        body: `${meldbaar.length} nieuwe (samen € ${(som / 100).toFixed(2)}): ${namen}. Open FinSight — onbekende winkels vraagt hij je meteen te labelen.`,
+      });
+    }
+    res.json({ ok: true, nieuw: nieuw.length, gemeld: meldbaar.length });
+  } catch (e) {
+    res.json({ ok: false, error: String(e.message || e) });
+  }
+});
+
 // De app zelf: één HTML-bestand, ingepakt in een pagina-skelet.
 const appHtml = `<!doctype html>
 <html lang="nl">

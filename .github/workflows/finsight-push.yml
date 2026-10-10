@@ -1,0 +1,21 @@
+# Uurlijkse wekker voor FinSight-pushmeldingen: pingt de eigen server, die
+# vergelijkt bunq met de app-database en stuurt een ntfy-push bij nieuwe
+# uitgaven. Vereist repo-secret FINSIGHT_APP_PASSWORD (het app-wachtwoord)
+# en op de Render-server de omgevingsvariabele NTFY_TOPIC.
+name: FinSight pushmelding-check
+
+on:
+  schedule:
+    - cron: "23 6-20 * * *" # elk uur overdag (UTC; NL-tijd +1/+2)
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping FinSight-server
+        run: |
+          # ruime time-out: een gratis Render-server moet soms eerst wakker worden
+          curl -sS --max-time 120 \
+            -H "Authorization: Bearer ${{ secrets.FINSIGHT_APP_PASSWORD }}" \
+            "https://finsight-013x.onrender.com/api/notify-check"

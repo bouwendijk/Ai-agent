@@ -88,6 +88,7 @@ class BunqClient {
         if (!amount) continue;
         rows.push({
           date, amount, iban,
+          time: (p.created || "").slice(11, 16) || undefined,
           payee: p.counterparty_alias?.display_name || p.counterparty_alias?.iban || "Onbekend",
           desc: (p.description || "").trim(),
         });
