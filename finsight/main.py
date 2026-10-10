@@ -19,7 +19,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from . import agent
+from . import analyse
 
 load_dotenv()
 console = Console()
@@ -133,10 +133,6 @@ def toon(rapport: dict) -> None:
 
 
 def main() -> None:
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        console.print("[red]ANTHROPIC_API_KEY ontbreekt in .env[/red]")
-        sys.exit(1)
-
     args = [a for a in sys.argv[1:]]
     vraag = None
     if len(args) >= 2:
@@ -164,8 +160,13 @@ def main() -> None:
     if accounts:
         summary["huidige_saldi"] = [{"rekening": a["naam"], "saldo": a["saldo"]} for a in accounts]
 
-    console.print("[dim]Claude analyseert…[/dim]")
-    toon(agent.analyze(summary, lasten, vraag))
+    if os.getenv("ANTHROPIC_API_KEY"):
+        from . import agent
+        console.print("[dim]Claude analyseert…[/dim]")
+        toon(agent.analyze(summary, lasten, vraag))
+    else:
+        console.print("[dim]Regelgebaseerde analyse (geen API-key nodig)…[/dim]")
+        toon(analyse.analyze(summary, lasten, vraag))
 
 
 if __name__ == "__main__":

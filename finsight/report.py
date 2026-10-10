@@ -18,7 +18,7 @@ from datetime import date
 import requests
 from dotenv import load_dotenv
 
-from . import agent
+from . import analyse
 from .main import LASTEN_PATH, aggregeer, haal_bunq, lees_csv
 
 load_dotenv()
@@ -94,10 +94,6 @@ def maak_issue(md: str) -> None:
 
 
 def main() -> None:
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        print("ANTHROPIC_API_KEY ontbreekt.")
-        sys.exit(1)
-
     if len(sys.argv) > 1 and sys.argv[1].lower().endswith(".csv"):
         tx, accounts = lees_csv(sys.argv[1]), []
     elif os.getenv("BUNQ_API_KEY"):
@@ -111,7 +107,13 @@ def main() -> None:
     if accounts:
         summary["huidige_saldi"] = [{"rekening": a["naam"], "saldo": a["saldo"]} for a in accounts]
 
-    rapport = agent.analyze(summary, lasten)
+    # Standaard: regelgebaseerde analyse, volledig standalone.
+    # Alleen mét een (optionele) ANTHROPIC_API_KEY neemt de Claude-coach het over.
+    if os.getenv("ANTHROPIC_API_KEY"):
+        from . import agent
+        rapport = agent.analyze(summary, lasten)
+    else:
+        rapport = analyse.analyze(summary, lasten)
     md = to_markdown(rapport)
     with open("rapport.md", "w", encoding="utf-8") as f:
         f.write(md)
