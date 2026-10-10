@@ -2470,7 +2470,13 @@ async function boot() {
   }
   state.loaded = true;
   render();
-  if (SRV.on) serverSync().catch((e) => console.error("bunq-sync:", e));
+  if (SRV.on) {
+    serverSync().catch((e) => console.error("bunq-sync:", e));
+    // Ook verversen wanneer de app weer in beeld komt (terug uit achtergrond).
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && state.loaded) serverSync().catch(() => {});
+    });
+  }
 }
 boot();
 </script>

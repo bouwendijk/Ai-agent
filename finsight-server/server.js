@@ -70,7 +70,7 @@ app.get("/api/bunq/rows", auth, async (req, res) => {
   if (!process.env.BUNQ_API_KEY) return res.json({ error: "Geen BUNQ_API_KEY op de server ingesteld.", rows: [] });
   const days = Math.min(400, +(req.query.days || 45) || 45);
   const force = req.query.force === "1";
-  if (bunqCache && !force && Date.now() - bunqAt < 10 * 60 * 1000) return res.json(bunqCache);
+  if (bunqCache && !force && Date.now() - bunqAt < 2 * 60 * 1000) return res.json(bunqCache);
   if (!bunqBusy) bunqBusy = (async () => {
     try {
       const out = await new BunqClient(process.env.BUNQ_API_KEY, store).rows(days);
