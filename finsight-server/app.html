@@ -1,0 +1,2459 @@
+<title>FinSight</title>
+<style>
+/* Layout: native app-shell — content scrollt achter een blur-topbar en vaste bottom-tabbar met centrale actieknop.
+   Donker, bewust single-theme (fintech): near-black grond, één elektrisch blauw accent, iOS-systeemkleuren voor geld. */
+:root {
+  --bg: #f2f2f7;
+  --bg-glow: none;
+  --card: #ffffff;
+  --card-2: #eeeef2;
+  --hair: rgba(0,0,0,0.09);
+  --grid: rgba(0,0,0,0.08);
+  --press: rgba(0,0,0,0.04);
+  --ink: #141518;
+  --ink-2: #55575e;
+  --ink-3: #8a8c93;
+  --blue: #007aff;
+  --green: #1f9e45;
+  --red: #d70015;
+  --orange: #e07b0e;
+  --chart-in: #2a78d6;
+  --chart-out: #eb6834;
+  --chrome: rgba(242,242,247,0.88);
+  --sheet: #ffffff;
+  --toastbg: #ffffff;
+  --chipon-bg: rgba(0,122,255,0.12);
+  --chipon-bd: rgba(0,122,255,0.45);
+  --chipon-ink: #0063cc;
+  --dang-bg: rgba(215,0,21,0.1);
+  --radius: 20px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --card: #1c1c1e; --card-2: #2c2c2e;
+    --hair: rgba(255,255,255,0.1); --grid: rgba(255,255,255,0.09); --press: rgba(255,255,255,0.05);
+    --ink: #ffffff; --ink-2: #aeaeb2; --ink-3: #828288;
+    --blue: #0a84ff; --green: #30d158; --red: #ff453a; --orange: #ff9f0a;
+    --chart-in: #3987e5; --chart-out: #ff9f0a;
+    --chrome: rgba(18,18,20,0.88); --sheet: #1c1c1e; --toastbg: #2c2c2e;
+    --chipon-bg: rgba(10,132,255,0.2); --chipon-bd: rgba(10,132,255,0.55); --chipon-ink: #8fc2ff;
+    --dang-bg: rgba(255,69,58,0.15);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --card: #1c1c1e; --card-2: #2c2c2e;
+  --hair: rgba(255,255,255,0.1); --grid: rgba(255,255,255,0.09); --press: rgba(255,255,255,0.05);
+  --ink: #ffffff; --ink-2: #aeaeb2; --ink-3: #828288;
+  --blue: #0a84ff; --green: #30d158; --red: #ff453a; --orange: #ff9f0a;
+  --chart-in: #3987e5; --chart-out: #ff9f0a;
+  --chrome: rgba(18,18,20,0.88); --sheet: #1c1c1e; --toastbg: #2c2c2e;
+  --chipon-bg: rgba(10,132,255,0.2); --chipon-bd: rgba(10,132,255,0.55); --chipon-ink: #8fc2ff;
+  --dang-bg: rgba(255,69,58,0.15);
+  color-scheme: dark;
+}
+* { -webkit-tap-highlight-color: transparent; }
+body {
+  background: var(--bg); color: var(--ink); margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  font-size: 15px; line-height: 1.45;
+  padding-block: 0 0;
+  background-image: var(--bg-glow); background-repeat: no-repeat;
+}
+.wrap { max-width: 640px; margin: 0 auto; padding-inline: 18px; }
+main { padding-top: 54px; padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; }
+
+/* topbar */
+#topbar {
+  position: fixed; inset-inline: 0; top: 0; z-index: 30;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--chrome); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  border-bottom: 1px solid transparent; transition: border-color 0.2s;
+}
+#topbar.scrolled { border-color: var(--hair); }
+#topbar .in { max-width: 640px; margin: 0 auto; padding: 10px 18px; display: flex; align-items: center; gap: 8px; }
+#topbar .logo { width: 24px; height: 24px; border-radius: 7px; background: var(--blue); display: grid; place-items: center; font-weight: 800; font-size: 12px; color: #fff; }
+#topbar b { font-size: 16px; letter-spacing: -0.2px; }
+#topbar .dot { width: 7px; height: 7px; border-radius: 99px; background: var(--green); margin-left: auto; }
+#topbar .dot.off { background: var(--ink-3); }
+
+/* typografie */
+h1.page { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin: 10px 0 0; }
+.sub { color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+h2 { font-size: 13px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.6px; margin: 6px 0 0; }
+.num { font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
+
+/* cards */
+.card { background: var(--card); border: 1px solid var(--hair); border-radius: var(--radius); padding: 16px; min-width: 0; }
+.hero { text-align: left; padding: 20px; }
+.hero .lbl { font-size: 13px; color: var(--ink-2); }
+.hero .big { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; margin-top: 2px; }
+.hero .chips { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; background: var(--card-2); border-radius: 99px; padding: 7px 13px; font-size: 13px; color: var(--ink-2); }
+.pill b { color: var(--ink); font-weight: 600; }
+.pill .up { color: var(--green); } .pill .down { color: var(--orange); }
+
+/* lijstrijen */
+.rows { display: grid; grid-template-columns: 100%; }
+.trow { min-width: 0; }
+.trow {
+  display: flex; align-items: center; gap: 12px; padding: 11px 2px;
+  border-top: 1px solid var(--hair); cursor: pointer; border-radius: 10px;
+}
+.rows .trow:first-child { border-top: none; }
+.trow:active { background: var(--press); }
+.cicon { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; font-size: 19px; flex: none; }
+.tmain { flex: 1; min-width: 0; }
+.tname { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tsub { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tamt { font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tamt.in { color: var(--green); }
+
+/* knoppen */
+button { font: inherit; }
+.btn {
+  background: var(--blue); color: #fff; border: none; border-radius: 14px;
+  font-size: 15px; font-weight: 600; padding: 13px 18px; cursor: pointer; width: 100%;
+  transition: transform 0.12s ease, opacity 0.12s;
+}
+.btn:active { transform: scale(0.97); opacity: 0.9; }
+.btn.sec { background: var(--card-2); color: var(--ink); border: 1px solid var(--hair); }
+.btn.dang { background: var(--dang-bg); color: var(--red); }
+.btn.sm { width: auto; padding: 8px 14px; font-size: 13px; border-radius: 11px; }
+.iconbtn { background: var(--card-2); border: 1px solid var(--hair); color: var(--ink-2); border-radius: 12px; width: 38px; height: 38px; display: grid; place-items: center; cursor: pointer; }
+
+/* chips-rij (filters) */
+.chiprow { display: flex; gap: 8px; overflow-x: auto; padding-block: 2px; scrollbar-width: none; }
+.chiprow::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; background: var(--card); border: 1px solid var(--hair); color: var(--ink-2);
+  border-radius: 99px; padding: 7px 14px; font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.chip.on { background: var(--chipon-bg); border-color: var(--chipon-bd); color: var(--chipon-ink); font-weight: 600; }
+
+/* progress */
+.bar { height: 7px; border-radius: 99px; background: var(--grid); overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 99px; transition: width 0.3s ease; }
+
+/* formulieren */
+input, select, textarea {
+  background: var(--card-2); border: 1px solid var(--hair); border-radius: 12px;
+  color: var(--ink); font: inherit; font-size: 15px; padding: 12px 14px; min-width: 0; width: 100%; box-sizing: border-box;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); }
+label.fl { display: grid; gap: 6px; font-size: 12.5px; color: var(--ink-2); font-weight: 500; }
+.formgrid { display: grid; gap: 12px; }
+.cols2 { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+
+/* bottom tabbar */
+#tabbar {
+  position: fixed; inset-inline: 0; bottom: 0; z-index: 30;
+  background: var(--chrome); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--hair);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+#tabbar .in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; }
+#tabbar button {
+  background: none; border: none; color: var(--ink-3); cursor: pointer;
+  display: grid; justify-items: center; gap: 3px; padding: 9px 0 8px; font-size: 10.5px; font-weight: 500;
+}
+#tabbar button svg { width: 23px; height: 23px; }
+#tabbar button.on { color: var(--blue); }
+#tabbar #plusbtn {
+  width: 52px; height: 52px; border-radius: 99px; border: none; cursor: pointer; padding: 0;
+  background: var(--blue); color: #fff;
+  display: grid; place-items: center; margin: -22px auto 6px;
+  box-shadow: 0 6px 18px rgba(10,132,255,0.35);
+  transition: transform 0.12s;
+}
+#tabbar #plusbtn:active { transform: scale(0.93); }
+#tabbar #plusbtn svg { width: 24px; height: 24px; }
+
+/* bottom sheets */
+dialog.sheet {
+  border: none; padding: 0; background: transparent; width: 100%; max-width: 640px;
+  margin: auto auto 0; max-height: 88vh;
+}
+dialog.sheet::backdrop { background: rgba(0,0,0,0.6); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+.sheetin {
+  background: var(--sheet); border-radius: 24px 24px 0 0; border: 1px solid var(--hair); border-bottom: none;
+  padding: 10px 20px calc(24px + env(safe-area-inset-bottom, 0px)); color: var(--ink);
+  max-height: 88vh; overflow-y: auto; box-sizing: border-box;
+}
+.grab { width: 38px; height: 4.5px; border-radius: 99px; background: rgba(120,120,128,0.35); margin: 2px auto 14px; }
+.sheetin h3 { margin: 0 0 4px; font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+@media (prefers-reduced-motion: no-preference) {
+  dialog.sheet[open] .sheetin { animation: up 0.28s cubic-bezier(0.32, 0.72, 0.28, 1); }
+  @keyframes up { from { transform: translateY(40px); opacity: 0.5; } to { transform: none; opacity: 1; } }
+}
+
+/* categorie-kiezer in sheet */
+.catgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.catopt { background: var(--card-2); border: 1.5px solid var(--hair); border-radius: 14px; padding: 10px 6px; display: grid; justify-items: center; gap: 5px; cursor: pointer; font-size: 11.5px; color: var(--ink-2); text-align: center; }
+.catopt .cicon { width: 34px; height: 34px; font-size: 16px; border-radius: 10px; }
+.catopt.on { border-color: var(--blue); background: rgba(10,132,255,0.12); color: var(--ink); }
+
+.muted { color: var(--ink-3); font-size: 13px; }
+.row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.spread { justify-content: space-between; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; color: var(--ink-3); font-weight: 500; font-size: 12px; padding-bottom: 8px; }
+td { padding-block: 9px; border-top: 1px solid var(--hair); font-variant-numeric: tabular-nums; }
+.r { text-align: right; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  background: var(--toastbg); border: 1px solid var(--hair); border-radius: 13px; padding: 11px 18px;
+  font-size: 13.5px; z-index: 50; max-width: calc(100vw - 48px); box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+.empty { text-align: center; padding: 44px 18px; }
+.empty .glyph { width: 64px; height: 64px; border-radius: 20px; background: var(--blue); display: grid; place-items: center; font-size: 30px; margin: 0 auto 16px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; font-size: 12.5px; color: var(--ink-2); }
+.dotl { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; }
+svg text { font-family: -apple-system, system-ui, sans-serif; }
+.menu-item { display: flex; align-items: center; gap: 13px; padding: 14px 2px; border-top: 1px solid var(--hair); cursor: pointer; }
+.rows .menu-item:first-child, .menu-item:first-child { border-top: none; }
+.menu-item .chev { margin-left: auto; color: var(--ink-3); }
+#hhbtn { margin-left: auto; border: 1px solid var(--hair); background: var(--card); color: var(--ink); font: inherit; font-size: 12.5px; font-weight: 600; border-radius: 99px; padding: 5px 12px; cursor: pointer; }
+#hhbtn.kant { background: rgba(255,159,10,0.14); border-color: rgba(255,159,10,0.4); color: var(--orange); }
+.heroA { background: linear-gradient(135deg, #0a84ff, #5e5ce6); border: none; color: #fff; }
+.heroA .lbl, .heroA .muted { color: rgba(255,255,255,0.75); }
+.heroA .pill { background: rgba(255,255,255,0.18); color: #fff; border: none; }
+.sparkA { display: flex; align-items: flex-end; gap: 5px; height: 32px; margin-top: 14px; }
+.sparkA i { flex: 1; max-width: 26px; border-radius: 3px 3px 0 0; background: rgba(255,255,255,0.45); display: block; min-height: 3px; }
+.sparkA i.hi { background: #fff; }
+.minibars { display: flex; align-items: flex-end; gap: 2px; height: 26px; flex: none; }
+.minibars i { width: 4px; border-radius: 2px; background: var(--hair); display: block; min-height: 2px; }
+.minibars i.hi { background: var(--blue); }
+.segA { display: flex; background: var(--card-2); border: 1px solid var(--hair); border-radius: 11px; padding: 2px; margin-bottom: 12px; }
+.segA button { flex: 1; text-align: center; padding: 7px 0; font: inherit; font-size: 13.5px; font-weight: 600; border: none; background: none; border-radius: 9px; color: var(--ink-2); cursor: pointer; }
+.segA button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.14); }
+</style>
+
+<div id="topbar"><div class="in">
+  <span class="logo">F</span><b>FinSight</b>
+  <span class="muted" style="font-size:11px;border:1px solid var(--hair);border-radius:99px;padding:2px 8px;letter-spacing:0.5px">BETA</span>
+  <button id="hhbtn" onclick="toggleHh()" title="Wissel van administratie">🏠 Privé</button>
+  <span class="dot off" id="syncdot" title="synchronisatie"></span>
+</div></div>
+
+<main class="wrap" id="main"></main>
+
+<div id="tabbar"><div class="in">
+  <button data-tab="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</button>
+  <button data-tab="inzicht"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 8-8"/><path d="M15 7h5v5"/></svg>Inzichten</button>
+  <button id="plusbtn" aria-label="Transactie toevoegen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button data-tab="tx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Transacties</button>
+  <button data-tab="meer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>Meer</button>
+</div></div>
+
+<dialog class="sheet" id="sheet"><div class="sheetin" id="sheetin"></div></dialog>
+
+<script>
+"use strict";
+/* ========== vaste data ========== */
+const CATS_DEFAULT = [
+  { id: "boodschappen", name: "Boodschappen", color: "#30d158", glyph: "🛒", kind: "expense", budget: 40000 },
+  { id: "wonen", name: "Huur & wonen", color: "#5e5ce6", glyph: "🏠", kind: "expense", budget: null },
+  { id: "energie", name: "Gas, water & licht", color: "#ffd60a", glyph: "💡", kind: "expense", budget: 20000 },
+  { id: "internet", name: "Internet & TV", color: "#64d2ff", glyph: "📶", kind: "expense", budget: null },
+  { id: "vervoer", name: "Vervoer", color: "#bf5af2", glyph: "🚗", kind: "expense", budget: 25000 },
+  { id: "abos", name: "Abonnementen", color: "#ff375f", glyph: "🔁", kind: "expense", budget: 7500 },
+  { id: "uiteten", name: "Uit eten", color: "#ff9f0a", glyph: "🍔", kind: "expense", budget: 20000 },
+  { id: "verzekeringen", name: "Verzekeringen", color: "#40c8e0", glyph: "🛡️", kind: "expense", budget: null },
+  { id: "winkelen", name: "Winkelen", color: "#ffd60a", glyph: "🛍️", kind: "expense", budget: 15000 },
+  { id: "kleding", name: "Kleding & schoenen", color: "#ff2d55", glyph: "👕", kind: "expense", budget: null },
+  { id: "belastingen", name: "Belastingen & boetes", color: "#8e8e93", glyph: "🧾", kind: "expense", budget: null },
+  { id: "kinderen", name: "Kinderen", color: "#ff9f0a", glyph: "🧸", kind: "expense", budget: null },
+  { id: "huisdieren", name: "Huisdieren", color: "#ac8e68", glyph: "🐾", kind: "expense", budget: null },
+  { id: "gezondheid", name: "Gezondheid", color: "#ff453a", glyph: "💊", kind: "expense", budget: 10000 },
+  { id: "sparen", name: "Sparen", color: "#30d158", glyph: "🐷", kind: "expense", budget: null },
+  { id: "overig", name: "Overig", color: "#8e8e93", glyph: "🏷️", kind: "expense", budget: null },
+  { id: "kluis", name: "Kluis-opname", color: "#64748b", glyph: "💶", kind: "expense", budget: null },
+  { id: "potje", name: "Potje-overboeking", color: "#8e8e93", glyph: "🔄", kind: "expense", budget: null },
+  { id: "salaris", name: "Salaris", color: "#30d158", glyph: "💼", kind: "income", budget: null },
+  { id: "toeslagen", name: "Toeslagen", color: "#64d2ff", glyph: "🏛️", kind: "income", budget: null },
+  { id: "overig-in", name: "Overige inkomsten", color: "#a3e635", glyph: "📈", kind: "income", budget: null },
+];
+const DICT = {
+  boodschappen: ["albert heijn","ah to go","jumbo","lidl","aldi","plus ","dirk","spar","coop","ekoplaza","picnic","flink","getir","slager","keurslager","bakker","groente","kaashandel","viswinkel","toko","supermarkt","sligro","hanos"],
+  wonen: ["huur","hypotheek","vve","woningstichting","vesteda","eigen haard"],
+  energie: ["vattenfall","eneco","essent","greenchoice","budget energie","vandebron","oxxio","evides","vitens","dunea","waternet","brabant water","oasen","wml","waterbedrijf","gasunie"],
+  belastingen: ["belastingdienst","gemeentelijke belasting","gem.heffing","gemeente rotterdam","heffing","svhw","waterschap","rbg ","cjib","boete","naheffing","aanslag","dvom"],
+  kleding: ["zalando","h&m","zara","primark","c&a","vero moda","we fashion","bristol","van haren","uniqlo","nike","adidas","snipes","shein","about you","kledingwinkel","schoenen"],
+  kinderen: ["kinderopvang","bso ","basisschool","schoolgeld","intertoys","speelgoed","prenatal","babywinkel"],
+  huisdieren: ["dierenarts","dierenwinkel","pets place","zooplus","dierenvriend","dierenkliniek","trimsalon"],
+  internet: ["ziggo","kpn","odido","t-mobile","vodafone","lebara","simyo","youfone"],
+  vervoer: ["ns ","ns-","ns.nl","ov-chipkaart","ovpay","gvb","ret ","htm","shell","bp ","esso","total","tango","fastned","q-park","parkeren","anwb","swapfiets","felyx","gulf","avia","tinq","texaco","firezone","tankstation","uber"],
+  abos: ["netflix","spotify","disney","videoland","hbo","prime","youtube premium","apple.com/bill","icloud","playstation","xbox","nintendo","duolingo","storytel","audible"],
+  uiteten: ["thuisbezorgd","ubereats","uber eats","deliveroo","dominos","mcdonald","burger king","kfc","subway","restaurant","cafe","bar ","starbucks","la place"],
+  verzekeringen: ["zilveren kruis","vgz","cz ","menzis","dsw","ohra","centraal beheer","interpolis","nationale nederlanden","asr ","univé","unive","fbto","ditzo","verzekering"],
+  winkelen: ["bol.com","bol ","coolblue","amazon","wehkamp","mediamarkt","action","hema","blokker","ikea","decathlon","kwantum","leen bakker","gamma","praxis","karwei"],
+  gezondheid: ["kruidvat","etos","trekpleister","apotheek","huisarts","tandarts","fysio","basic-fit","basic fit","sportcity","trainmore"],
+  salaris: ["salaris","loon","payroll","salary"],
+  toeslagen: ["belastingdienst toeslagen","toeslag"],
+  sparen: ["spaarrekening","naar spaar"],
+  kluis: ["geldautomaat","geldmaat","atm ","cash advance","gwk","kasopname","opname"],
+};
+const MONTH_NAMES = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+
+/* ========== state ========== */
+let DB = null, FEEDBACK_COL = null, DOWNLOADS = null, SAMPLE = null, SCANLIM = null;
+const state = {
+  tab: "dash",
+  months: {}, config: null, feedback: [],
+  fixed: { items: [], debts: [] },   // vaste lasten (begroting) + schulden
+  fixedWho: "",                       // persoonsfilter op de lasten-pagina
+  filter: { m: "", cat: "", q: "" },
+  mSel: null,
+  // actieve administratie: "" = privé, "kant" = Immanuelkantstraat (volledig gescheiden woning)
+  hh: (() => { try { return localStorage.getItem("fs_hh") === "kant" ? "kant" : ""; } catch { return ""; } })(),
+  loaded: false,
+};
+const HH_NAAM = { "": "Privé", kant: "Immanuelkantstraat" };
+function toggleHh() {
+  buzz();
+  state.hh = state.hh ? "" : "kant";
+  state.filter = { m: "", cat: "", q: "" }; state.mSel = null;
+  try { localStorage.setItem("fs_hh", state.hh || "prive"); } catch {}
+  render();
+  toast(state.hh ? "🏘️ Je kijkt nu naar Immanuelkantstraat — volledig gescheiden van privé." : "🏠 Terug naar je privé-administratie.");
+}
+let saveQueue = Promise.resolve();
+
+/* ========== helpers ========== */
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const euro = (c) => new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(c / 100);
+const euroS = (c) => (c < 0 ? "− " : "+ ") + euro(Math.abs(c));
+const euroK = (c) => { const v = c / 100; return Math.abs(v) >= 1000 ? "€" + (v/1000).toFixed(Math.abs(v) >= 10000 ? 0 : 1) + "k" : "€" + Math.round(v); };
+const datum = (iso) => { const d = new Date(iso + "T00:00:00"); return d.getDate() + " " + MONTH_NAMES[d.getMonth()]; };
+const datumL = (iso) => { const d = new Date(iso + "T00:00:00"); return d.getDate() + " " + MONTH_NAMES[d.getMonth()] + " " + d.getFullYear(); };
+const maandNaam = (ym) => { const [y,m] = ym.split("-"); return ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"][+m-1] + " " + y; };
+const vandaag = () => new Date().toISOString().slice(0,10);
+const dezeMaand = () => vandaag().slice(0,7);
+const uid = () => Math.random().toString(36).slice(2,10);
+const allTxAll = () => Object.values(state.months).flat().sort((a,b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+// Alle schermen kijken alleen naar de actieve administratie (privé of Kantstraat):
+const allTx = () => state.hh ? allTxAll().filter((t) => t.hh === state.hh) : allTxAll().filter((t) => !t.hh);
+const catById = (id) => state.config?.cats.find((c) => c.id === id) || null;
+const tint = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`; };
+const cicon = (cat, size) => {
+  const c = cat || { color: "#8e8e93", glyph: "❓" };
+  return `<span class="cicon" style="background:${tint(c.color, 0.16)};${size ? `width:${size}px;height:${size}px;font-size:${Math.round(size*0.45)}px;border-radius:${Math.round(size*0.3)}px` : ""}">${c.glyph}</span>`;
+};
+function toast(msg) {
+  document.querySelectorAll(".toast").forEach((t) => t.remove());
+  const el = document.createElement("div");
+  el.className = "toast"; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+/* ========== categoriseren ========== */
+function autoCat(payee, desc, amount) {
+  const text = (payee + " " + desc).toLowerCase();
+  for (const r of state.config.rules) if (text.includes(r.kw)) return r.cat;
+  // Twee rondes: eerst labels van de passende soort (inkomst/uitgave), dan de rest —
+  // zo wordt "Belastingdienst Toeslagen" +€107 een toeslag en een aanslag −€500 een belasting.
+  const prefer = amount > 0 ? "income" : "expense";
+  for (const pass of [0, 1]) {
+    for (const [catId, kws] of Object.entries(DICT)) {
+      const cat = catById(catId);
+      if (!cat) continue;
+      if ((cat.kind === prefer) !== (pass === 0)) continue;
+      if (cat.kind === "income" && amount < 0) continue;
+      if (kws.some((k) => text.includes(k))) return catId;
+    }
+  }
+  return amount > 0 ? "overig-in" : null;
+}
+
+/* ========== opslag ========== */
+function setSync(ok) { const d = $("#syncdot"); if (d) d.className = "dot" + (ok ? "" : " off"); }
+function queueSave(fn) { saveQueue = saveQueue.then(fn).catch((e) => { console.error(e); toast("Opslaan mislukte — controleer je verbinding."); }); return saveQueue; }
+function saveMonth(ym) { const txs = state.months[ym] || []; if (!DB) return; queueSave(async () => { await DB.doc("months/" + ym).set({ txs }); }); }
+function saveConfig() { if (!DB) return; queueSave(async () => { await DB.doc("meta/config").set(state.config); }); }
+function saveFixed() { if (!DB) return; queueSave(async () => { await DB.doc("meta/fixed").set(state.fixed); }); }
+
+/* ========== CSV-parsers ========== */
+function splitLine(line, sep) {
+  const out = []; let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) { if (ch === '"' && line[i+1] === '"') { cur += '"'; i++; } else if (ch === '"') q = false; else cur += ch; }
+    else { if (ch === '"') q = true; else if (ch === sep) { out.push(cur); cur = ""; } else cur += ch; }
+  }
+  out.push(cur);
+  return out.map((s) => s.trim());
+}
+function parseAmount(s) {
+  let t = String(s).replace(/\s|€/g, "");
+  if (/,\d{1,2}$/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
+  else t = t.replace(/,/g, "");
+  const v = parseFloat(t);
+  return Math.round((isNaN(v) ? 0 : v) * 100);
+}
+function parseDate(s) {
+  s = String(s).trim().replace(/"/g, "");
+  let m = s.match(/^(\d{4})-?(\d{2})-?(\d{2})$/);
+  if (m) return m[1] + "-" + m[2] + "-" + m[3];
+  m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+  if (m) return m[3] + "-" + m[2].padStart(2,"0") + "-" + m[1].padStart(2,"0");
+  return null;
+}
+function parseBankCsv(content) {
+  const lines = content.split(/\r?\n/).filter((l) => l.trim());
+  if (!lines.length) return { bank: "onbekend", rows: [] };
+  const header = lines[0].toLowerCase();
+  const sep = header.split(";").length > header.split(",").length ? ";" : ",";
+  const cols = splitLine(lines[0], sep).map((c) => c.toLowerCase().replace(/"/g, ""));
+  const idx = (...names) => cols.findIndex((c) => names.some((n) => c.includes(n)));
+  const rows = [];
+  const push = (date, amount, payee, desc) => { if (date) rows.push({ date, amount, payee: payee || "Onbekend", desc: desc || "" }); };
+  if (header.includes("af bij") || (header.includes("naam / omschrijving") && header.includes("bedrag"))) {
+    const iD = idx("datum"), iN = idx("naam"), iDir = idx("af bij"), iA = idx("bedrag"), iM = idx("mededelingen");
+    for (const l of lines.slice(1)) { const f = splitLine(l, sep); let a = parseAmount(f[iA] ?? "0");
+      a = (f[iDir] ?? "").toLowerCase().includes("af") ? -Math.abs(a) : Math.abs(a);
+      push(parseDate(f[iD] ?? ""), a, f[iN], iM >= 0 ? f[iM] : ""); }
+    return { bank: "ING", rows };
+  }
+  if (header.includes("naam tegenpartij") || header.includes("volgnr")) {
+    const iD = idx("datum"), iA = idx("bedrag"), iN = idx("naam tegenpartij"), iM = idx("omschrijving");
+    for (const l of lines.slice(1)) { const f = splitLine(l, sep);
+      push(parseDate(f[iD] ?? ""), parseAmount(f[iA] ?? "0"), f[iN], iM >= 0 ? f[iM] : ""); }
+    return { bank: "Rabobank", rows };
+  }
+  if (header.includes("transactiedatum") || header.includes("muntsoort")) {
+    const iD = idx("transactiedatum"), iA = idx("transactiebedrag"), iM = idx("omschrijving");
+    for (const l of lines.slice(1)) { const f = splitLine(l, sep); const desc = f[iM] ?? "";
+      const payee = (desc.match(/Naam:\s*([^/]+)/i) || [])[1]?.trim() || desc.slice(0, 40);
+      push(parseDate(f[iD] ?? ""), parseAmount(f[iA] ?? "0"), payee, desc); }
+    return { bank: "ABN AMRO", rows };
+  }
+  // bunq-export: "Date","Interest Date","Amount","Account","Counterparty","Name","Description"
+  if (header.includes("interest date") || (header.includes("counterparty") && header.includes("name"))) {
+    const iD = idx("date"), iA = idx("amount"), iN = cols.findIndex((c) => c === "name"), iC = idx("counterparty"), iM = idx("description");
+    for (const l of lines.slice(1)) { const f = splitLine(l, sep);
+      const payee = (iN >= 0 && f[iN]) || (iC >= 0 && f[iC]) || "Onbekend";
+      push(parseDate(f[iD] ?? ""), parseAmount(f[iA] ?? "0"), payee, iM >= 0 ? (f[iM] || "").replace(/^"+|"+$/g, "").trim() : ""); }
+    return { bank: "bunq", rows };
+  }
+  const iD = idx("date","datum"), iA = idx("amount","bedrag"), iN = idx("payee","naam","name","tegenpartij","counterparty","merchant","omschrijving");
+  if (iD >= 0 && iA >= 0) {
+    const iM = idx("description","mededeling","notitie");
+    for (const l of lines.slice(1)) { const f = splitLine(l, sep);
+      push(parseDate(f[iD] ?? ""), parseAmount(f[iA] ?? "0"), iN >= 0 ? f[iN] : "Onbekend", iM >= 0 ? f[iM] : ""); }
+    return { bank: "generiek", rows };
+  }
+  return { bank: "onbekend", rows: [] };
+}
+
+/* ========== inzichten ========== */
+/* 'Kluis-opname' en 'Potje-overboeking' zijn verplaatsingen tussen eigen potjes
+   (bank↔kluis, bank↔spaarpot): geen echte uitgave of inkomst, dus niet in de
+   statistieken — wél in de saldi van de potjes zelf. */
+const isTransfer = (t) => t.cat === "kluis" || t.cat === "potje";
+function monthlyStats(n = 12) {
+  const map = {};
+  for (const t of allTx()) {
+    if (isTransfer(t)) continue;
+    const ym = t.date.slice(0,7);
+    map[ym] = map[ym] || { month: ym, income: 0, expense: 0 };
+    if (t.amount > 0) map[ym].income += t.amount; else map[ym].expense += -t.amount;
+  }
+  return Object.values(map).sort((a,b) => a.month < b.month ? -1 : 1).slice(-n).map((s) => ({ ...s, net: s.income - s.expense }));
+}
+function spendPerCat(month) {
+  const map = {};
+  for (const t of allTx()) if (t.amount < 0 && t.date.slice(0,7) === month && !isTransfer(t)) {
+    const k = t.cat || "_none"; map[k] = (map[k] || 0) + -t.amount;
+  }
+  return Object.entries(map).map(([k,v]) => ({ cat: k === "_none" ? null : catById(k), id: k, total: v })).sort((a,b) => b.total - a.total);
+}
+function saldo() {
+  const start = state.hh === "kant" ? (state.config?.kantStart || 0) : (state.config?.startBalance || 0);
+  return start + allTx().filter((t) => !t.acc).reduce((a,t) => a + t.amount, 0);
+}
+function cashSaldo() { return (state.config?.cashStart || 0) + allTx().filter((t) => t.acc === "cash").reduce((a,t) => a + t.amount, 0); }
+function hasCash() { return (state.config?.cashStart || 0) !== 0 || allTx().some((t) => t.acc === "cash"); }
+function spaarSaldo() { return (state.config?.spaarStart || 0) + allTx().filter((t) => t.acc === "spaar").reduce((a,t) => a + t.amount, 0); }
+function hasSpaar() { return (state.config?.spaarStart || 0) !== 0 || allTx().some((t) => t.acc === "spaar"); }
+function kantSaldo() { return (state.config?.kantStart || 0) + allTxAll().filter((t) => t.hh === "kant" && !t.acc).reduce((a,t) => a + t.amount, 0); }
+function hasKant() { return (state.config?.kantStart || 0) !== 0 || allTxAll().some((t) => t.hh === "kant"); }
+function normPayee(p) { return p.toLowerCase().replace(/\d+/g,"").replace(/[^a-z& ]/g," ").replace(/\s+/g," ").trim().slice(0,28); }
+function detectRecurring() {
+  const groups = {};
+  for (const t of allTx().slice().reverse()) if (t.amount < 0 && !isTransfer(t)) {
+    const k = normPayee(t.payee); if (!k) continue; (groups[k] = groups[k] || []).push(t);
+  }
+  const out = [];
+  for (const list of Object.values(groups)) {
+    if (list.length < 2) continue;
+    const ds = list.map((t) => new Date(t.date + "T00:00:00").getTime());
+    const iv = []; for (let i = 1; i < ds.length; i++) iv.push((ds[i]-ds[i-1])/864e5);
+    const avgI = iv.reduce((a,b)=>a+b,0)/iv.length;
+    const monthly = avgI >= 23 && avgI <= 38, weekly = avgI >= 5 && avgI <= 9, yearly = avgI >= 330 && avgI <= 400;
+    if (!monthly && !weekly && !yearly) continue;
+    const am = list.map((t) => -t.amount), avgA = am.reduce((a,b)=>a+b,0)/am.length;
+    if (avgA <= 0 || Math.max(...am.map((a)=>Math.abs(a-avgA))) > Math.max(avgA*0.25, 500)) continue;
+    const last = list[list.length-1];
+    const next = new Date(new Date(last.date+"T00:00:00").getTime() + Math.round(avgI)*864e5);
+    out.push({ payee: last.payee, cat: last.cat, avgAmount: Math.round(avgA), count: list.length, intervalDays: Math.round(avgI),
+      lastDate: last.date, nextExpected: next.toISOString().slice(0,10), yearlyCost: Math.round(avgA * (weekly ? 52 : monthly ? 12 : 1)) });
+  }
+  return out.sort((a,b) => b.yearlyCost - a.yearlyCost);
+}
+function detectAnomalies(month) {
+  const out = [];
+  for (const c of state.config.cats.filter((c) => c.kind === "expense")) {
+    const hist = {};
+    for (const t of allTx()) if (t.cat === c.id && t.amount < 0 && t.date.slice(0,7) < month) {
+      const ym = t.date.slice(0,7); hist[ym] = (hist[ym] || 0) + -t.amount;
+    }
+    const months = Object.keys(hist).sort().slice(-3);
+    if (months.length < 2) continue;
+    const avg = months.reduce((a,m) => a + hist[m], 0) / months.length;
+    const cur = allTx().filter((t) => t.cat === c.id && t.amount < 0 && t.date.slice(0,7) === month).reduce((a,t) => a + -t.amount, 0);
+    if (avg > 1000 && cur > avg * 1.3 && cur - avg > 2500)
+      out.push({ name: c.name, color: c.color, glyph: c.glyph, thisMonth: cur, avg: Math.round(avg), pct: Math.round((cur-avg)/avg*100) });
+  }
+  return out.sort((a,b) => b.pct - a.pct);
+}
+function avgNet() {
+  const cur = dezeMaand();
+  const done = monthlyStats(4).filter((s) => s.month < cur).slice(-3);
+  return done.length ? done.reduce((a,b) => a + b.net, 0) / done.length : 0;
+}
+function forecast(n = 6) {
+  let bal = saldo(); const out = []; const now = new Date(); const net = avgNet();
+  for (let i = 1; i <= n; i++) { const d = new Date(now.getFullYear(), now.getMonth()+i, 1); bal += net; out.push({ month: d.toISOString().slice(0,7), v: Math.round(bal) }); }
+  return out;
+}
+function savingsRate(month) {
+  const s = monthlyStats(24).find((x) => x.month === month);
+  if (!s || !s.income) return null;
+  return Math.round((s.income - s.expense) / s.income * 100);
+}
+
+/* ========== charts ========== */
+function chartBars(data) {
+  const W = 640, H = 200, pl = 46, pb = 24, pt = 8;
+  const max = Math.max(1, ...data.map((d) => Math.max(d.income, d.expense)));
+  const iw = W - pl - 8, ih = H - pt - pb, gw = iw / Math.max(1, data.length), bw = Math.min(14, gw/2 - 3);
+  const y = (v) => pt + ih - v / max * ih;
+  let s = "";
+  for (const f of [0, 0.5, 1]) { const t = max*f;
+    s += `<line x1="${pl}" x2="${W-8}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)"/><text x="${pl-7}" y="${y(t)+3.5}" font-size="10" fill="var(--ink-3)" text-anchor="end">${euroK(Math.round(t))}</text>`; }
+  data.forEach((d, i) => {
+    const cx = pl + i*gw + gw/2;
+    const lbl = MONTH_NAMES[+d.month.slice(5)-1];
+    s += `<rect x="${cx-bw-1}" y="${y(d.income)}" width="${bw}" height="${Math.max(2, pt+ih-y(d.income))}" rx="3.5" fill="var(--chart-in)"><title>${lbl}: in ${euro(d.income)}</title></rect>`;
+    s += `<rect x="${cx+1}" y="${y(d.expense)}" width="${bw}" height="${Math.max(2, pt+ih-y(d.expense))}" rx="3.5" fill="var(--chart-out)"><title>${lbl}: uit ${euro(d.expense)}</title></rect>`;
+    s += `<text x="${cx}" y="${H-6}" font-size="10" fill="var(--ink-3)" text-anchor="middle">${lbl}</text>`;
+  });
+  return `<div class="legend"><span><span class="dotl" style="background:var(--chart-in)"></span>Inkomsten</span><span><span class="dotl" style="background:var(--chart-out)"></span>Uitgaven</span></div>
+  <svg viewBox="0 0 ${W} ${H}" style="width:100%" role="img" aria-label="Inkomsten en uitgaven per maand">${s}</svg>`;
+}
+function chartDonut(items, size = 140) {
+  const total = items.reduce((a,b) => a + b.value, 0) || 1;
+  const r = size/2 - 11, c = size/2, C = 2*Math.PI*r;
+  let acc = 0, s = "";
+  for (const it of items) {
+    const f = it.value/total, dash = Math.max(0, f*C - 2.5);
+    s += `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${it.color}" stroke-width="16" stroke-linecap="round" stroke-dasharray="${dash} ${C-dash}" stroke-dashoffset="${-acc*C + C/4}"><title>${esc(it.label)}: ${Math.round(f*100)}%</title></circle>`;
+    acc += f;
+  }
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img" aria-label="Verdeling uitgaven">${s}</svg>`;
+}
+/* Vermogensverloop: doorgetrokken lijn + vulling = werkelijk saldo per maandeinde,
+   stippellijn = prognose op het huidige tempo. */
+function wealthSeries() {
+  const stats = monthlyStats(999);
+  let run = state.config?.startBalance || 0;
+  const hist = stats.map((s) => { run += s.net; return { month: s.month, v: run }; });
+  return hist.slice(-9);
+}
+function chartWealth(hist, fut) {
+  const W = 640, H = 200, pl = 54, pb = 20, pt = 10;
+  const pts = [...hist.map((p) => ({ ...p, f: false })), ...fut.map((p) => ({ month: p.month, v: p.v, f: true }))];
+  if (pts.length < 2) return "";
+  const vals = pts.map((p) => p.v);
+  const min = Math.min(...vals), max = Math.max(...vals), span = Math.max(1, max - min);
+  const iw = W - pl - 16, ih = H - pt - pb;
+  const x = (i) => pl + i / (pts.length - 1) * iw, y = (v) => pt + ih - (v - min) / span * ih;
+  const hn = hist.length;
+  let solid = "", dash = "";
+  pts.forEach((p, i) => {
+    const pt2 = `${x(i)},${y(p.v)}`;
+    if (i < hn) solid += (i ? " L" : "M") + pt2;
+    if (i >= hn - 1) dash += (i === hn - 1 ? "M" : " L") + pt2;
+  });
+  const areaPath = solid + ` L${x(hn-1)},${pt+ih} L${x(0)},${pt+ih} Z`;
+  let s = `<defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(10,132,255,0.25)"/><stop offset="1" stop-color="rgba(10,132,255,0)"/></linearGradient></defs>`;
+  for (const t of [min, (min+max)/2, max])
+    s += `<line x1="${pl}" x2="${W-16}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)"/><text x="${pl-7}" y="${y(t)+3.5}" font-size="10" fill="var(--ink-3)" text-anchor="end">${euroK(Math.round(t))}</text>`;
+  s += `<path d="${areaPath}" fill="url(#fg)"/>`;
+  s += `<path d="${solid}" fill="none" stroke="var(--chart-in)" stroke-width="2.2" stroke-linejoin="round"/>`;
+  s += `<path d="${dash}" fill="none" stroke="var(--chart-in)" stroke-width="2" stroke-dasharray="5 6" stroke-linejoin="round" opacity="0.8"/>`;
+  const step = Math.ceil(pts.length / 8);
+  pts.forEach((p, i) => {
+    const lbl = MONTH_NAMES[+p.month.slice(5)-1];
+    s += `<circle cx="${x(i)}" cy="${y(p.v)}" r="${i === hn - 1 ? 4.6 : 3.2}" fill="${p.f ? "var(--card)" : "var(--chart-in)"}" stroke="var(--chart-in)" stroke-width="2"><title>${lbl}: ${euro(p.v)}${p.f ? " (prognose)" : ""}</title></circle>`;
+    if (i % step === 0 || i === pts.length - 1) s += `<text x="${x(i)}" y="${H-2}" font-size="10" fill="var(--ink-3)" text-anchor="middle">${lbl}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%" role="img" aria-label="Vermogensverloop en prognose">${s}</svg>`;
+}
+
+/* ========== demodata ========== */
+function mulberry(a){return function(){a|=0;a=a+0x6d2b79f5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function loadDemo() {
+  if (allTx().length) { toast("Er zijn al transacties — demodata laden kan alleen in een lege app."); return; }
+  const rnd = mulberry(42);
+  const today = new Date(); const iso = (d) => d.toISOString().slice(0,10);
+  const day = (y,m,dd) => new Date(Date.UTC(y, m, Math.min(dd, 28)));
+  const add = (date, amount, payee, desc) => {
+    const ym = date.slice(0,7);
+    (state.months[ym] = state.months[ym] || []).push({ id: uid(), date, amount, payee, desc: desc || "", cat: autoCat(payee, desc || "", amount) });
+  };
+  for (let back = 8; back >= 0; back--) {
+    const ref = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth()-back, 1));
+    const y = ref.getUTCFullYear(), m = ref.getUTCMonth();
+    const dim = back === 0 ? today.getUTCDate() : 28;
+    add(iso(day(y,m,25)), 325000 + Math.round(rnd()*2000), "Salaris TechWorks B.V.", "Salaris");
+    add(iso(day(y,m,1)), -142500, "Woningstichting De Sleutel", "Huur");
+    if (dim>=3) add(iso(day(y,m,3)), -16800, "Vattenfall", "Energie");
+    if (dim>=5) add(iso(day(y,m,5)), -6250, "Ziggo", "Internet & TV");
+    if (dim>=7) add(iso(day(y,m,7)), -1399, "Netflix", "Abonnement");
+    if (dim>=8) add(iso(day(y,m,8)), -1099, "Spotify", "Premium");
+    if (dim>=10) add(iso(day(y,m,10)), -2999, "Basic-Fit", "Sportschool");
+    if (dim>=12) add(iso(day(y,m,12)), -14550, "Zilveren Kruis", "Zorgverzekering");
+    if (dim>=20) add(iso(day(y,m,20)), 10700, "Belastingdienst Toeslagen", "Zorgtoeslag");
+    if (dim>=26) add(iso(day(y,m,26)), -50000, "Naar spaarrekening", "Automatisch sparen");
+    const sup = ["Albert Heijn","Jumbo","Lidl"];
+    for (let w = 0; w < 4; w++) { const d = 2 + w*7 + Math.floor(rnd()*3); if (d > dim) break;
+      add(iso(day(y,m,d)), -(4500+Math.round(rnd()*5500)), sup[Math.floor(rnd()*3)], "Boodschappen"); }
+    for (let i = 0; i < 2+Math.floor(rnd()*3); i++) { const d = 1+Math.floor(rnd()*27); if (d > dim) continue;
+      const pl = [["Thuisbezorgd.nl",2800],["Restaurant De Gouden Leeuw",5400],["Starbucks",850]][Math.floor(rnd()*3)];
+      add(iso(day(y,m,d)), -(pl[1]+Math.round(rnd()*1500)), pl[0], "Uit eten"); }
+    for (let i = 0; i < 2; i++) { const d = 4+Math.floor(rnd()*22); if (d > dim) continue;
+      add(iso(day(y,m,d)), -(2000+Math.round(rnd()*3000)), rnd() > 0.5 ? "NS Groep" : "Shell Station", "Vervoer"); }
+    if (rnd() > 0.4) { const d = 6+Math.floor(rnd()*18); if (d <= dim) {
+      const sh = [["bol.com",3500],["Coolblue",8900],["HEMA",1800]][Math.floor(rnd()*3)];
+      add(iso(day(y,m,d)), -(sh[1]+Math.round(rnd()*4000)), sh[0], "Online aankoop"); } }
+  }
+  state.config.startBalance = 245000;
+  state.config.goals = [
+    { id: uid(), name: "Noodbuffer", target: 1000000, saved: 820000, deadline: null },
+    { id: uid(), name: "Vakantie Japan", target: 450000, saved: 180000, deadline: null },
+  ];
+  for (const ym of Object.keys(state.months)) saveMonth(ym);
+  saveConfig();
+  render();
+  toast("Demodata geladen — 9 maanden voorbeeldtransacties.");
+}
+
+/* ========== sheets ========== */
+function openSheet(html) { $("#sheetin").innerHTML = html; $("#sheet").showModal(); }
+function closeSheet() { $("#sheet").close(); }
+function catPicker(selId, kind, chosen) {
+  return `<div class="catgrid" id="${selId}">` + state.config.cats.filter((c) => !kind || c.kind === kind).map((c) =>
+    `<div class="catopt ${chosen === c.id ? "on" : ""}" data-cat="${c.id}" onclick="pickCat('${selId}','${c.id}')">${cicon(c)}<span>${esc(c.name)}</span></div>`
+  ).join("") + `</div>`;
+}
+function pickCat(selId, catId) {
+  document.querySelectorAll(`#${selId} .catopt`).forEach((el) => el.classList.toggle("on", el.dataset.cat === catId));
+  $(`#${selId}`).dataset.chosen = catId;
+}
+function chosenCat(selId) { return $(`#${selId}`).dataset.chosen || $(`#${selId} .catopt.on`)?.dataset.cat || ""; }
+
+function openAdd() {
+  openSheet(`
+    <div class="grab"></div>
+    <h3>Nieuwe transactie</h3>
+    <p class="muted" style="margin:0 0 14px">Laat de categorie leeg om hem automatisch te laten herkennen.</p>
+    <div class="formgrid">
+      <div class="cols2">
+        <label class="fl">Bedrag (€)<input id="a-amount" inputmode="decimal" placeholder="12,50" autocomplete="off"></label>
+        <label class="fl">Type<select id="a-type"><option value="expense">Uitgave</option><option value="income">Inkomst</option></select></label>
+      </div>
+      <label class="fl">Naam / winkel<input id="a-payee" placeholder="bijv. Albert Heijn" autocomplete="off"></label>
+      <div class="cols2">
+        <label class="fl">Datum<input id="a-date" type="date" value="${vandaag()}"></label>
+        <label class="fl">Betaald met<select id="a-acc"><option value="bank">🏦 Bank</option><option value="cash">💶 Cash-kluis</option></select></label>
+      </div>
+      <details><summary class="muted" style="cursor:pointer;padding-block:4px">Categorie kiezen (optioneel)</summary>
+        <div style="margin-top:10px">${catPicker("a-cat", null, "")}</div></details>
+      <button class="btn" onclick="confirmAdd()">Toevoegen</button>
+    </div>`);
+}
+function confirmAdd() {
+  buzz();
+  const payee = $("#a-payee").value.trim(), date = $("#a-date").value;
+  let amount = Math.round(Math.abs(parseFloat($("#a-amount").value.replace(",", ".")) || 0) * 100);
+  if ($("#a-type").value === "expense") amount = -amount;
+  if (!payee || !amount || !date) { toast("Vul bedrag, naam en datum in."); return; }
+  const chosen = chosenCat("a-cat");
+  const cat = chosen || autoCat(payee, "", amount);
+  const ym = date.slice(0,7);
+  const tx = { id: uid(), date, amount, payee, desc: "", cat };
+  if ($("#a-acc")?.value === "cash") tx.acc = "cash";
+  if (state.hh) tx.hh = state.hh;
+  (state.months[ym] = state.months[ym] || []).push(tx);
+  saveMonth(ym);
+  closeSheet(); render();
+  toast(!chosen && cat ? `Herkend als ${catById(cat).name}` : "Transactie toegevoegd");
+}
+function openTx(txId) {
+  for (const list of Object.values(state.months)) {
+    const t = list.find((x) => x.id === txId);
+    if (!t) continue;
+    const c = catById(t.cat);
+    openSheet(`
+      <div class="grab"></div>
+      <div class="row" style="gap:13px;margin-bottom:4px">${cicon(c, 50)}
+        <div style="min-width:0;flex:1"><h3 style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.payee)}</h3>
+        <div class="muted">${datumL(t.date)}${t.desc ? " · " + esc(t.desc) : ""}</div></div>
+        <div class="tamt ${t.amount > 0 ? "in" : ""}" style="font-size:17px">${euroS(t.amount)}</div></div>
+      <h2 style="margin:16px 0 10px">Categorie</h2>
+      ${catPicker("t-cat", t.amount < 0 ? "expense" : "income", t.cat || "")}
+      <input id="t-newcat" placeholder="➕ Of typ hier een nieuw label…" style="margin-top:10px">
+      <label class="row" style="margin:14px 0;gap:8px;font-size:13.5px;color:var(--ink-2)">
+        <input type="checkbox" id="t-remember" checked style="width:18px;height:18px;accent-color:var(--blue)">
+        Onthoud dit voor "${esc(t.payee)}"</label>
+      <div class="formgrid">
+        <button class="btn" onclick="confirmCat('${t.id}')">Opslaan</button>
+        <button class="btn dang" onclick="confirmDel('${t.id}')">Transactie verwijderen</button>
+      </div>`);
+    return;
+  }
+}
+function confirmCat(txId) {
+  buzz();
+  let catId = chosenCat("t-cat");
+  const nieuw = $("#t-newcat")?.value?.trim();
+  if (nieuw) {
+    const t0 = allTx().find((x) => x.id === txId);
+    catId = addCategory(nieuw, t0 && t0.amount > 0 ? "income" : "expense");
+  }
+  const remember = $("#t-remember")?.checked;
+  for (const [ym, list] of Object.entries(state.months)) {
+    const t = list.find((x) => x.id === txId);
+    if (!t) continue;
+    t.cat = catId || null;
+    if (catId && remember) {
+      const kw = t.payee.toLowerCase().slice(0, 30);
+      if (!state.config.rules.some((r) => r.kw === kw)) {
+        state.config.rules.push({ kw, cat: catId });
+        let fixed = 0;
+        for (const l of Object.values(state.months)) for (const o of l) if (!o.cat && o.payee.toLowerCase().includes(kw)) { o.cat = catId; fixed++; }
+        if (fixed) for (const m of Object.keys(state.months)) saveMonth(m);
+        saveConfig();
+        if (fixed) toast(`Onthouden — ${fixed} vergelijkbare transacties ook bijgewerkt.`);
+      }
+    }
+    saveMonth(ym);
+    closeSheet(); render();
+    return;
+  }
+}
+function confirmDel(txId) {
+  for (const [ym, list] of Object.entries(state.months)) {
+    const i = list.findIndex((x) => x.id === txId);
+    if (i >= 0) { list.splice(i, 1); saveMonth(ym); closeSheet(); render(); toast("Transactie verwijderd."); return; }
+  }
+}
+function openBudget(catId) {
+  const c = catById(catId);
+  openSheet(`
+    <div class="grab"></div>
+    <div class="row" style="gap:13px">${cicon(c, 50)}<h3>${esc(c.name)}</h3></div>
+    <p class="muted" style="margin:6px 0 14px">Stel een maandbudget in. Leeg laten = geen budget.</p>
+    <div class="formgrid">
+      <label class="fl">Maandbudget (€)<input id="b-amount" inputmode="decimal" value="${c.budget != null ? (c.budget/100).toString().replace(".", ",") : ""}" placeholder="bijv. 300"></label>
+      <button class="btn" onclick="confirmBudget('${c.id}')">Opslaan</button>
+    </div>`);
+}
+function confirmBudget(catId) {
+  buzz();
+  const v = $("#b-amount").value.trim().replace(",", ".");
+  catById(catId).budget = v === "" ? null : Math.round(Math.abs(parseFloat(v) || 0) * 100);
+  saveConfig(); closeSheet(); render();
+}
+function openGoal(id) {
+  const g = id ? state.config.goals.find((x) => x.id === id) : null;
+  openSheet(`
+    <div class="grab"></div>
+    <h3>${g ? esc(g.name) : "Nieuw spaardoel"}</h3>
+    <div class="formgrid" style="margin-top:12px">
+      ${g ? `
+      <label class="fl">Bedrag bij- of afschrijven (€)<input id="g-delta" inputmode="decimal" placeholder="bijv. 150 of -50"></label>
+      <button class="btn" onclick="confirmGoalDelta('${g.id}')">Bijwerken</button>
+      <button class="btn dang" onclick="delGoal('${g.id}')">Doel verwijderen</button>` : `
+      <label class="fl">Naam<input id="g-name" placeholder="bijv. Noodbuffer"></label>
+      <div class="cols2">
+        <label class="fl">Doelbedrag (€)<input id="g-target" inputmode="decimal" placeholder="5000"></label>
+        <label class="fl">Deadline (optioneel)<input id="g-deadline" type="date"></label>
+      </div>
+      <button class="btn" onclick="confirmGoalNew()">Doel aanmaken</button>`}
+    </div>`);
+}
+function confirmGoalNew() {
+  buzz();
+  const name = $("#g-name").value.trim();
+  const target = Math.round(Math.abs(parseFloat($("#g-target").value.replace(",", ".")) || 0) * 100);
+  if (!name || !target) { toast("Vul naam en doelbedrag in."); return; }
+  state.config.goals.push({ id: uid(), name, target, saved: 0, deadline: $("#g-deadline").value || null });
+  saveConfig(); closeSheet(); render();
+}
+function confirmGoalDelta(id) {
+  buzz();
+  const g = state.config.goals.find((x) => x.id === id);
+  const d = Math.round((parseFloat($("#g-delta").value.replace(",", ".")) || 0) * 100);
+  if (!d) { toast("Vul een bedrag in."); return; }
+  g.saved = Math.max(0, g.saved + d);
+  saveConfig(); closeSheet(); render();
+}
+function delGoal(id) { state.config.goals = state.config.goals.filter((g) => g.id !== id); saveConfig(); closeSheet(); render(); }
+function openFb() {
+  openSheet(`
+    <div class="grab"></div>
+    <h3>Feedback</h3>
+    <p class="muted" style="margin:4px 0 12px">Alles wat opvalt is waardevol — goed of slecht. Je notities worden bewaard; vraag Claude "lees mijn FinSight-feedback" om ze te verwerken.</p>
+    <div class="formgrid">
+      <textarea id="fb-text" rows="4" placeholder="Wat werkt goed? Wat mist? Wat is onduidelijk?"></textarea>
+      <button class="btn" onclick="confirmFb()">Versturen</button>
+    </div>
+    ${state.feedback.length ? `<h2 style="margin:18px 0 8px">Eerdere notities (${state.feedback.length})</h2>
+    <div class="rows">${state.feedback.slice(0,20).map((f) => `<div style="padding:10px 2px;border-top:1px solid var(--hair)"><div class="muted" style="font-size:11.5px">${new Date(f.date).toLocaleString("nl-NL")} · ${esc(f.tab)}</div><div style="font-size:14px;margin-top:2px">${esc(f.text)}</div></div>`).join("")}</div>` : ""}`);
+}
+function confirmFb() {
+  buzz();
+  const text = $("#fb-text").value.trim();
+  if (!text) { toast("Schrijf eerst een notitie."); return; }
+  const entry = { date: new Date().toISOString(), tab: state.tab, text };
+  state.feedback.unshift(entry);
+  if (FEEDBACK_COL) queueSave(async () => { await FEEDBACK_COL.add(entry); });
+  closeSheet(); render();
+  toast("Dank! Je feedback is opgeslagen. 🙌");
+}
+
+/* ========== vaste lasten & schulden ========== */
+const DEBT_STATUS = {
+  direct: { label: "Nu te betalen", color: "var(--red)" },
+  uitstel: { label: "Uitstel verlopen", color: "var(--red)" },
+  regeling: { label: "Betalingsregeling", color: "var(--orange)" },
+  open: { label: "Open", color: "var(--ink-3)" },
+};
+function debtStatusFrom(text) {
+  const t = (text || "").toLowerCase();
+  if (t.includes("achterstand")) return "direct";
+  if (t.includes("uitstel")) return "uitstel";
+  if (t.includes("regeling")) return "regeling";
+  return "open";
+}
+function normWho(w) {
+  w = String(w || "").trim();
+  if (!w || /^gezamen/i.test(w) || /^samen$/i.test(w)) return "";
+  return w[0].toUpperCase() + w.slice(1).toLowerCase();
+}
+function whoFrom(name) {
+  const m = name.match(/\(\s*([A-Za-zÀ-ÿ]+)\s*\)/);
+  if (m) return normWho(m[1]);
+  const s = name.match(/salaris\s+([A-Za-zÀ-ÿ]+)/i);
+  if (s) return normWho(s[1]);
+  return "";
+}
+/* Leest één tabblad in het 'Vaste lasten & schulden'-formaat:
+   kolom A categorie, B kostenpost/schuld, C maandbedrag (negatief = inkomst),
+   D status/notitie, E.. achterstand-/schuldbedragen. */
+function parseFixedSheet(rows, groupName) {
+  const items = [], debts = [];
+  for (const r of rows.slice(1)) {
+    const name = String(r[1] || "").trim();
+    if (!name || /^totale/i.test(String(r[0] || "")) || /^totale/i.test(name)) continue;
+    const note = String(r[3] || "").trim();
+    const monthly = parseAmount(r[2] || "");
+    let debtTotal = 0;
+    for (let i = 4; i < r.length; i++) {
+      const v = parseAmount(r[i] || "");
+      if (v > 0) debtTotal += v;
+    }
+    const who = whoFrom(name);
+    if (monthly !== 0) {
+      items.push({ id: uid(), name, amount: monthly, who, group: groupName, note: debtTotal ? "" : note });
+    }
+    if (debtTotal > 0) {
+      debts.push({ id: uid(), name, total: debtTotal, paid: 0, status: debtStatusFrom(note), note, group: groupName, who: whoFrom(name) });
+    }
+  }
+  return { items, debts };
+}
+function importFixed(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  loadXLSX()
+    .then(() => file.arrayBuffer())
+    .then((buf) => {
+      const wb = XLSX.read(buf, { type: "array" });
+      const pick = (sheetName) => {
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, raw: false, defval: "" });
+        const { items, debts } = parseFixedSheet(rows, sheetName.trim());
+        if (!items.length && !debts.length) { toast("Geen posten herkend op dit tabblad."); return; }
+        const seenI = new Set(state.fixed.items.map((i) => i.group + "|" + i.name + "|" + i.amount));
+        const seenD = new Set(state.fixed.debts.map((d) => d.group + "|" + d.name + "|" + d.total));
+        let ni = 0, nd = 0;
+        for (const it of items) if (!seenI.has(it.group + "|" + it.name + "|" + it.amount)) { state.fixed.items.push(it); ni++; }
+        for (const d of debts) if (!seenD.has(d.group + "|" + d.name + "|" + d.total)) { state.fixed.debts.push(d); nd++; }
+        saveFixed(); closeSheet(); render(); buzz();
+        toast(`${ni} vaste lasten en ${nd} schulden geïmporteerd uit "${sheetName.trim()}".`);
+      };
+      if (wb.SheetNames.length === 1) { pick(wb.SheetNames[0]); return; }
+      window.__pickSheet = pick;
+      openSheet(`
+        <div class="grab"></div>
+        <h3>Welk tabblad importeren?</h3>
+        <p class="muted" style="margin:4px 0 12px">Dit Excel-bestand heeft meerdere tabbladen. Tip: importeer het gezamenlijke overzicht, niet ook nog de persoonlijke kopie (dan telt alles dubbel).</p>
+        <div class="formgrid">
+          ${wb.SheetNames.map((n, i) => `<button class="btn sec" onclick="__pickSheet(${JSON.stringify(n).replace(/"/g, "&quot;")})">${esc(n.trim())}</button>`).join("")}
+        </div>`);
+    })
+    .catch((e) => { console.error(e); toast("Kon het Excel-bestand niet lezen."); });
+  input.value = "";
+}
+function fixedPersons() {
+  const s = new Set();
+  for (const i of state.fixed.items) if (i.who) s.add(i.who);
+  for (const d of state.fixed.debts) if (d.who) s.add(d.who);
+  return [...s];
+}
+function openFixedItem(id) {
+  const it = id ? state.fixed.items.find((x) => x.id === id) : null;
+  openSheet(`
+    <div class="grab"></div>
+    <h3>${it ? esc(it.name) : "Nieuwe vaste last of inkomst"}</h3>
+    <div class="formgrid" style="margin-top:12px">
+      <label class="fl">Naam<input id="fx-name" value="${esc(it?.name || "")}" placeholder="bijv. Huur of Salaris"></label>
+      <div class="cols2">
+        <label class="fl">Bedrag per maand (€)<input id="fx-amount" inputmode="decimal" value="${it ? (Math.abs(it.amount)/100).toString().replace(".", ",") : ""}" placeholder="bijv. 1385"></label>
+        <label class="fl">Type<select id="fx-type"><option value="last" ${!it || it.amount > 0 ? "selected" : ""}>Last (gaat eraf)</option><option value="inkomst" ${it && it.amount < 0 ? "selected" : ""}>Inkomst (komt erbij)</option></select></label>
+      </div>
+      <div class="cols2">
+        <label class="fl">Van wie<input id="fx-who" value="${esc(it?.who || "")}" placeholder="leeg = gezamenlijk"></label>
+        <label class="fl">Groep / woning<input id="fx-group" value="${esc(it?.group || "Algemeen")}"></label>
+      </div>
+      <label class="fl">Notitie<input id="fx-note" value="${esc(it?.note || "")}" placeholder="bijv. opgezegd per 1 nov"></label>
+      <button class="btn" onclick="confirmFixedItem(${it ? `'${it.id}'` : "null"})">Opslaan</button>
+      ${it ? `<button class="btn dang" onclick="delFixedItem('${it.id}')">Verwijderen</button>` : ""}
+    </div>`);
+}
+function confirmFixedItem(id) {
+  buzz();
+  const name = $("#fx-name").value.trim();
+  let amount = Math.round(Math.abs(parseFloat($("#fx-amount").value.replace(",", ".")) || 0) * 100);
+  if ($("#fx-type").value === "inkomst") amount = -amount;
+  if (!name || !amount) { toast("Vul naam en bedrag in."); return; }
+  const data = { name, amount, who: normWho($("#fx-who").value), group: $("#fx-group").value.trim() || "Algemeen", note: $("#fx-note").value.trim() };
+  const it = id ? state.fixed.items.find((x) => x.id === id) : null;
+  if (it) Object.assign(it, data); else state.fixed.items.push({ id: uid(), ...data });
+  saveFixed(); closeSheet(); render();
+}
+function delFixedItem(id) { state.fixed.items = state.fixed.items.filter((x) => x.id !== id); saveFixed(); closeSheet(); render(); }
+function openDebt(id) {
+  const d = id ? state.fixed.debts.find((x) => x.id === id) : null;
+  const st = d ? DEBT_STATUS[d.status] ?? DEBT_STATUS.open : null;
+  openSheet(`
+    <div class="grab"></div>
+    <h3>${d ? esc(d.name) : "Nieuwe schuld"}</h3>
+    ${d ? `<p class="muted" style="margin:4px 0 12px">Openstaand: <b class="num" style="color:var(--ink)">${euro(d.total - d.paid)}</b> van ${euro(d.total)}${d.note ? ` · ${esc(d.note)}` : ""}</p>` : ""}
+    <div class="formgrid" style="margin-top:8px">
+      ${d ? `
+      <label class="fl">Aflossing boeken (€)<input id="db-pay" inputmode="decimal" placeholder="bijv. 150"></label>
+      <button class="btn" onclick="confirmDebtPay('${d.id}')">Aflossing verwerken</button>
+      <div class="cols2">
+        <label class="fl">Status<select id="db-status">${Object.entries(DEBT_STATUS).map(([k, v]) => `<option value="${k}" ${d.status === k ? "selected" : ""}>${v.label}</option>`).join("")}</select></label>
+        <label class="fl">Van wie<input id="db-who" value="${esc(d.who || "")}" placeholder="leeg = gezamenlijk"></label>
+      </div>
+      <div class="cols2">
+        <label class="fl">Betaalplan: €/maand<input id="db-plan" inputmode="decimal" value="${d.plan ? (d.plan/100).toString().replace(".", ",") : ""}" placeholder="bijv. 100"></label>
+        <label class="fl">Betaaldag (1–28)<input id="db-planday" inputmode="numeric" value="${d.planDay || ""}" placeholder="bijv. 25"></label>
+      </div>
+      <button class="btn sec" onclick="confirmDebtStatus('${d.id}')">Wijzigingen opslaan</button>
+      <button class="btn dang" onclick="delDebt('${d.id}')">Schuld verwijderen</button>` : `
+      <label class="fl">Naam / schuldeiser<input id="db-name" placeholder="bijv. Belastingdienst IB 2024"></label>
+      <div class="cols2">
+        <label class="fl">Totaalbedrag (€)<input id="db-total" inputmode="decimal"></label>
+        <label class="fl">Status<select id="db-status-new">${Object.entries(DEBT_STATUS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join("")}</select></label>
+      </div>
+      <button class="btn" onclick="confirmDebtNew()">Schuld toevoegen</button>`}
+    </div>`);
+}
+function confirmDebtNew() {
+  buzz();
+  const name = $("#db-name").value.trim();
+  const total = Math.round(Math.abs(parseFloat($("#db-total").value.replace(",", ".")) || 0) * 100);
+  if (!name || !total) { toast("Vul naam en bedrag in."); return; }
+  state.fixed.debts.push({ id: uid(), name, total, paid: 0, status: $("#db-status-new").value, note: "", group: "Algemeen" });
+  saveFixed(); closeSheet(); render();
+}
+function confirmDebtPay(id) {
+  buzz();
+  const d = state.fixed.debts.find((x) => x.id === id);
+  const v = Math.round((parseFloat($("#db-pay").value.replace(",", ".")) || 0) * 100);
+  if (!v) { toast("Vul een bedrag in."); return; }
+  d.paid = Math.min(d.total, Math.max(0, d.paid + v));
+  saveFixed(); closeSheet(); render();
+  toast(d.paid >= d.total ? `${d.name} is volledig afgelost! 🎉` : `Aflossing verwerkt — nog ${euro(d.total - d.paid)} open.`);
+}
+function confirmDebtStatus(id) {
+  const d = state.fixed.debts.find((x) => x.id === id);
+  d.status = $("#db-status").value;
+  d.who = normWho($("#db-who").value);
+  d.plan = Math.round(Math.abs(parseFloat($("#db-plan").value.replace(",", ".")) || 0) * 100) || null;
+  d.planDay = Math.min(28, Math.max(1, parseInt($("#db-planday").value) || 0)) || null;
+  saveFixed(); closeSheet(); render();
+}
+function delDebt(id) { state.fixed.debts = state.fixed.debts.filter((x) => x.id !== id); saveFixed(); closeSheet(); render(); }
+function simDebt(v) {
+  state.debtSim = Math.round((parseFloat(String(v).replace(",", ".")) || 0) * 100);
+  render();
+}
+
+/* ========== AI-labelen: herkennen, vragen bij twijfel, nieuwe labels ========== */
+const KLEUR_POOL = ["#0a84ff","#ff9f0a","#30d158","#bf5af2","#ff375f","#64d2ff","#ffd60a","#5e5ce6","#ff453a","#40c8e0","#ac8e68","#8e8e93"];
+function addCategory(name, kind, glyph) {
+  name = String(name || "").trim();
+  if (!name) return null;
+  const ex = state.config.cats.find((c) => c.name.toLowerCase() === name.toLowerCase());
+  if (ex) return ex.id;
+  let id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 20) || "label";
+  if (state.config.cats.some((c) => c.id === id)) id = id + "-" + uid().slice(0, 4);
+  state.config.cats.push({ id, name, color: KLEUR_POOL[state.config.cats.length % KLEUR_POOL.length],
+    glyph: (glyph || "🏷️").slice(0, 4), kind: kind || "expense", budget: null });
+  saveConfig();
+  return id;
+}
+function applyLabel(payee, catId, dirty) {
+  const kw = payee.toLowerCase().slice(0, 30);
+  if (!state.config.rules.some((r) => r.kw === kw)) state.config.rules.push({ kw, cat: catId });
+  for (const [ym, list] of Object.entries(state.months))
+    for (const t of list) if (!t.cat && t.payee.trim() === payee) { t.cat = catId; dirty.add(ym); }
+}
+function flushMonths(dirty) { for (const ym of dirty) saveMonth(ym); if (dirty.size) saveConfig(); }
+async function aiLabel() {
+  if (!SAMPLE) { toast("AI is in deze weergave niet beschikbaar."); return; }
+  const un = allTx().filter((t) => !t.cat);
+  if (!un.length) { toast("Alles heeft al een label. 🙌"); return; }
+  const groups = {};
+  for (const t of un) {
+    const k = t.payee.trim();
+    if (!groups[k]) groups[k] = { n: 0, sum: 0, desc: t.desc || "" };
+    groups[k].n++; groups[k].sum += t.amount;
+  }
+  const top = Object.entries(groups).sort((a, b) => b[1].n - a[1].n).slice(0, 40);
+  openSheet(`<div class="grab"></div><h3>🤖 AI labelt je uitgaven…</h3>
+    <p class="muted" style="margin-top:8px">${top.length} verschillende namen worden herkend. Waar de AI twijfelt, krijg jij zo een vraag — hij gokt niet. De eerste keer vraagt de app toestemming om AI te gebruiken.</p>`);
+  const prompt = `Je categoriseert betalingen voor een Nederlandse persoonlijke-financiën-app.
+
+BESTAANDE LABELS (gebruik het id):
+${JSON.stringify(state.config.cats.map((c) => ({ id: c.id, naam: c.name, soort: c.kind })))}
+
+TEGENPARTIJEN zonder label (negatief gemiddelde = uitgave, positief = inkomst):
+${JSON.stringify(top.map(([naam, g]) => ({ naam, omschrijving: g.desc.slice(0, 60), keer: g.n, gemiddeld_euro: Math.round(g.sum / g.n / 100) })))}
+
+Antwoord met ALLEEN een JSON-array, één object per tegenpartij:
+[{"naam":"<exact de naam>","label":"<id van bestaand label, of null>","nieuw":"<naam voor een NIEUW label als geen bestaand label past, anders null>","glyph":"<één passende emoji bij een nieuw label>","zeker":<0-100>}]
+Regels: kies een bestaand label waar het echt past. Stel alleen een nieuw label voor bij een duidelijke eigen groep (bijv. tabak/roken, kinderen, goede doelen, huisdieren, zakelijk). Persoonlijke overboekingen naar personen: label null en zeker laag — dat beslist de gebruiker. Twijfel je, zet zeker onder 70.`;
+  try {
+    const res = await SAMPLE.json(prompt, { cache: false });
+    if (!Array.isArray(res)) throw { code: "invalid_json" };
+    const dirty = new Set();
+    let applied = 0;
+    const vragen = [];
+    for (const r of res) {
+      const naam = String(r?.naam || "");
+      const g = groups[naam];
+      if (!g) continue;
+      const catId = r.label && state.config.cats.some((c) => c.id === r.label) ? r.label : null;
+      const zeker = Number(r.zeker) || 0;
+      if (catId && zeker >= 75) { applyLabel(naam, catId, dirty); applied += g.n; }
+      else vragen.push({ payee: naam, n: g.n, sug: catId, nieuw: r.nieuw ? String(r.nieuw).slice(0, 30) : null, glyph: r.glyph ? String(r.glyph).slice(0, 4) : null });
+    }
+    state.config.review = vragen;
+    flushMonths(dirty); saveConfig(); closeSheet(); render(); buzz();
+    toast(`${applied} transacties automatisch gelabeld${vragen.length ? ` · ${vragen.length} vragen voor jou` : ""}.`);
+    if (vragen.length) openReview();
+  } catch (e) {
+    console.error(e);
+    closeSheet();
+    toast({ not_granted: "Je hebt AI-gebruik niet toegestaan.", rate_limited: "Even te druk — probeer het zo opnieuw.",
+            invalid_json: "De AI gaf een onduidelijk antwoord — probeer het nog eens." }[e?.code] || "Labelen mislukte — probeer het opnieuw.");
+  }
+}
+function openReview() {
+  const q = state.config.review || [];
+  if (!q.length) { closeSheet(); render(); return; }
+  const it = q[0];
+  const cat = it.sug ? catById(it.sug) : null;
+  openSheet(`
+    <div class="grab"></div>
+    <h3>❓ Waar hoort dit bij?</h3>
+    <p class="muted" style="margin:4px 0 12px"><b style="color:var(--ink)">${esc(it.payee)}</b> · ${it.n} transactie(s) · nog ${q.length} ${q.length === 1 ? "vraag" : "vragen"}</p>
+    <div class="formgrid">
+      ${it.nieuw ? `<button class="btn" onclick="reviewAnswer(null, ${JSON.stringify(it.nieuw).replace(/"/g, "&quot;")}, ${JSON.stringify(it.glyph || "🏷️").replace(/"/g, "&quot;")})">➕ Nieuw label: ${esc(it.nieuw)} ${esc(it.glyph || "")}</button>` : ""}
+      ${cat ? `<button class="btn ${it.nieuw ? "sec" : ""}" onclick="reviewAnswer('${cat.id}', null, null)">Voorstel: ${esc(cat.glyph)} ${esc(cat.name)}</button>` : ""}
+      <details ${!it.nieuw && !cat ? "open" : ""}><summary class="muted" style="cursor:pointer;padding-block:4px">Zelf kiezen of nieuw label typen</summary>
+        <div style="margin-top:10px">${catPicker("rv-cat", null, "")}</div>
+        <input id="rv-new" placeholder="➕ Of typ hier een nieuw label…" style="margin-top:10px">
+        <button class="btn" style="margin-top:10px" onclick="reviewConfirm()">Opslaan</button>
+      </details>
+      <button class="btn sec" onclick="reviewSkip()">Overslaan</button>
+    </div>`);
+}
+function reviewAnswer(catId, nieuwNaam, glyph) {
+  buzz();
+  const q = state.config.review || [];
+  const it = q.shift();
+  if (!it) { openReview(); return; }
+  let id = catId;
+  if (!id && nieuwNaam) id = addCategory(nieuwNaam, it.n && allTx().some((t) => t.payee.trim() === it.payee && t.amount > 0) ? "income" : "expense", glyph);
+  if (id) { const dirty = new Set(); applyLabel(it.payee, id, dirty); flushMonths(dirty); }
+  saveConfig();
+  openReview();
+}
+function reviewConfirm() {
+  const nieuw = $("#rv-new")?.value?.trim();
+  const gekozen = chosenCat("rv-cat");
+  if (!nieuw && !gekozen) { toast("Kies een label of typ een nieuwe."); return; }
+  reviewAnswer(nieuw ? null : gekozen, nieuw || null, null);
+}
+function reviewSkip() {
+  const q = state.config.review || [];
+  q.shift(); saveConfig(); openReview();
+}
+
+/* ========== labels beheren ========== */
+function openLabels() {
+  const cats = state.config.cats;
+  const row = (c) => `<div class="trow" onclick="openLabelEdit('${c.id}')">${cicon(c, 36)}
+    <div class="tmain"><div class="tname">${esc(c.name)}</div><div class="tsub">${allTx().filter((t) => t.cat === c.id).length} transacties${c.budget != null ? ` · budget ${euro(c.budget)}` : ""}</div></div>
+    <span class="muted">›</span></div>`;
+  openSheet(`
+    <div class="grab"></div>
+    <h3>🏷️ Labels beheren</h3>
+    <div class="formgrid" style="margin-top:12px">
+      <div class="cols2">
+        <input id="lb-new" placeholder="Nieuw label (bijv. Sport)">
+        <input id="lb-emoji" placeholder="Emoji (bijv. ⚽)">
+      </div>
+      <div class="cols2">
+        <select id="lb-kind"><option value="expense">Uitgave</option><option value="income">Inkomst</option></select>
+        <button class="btn" onclick="confirmNewLabel()">＋ Toevoegen</button>
+      </div>
+      <button class="btn sec" onclick="relabelUnknown()">🔄 Ongelabelde opnieuw herkennen</button>
+    </div>
+    <h2 style="margin:16px 0 4px">Uitgaven</h2><div class="rows">${cats.filter((c) => c.kind !== "income").map(row).join("")}</div>
+    <h2 style="margin:14px 0 4px">Inkomsten</h2><div class="rows">${cats.filter((c) => c.kind === "income").map(row).join("")}</div>`);
+}
+function confirmNewLabel() {
+  const naam = $("#lb-new").value;
+  if (!naam.trim()) { toast("Typ eerst een naam."); return; }
+  addCategory(naam, $("#lb-kind").value, $("#lb-emoji").value.trim() || null);
+  buzz(); openLabels(); toast(`Label "${naam.trim()}" toegevoegd.`);
+}
+function openLabelEdit(id) {
+  const c = catById(id);
+  if (!c) return;
+  const n = allTx().filter((t) => t.cat === id).length;
+  openSheet(`
+    <div class="grab"></div>
+    <div class="row" style="gap:12px">${cicon(c, 46)}<h3>${esc(c.name)}</h3></div>
+    <div class="formgrid" style="margin-top:12px">
+      <div class="cols2">
+        <label class="fl">Naam<input id="le-name" value="${esc(c.name)}"></label>
+        <label class="fl">Emoji<input id="le-glyph" value="${esc(c.glyph)}"></label>
+      </div>
+      <button class="btn" onclick="confirmLabelEdit('${c.id}')">Opslaan</button>
+      <button class="btn sec" onclick="closeSheet();openCatDetail('${c.id}')">Bekijk overzicht & transacties</button>
+      <button class="btn dang" onclick="delLabel('${c.id}')">Label verwijderen${n ? ` (${n} transacties worden 'zonder label')` : ""}</button>
+    </div>`);
+}
+function confirmLabelEdit(id) {
+  const c = catById(id);
+  const naam = $("#le-name").value.trim();
+  if (!naam) { toast("Naam mag niet leeg zijn."); return; }
+  c.name = naam;
+  c.glyph = ($("#le-glyph").value.trim() || c.glyph).slice(0, 4);
+  buzz(); saveConfig(); openLabels(); render();
+}
+function delLabel(id) {
+  const dirty = new Set();
+  for (const [ym, list] of Object.entries(state.months))
+    for (const t of list) if (t.cat === id) { t.cat = null; dirty.add(ym); }
+  state.config.rules = state.config.rules.filter((r) => r.cat !== id);
+  state.config.cats = state.config.cats.filter((c) => c.id !== id);
+  flushMonths(dirty); saveConfig(); openLabels(); render();
+  toast("Label verwijderd.");
+}
+function relabelUnknown() {
+  const dirty = new Set();
+  let n = 0;
+  for (const [ym, list] of Object.entries(state.months))
+    for (const t of list) if (!t.cat) {
+      const c = autoCat(t.payee, t.desc || "", t.amount);
+      if (c) { t.cat = c; dirty.add(ym); n++; }
+    }
+  flushMonths(dirty); render();
+  toast(n ? `${n} transacties alsnog herkend en gelabeld.` : "Niets nieuws herkend — gebruik 🤖 AI-labelen voor de rest.");
+  openLabels();
+}
+
+/* ========== scan met AI (foto van brief/bon) ========== */
+function canScan() { return !!(SAMPLE && SCANLIM && SCANLIM.images); }
+let lastScan = null;
+function scanDoc(input) {
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file) return;
+  if (!canScan()) { toast("Scannen is in deze weergave niet beschikbaar."); return; }
+  openSheet(`<div class="grab"></div><h3>📷 Document scannen</h3>
+    <p class="muted" style="margin-top:8px">AI leest je document — dit kan tot een minuut duren. De eerste keer vraagt de app je toestemming om AI te gebruiken.</p>
+    <p class="muted" id="scanstate" style="margin-top:10px">Bezig met lezen…</p>`);
+  const prompt = `Je krijgt een foto van een Nederlands financieel document: een brief (bijv. aanmaning, betalingsregeling, incasso, belastingaanslag), een rekening, een abonnementsbevestiging of een kassabon. Haal de kerngegevens eruit.
+Antwoord met ALLEEN dit JSON-object, zonder tekst eromheen:
+{"type":"schuld" of "vaste_last" of "transactie","naam":"afzender/schuldeiser/winkel","bedrag":maandbedrag of bonbedrag in euro als getal (positief, null als onbekend),"totaal":totaal openstaand bedrag in euro bij schuld/aanmaning (getal of null),"status":"direct" of "regeling" of "uitstel" of "open","datum":"YYYY-MM-DD" of null,"omschrijving":"kenmerk, factuurnummer of korte omschrijving","vervaldag":dag van de maand (1-28) waarop betaald moet worden, of null}
+Kies type "schuld" bij aanmaning/achterstand/betalingsregeling/incasso/aanslag met openstaand bedrag; "vaste_last" bij maandelijks terugkerende kosten (huur, premie, abonnement, energie); "transactie" bij een kassabon of eenmalige betaling. Status: "direct" = per direct te betalen, "regeling" = betalingsregeling, "uitstel" = uitstel (verlopen), anders "open".`;
+  SAMPLE.json(prompt, { images: file, cache: false })
+    .then((d) => {
+      if (!d || typeof d !== "object" || Array.isArray(d)) throw { code: "invalid_json", message: "geen object" };
+      showScanResult(d);
+    })
+    .catch((e) => {
+      console.error(e);
+      const msg = {
+        not_granted: "Je hebt AI-gebruik voor deze app niet toegestaan.",
+        refused: "De AI kon of mocht dit document niet verwerken.",
+        invalid_json: "De AI kon er geen duidelijke gegevens uit halen — probeer een scherpere foto.",
+        image_rejected: "Deze foto wordt niet geaccepteerd — probeer een ander bestand (JPEG/PNG).",
+        rate_limited: "Even te veel gevraagd — probeer het over een paar minuten opnieuw.",
+      }[e?.code] || "Scannen mislukte — probeer het opnieuw.";
+      closeSheet();
+      toast(msg);
+    });
+}
+function showScanResult(d) {
+  lastScan = d;
+  const type = ["schuld", "vaste_last", "transactie"].includes(d.type) ? d.type : "transactie";
+  const num = (v) => (typeof v === "number" && isFinite(v) ? Math.abs(v) : null);
+  const bedrag = num(d.bedrag), totaal = num(d.totaal);
+  openSheet(`
+    <div class="grab"></div>
+    <h3>✅ Gelezen — klopt dit?</h3>
+    <div class="formgrid" style="margin-top:12px">
+      <label class="fl">Type<select id="sc-type">
+        <option value="schuld" ${type === "schuld" ? "selected" : ""}>Schuld / achterstand</option>
+        <option value="vaste_last" ${type === "vaste_last" ? "selected" : ""}>Vaste last (maandelijks)</option>
+        <option value="transactie" ${type === "transactie" ? "selected" : ""}>Losse transactie</option>
+      </select></label>
+      <label class="fl">Naam<input id="sc-name" value="${esc(d.naam || "")}"></label>
+      <div class="cols2">
+        <label class="fl">Bedrag (€)<input id="sc-amount" inputmode="decimal" value="${bedrag != null ? String(bedrag).replace(".", ",") : totaal != null ? String(totaal).replace(".", ",") : ""}"></label>
+        <label class="fl">Totaal open (€, bij schuld)<input id="sc-total" inputmode="decimal" value="${totaal != null ? String(totaal).replace(".", ",") : ""}"></label>
+      </div>
+      <div class="cols2">
+        <label class="fl">Status<select id="sc-status">${Object.entries(DEBT_STATUS).map(([k, v]) => `<option value="${k}" ${d.status === k ? "selected" : ""}>${v.label}</option>`).join("")}</select></label>
+        <label class="fl">Datum<input id="sc-date" type="date" value="${/^\d{4}-\d{2}-\d{2}$/.test(d.datum || "") ? d.datum : vandaag()}"></label>
+      </div>
+      <label class="fl">Omschrijving / kenmerk<input id="sc-desc" value="${esc(d.omschrijving || "")}"></label>
+      <button class="btn" onclick="applyScan()">Toevoegen</button>
+      <button class="btn sec" onclick="closeSheet()">Annuleren</button>
+    </div>`);
+}
+function applyScan() {
+  buzz();
+  const type = $("#sc-type").value;
+  const name = $("#sc-name").value.trim() || "Onbekend";
+  const amount = Math.round(Math.abs(parseFloat($("#sc-amount").value.replace(",", ".")) || 0) * 100);
+  const total = Math.round(Math.abs(parseFloat($("#sc-total").value.replace(",", ".")) || 0) * 100);
+  const desc = $("#sc-desc").value.trim();
+  const vervaldag = lastScan && lastScan.vervaldag >= 1 && lastScan.vervaldag <= 28 ? Math.round(lastScan.vervaldag) : null;
+  if (type === "schuld") {
+    const t = total || amount;
+    if (!t) { toast("Vul het openstaande bedrag in."); return; }
+    state.fixed.debts.push({ id: uid(), name, total: t, paid: 0, status: $("#sc-status").value, note: desc, group: "Gescand", who: "", plan: null, planDay: vervaldag });
+    saveFixed(); closeSheet(); state.tab = "lasten"; render();
+    toast(`Schuld "${name}" toegevoegd (${euro(t)} open).`);
+  } else if (type === "vaste_last") {
+    if (!amount) { toast("Vul het maandbedrag in."); return; }
+    state.fixed.items.push({ id: uid(), name, amount, who: "", group: "Gescand", note: desc });
+    saveFixed(); closeSheet(); state.tab = "lasten"; render();
+    toast(`Vaste last "${name}" toegevoegd (${euro(amount)}/mnd).`);
+  } else {
+    if (!amount) { toast("Vul het bedrag in."); return; }
+    const date = $("#sc-date").value || vandaag();
+    const ym = date.slice(0, 7);
+    const tnew = { id: uid(), date, amount: -amount, payee: name, desc, cat: autoCat(name, desc, -amount) };
+    if (state.hh) tnew.hh = state.hh;
+    (state.months[ym] = state.months[ym] || []).push(tnew);
+    saveMonth(ym); closeSheet(); state.tab = "tx"; render();
+    toast(`Transactie "${name}" toegevoegd.`);
+  }
+}
+
+/* ========== betaalplan-herinneringen (.ics via agenda) ========== */
+function planDebts() { return state.fixed.debts.filter((d) => d.plan && d.planDay && d.total - d.paid > 0); }
+function nextPayDate(day) {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() + (now.getDate() > day ? 1 : 0), day);
+  return d;
+}
+async function planIcs() {
+  if (!DOWNLOADS) { toast("Downloaden is in deze weergave niet beschikbaar."); return; }
+  const pds = planDebts();
+  if (!pds.length) { toast("Stel eerst bij een schuld een betaalplan in (bedrag + betaaldag)."); return; }
+  const pad = (n) => String(n).padStart(2, "0");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//FinSight//Betaalplan//NL", "X-WR-CALNAME:FinSight betaalplan"];
+  for (const d of pds) {
+    const count = Math.max(1, Math.ceil((d.total - d.paid) / d.plan));
+    const start = nextPayDate(d.planDay);
+    const dt = `${start.getFullYear()}${pad(start.getMonth() + 1)}${pad(start.getDate())}T090000`;
+    const escT = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,");
+    lines.push("BEGIN:VEVENT",
+      `UID:finsight-plan-${d.id}@finsight`,
+      `DTSTART:${dt}`,
+      `RRULE:FREQ=MONTHLY;BYMONTHDAY=${d.planDay};COUNT=${count}`,
+      `SUMMARY:${escT(`Aflossen: ${d.name} — ${euro(d.plan)}`)}`,
+      `DESCRIPTION:${escT(`Betaalplan FinSight. Nog open bij start: ${euro(d.total - d.paid)} (${count} termijnen).`)}`,
+      "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${escT(`Vandaag aflossen: ${d.name} ${euro(d.plan)}`)}`, "TRIGGER:-PT1H", "END:VALARM",
+      "END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
+  try {
+    await DOWNLOADS.save({ filename: "finsight-betaalplan.ics", data: new Blob([lines.join("\r\n")], { type: "text/calendar" }) });
+    toast("Agenda-bestand klaargezet — open het en voeg toe aan je agenda voor meldingen.");
+  } catch (e) { console.error(e); toast("Opslaan geannuleerd."); }
+}
+function viewLasten() {
+  const who = state.fixedWho;
+  const match = (w) => !who || (who === "_samen" ? !w : String(w || "").toLowerCase() === who.toLowerCase());
+  const items = state.fixed.items.filter((i) => match(i.who));
+  const debts = state.fixed.debts.filter((d) => match(d.who || ""));
+  const persons = fixedPersons();
+  const lasten = items.filter((i) => i.amount > 0).reduce((a, b) => a + b.amount, 0);
+  const inkomsten = -items.filter((i) => i.amount < 0).reduce((a, b) => a + b.amount, 0);
+  const ruimte = inkomsten - lasten;
+  const open = debts.reduce((a, d) => a + (d.total - d.paid), 0);
+  const direct = debts.filter((d) => d.status === "direct" || d.status === "uitstel").reduce((a, d) => a + (d.total - d.paid), 0);
+  const groups = [...new Set(items.map((i) => i.group || "Algemeen"))];
+  const sim = state.debtSim ?? (ruimte > 0 ? Math.round(ruimte / 2) : 0);
+  const simMonths = sim > 0 && open > 0 ? Math.ceil(open / sim) : null;
+  const simDate = simMonths ? new Date(new Date().getFullYear(), new Date().getMonth() + simMonths, 1).toLocaleDateString("nl-NL", { month: "long", year: "numeric" }) : null;
+
+  if (!items.length && !debts.length) {
+    return `
+    <h1 class="page">Lasten &amp; schulden</h1>
+    <div class="card empty">
+      <div class="glyph">🧾</div>
+      <h3 style="margin:0;font-size:18px;font-weight:700">Breng je vaste lasten en schulden in kaart</h3>
+      <p class="muted" style="max-width:420px;margin:10px auto 20px">Importeer je eigen Excel-overzicht (zoals "Vaste lasten en schulden verdeling") of voeg posten handmatig toe. Je ziet dan direct je maandruimte, je totale schuld en wanneer je schuldenvrij kunt zijn.</p>
+      <div class="formgrid" style="max-width:300px;margin:0 auto">
+        <label class="btn" style="text-align:center">📄 Excel importeren<input type="file" accept=".xlsx,.xls" onchange="importFixed(this)" hidden></label>
+        ${canScan() ? `<label class="btn sec" style="text-align:center">📷 Brief of bon scannen (AI)<input type="file" accept="image/*" capture="environment" onchange="scanDoc(this)" hidden></label>` : ""}
+        <button class="btn sec" onclick="openFixedItem()">+ Vaste last toevoegen</button>
+        <button class="btn sec" onclick="openDebt()">+ Schuld toevoegen</button>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="row spread"><h1 class="page">Lasten &amp; schulden</h1>
+    <span class="row" style="gap:6px">
+      ${canScan() ? `<label class="btn sm sec" style="width:auto">📷 Scan<input type="file" accept="image/*" capture="environment" onchange="scanDoc(this)" hidden></label>` : ""}
+      <label class="btn sm" style="width:auto">📄 Import<input type="file" accept=".xlsx,.xls" onchange="importFixed(this)" hidden></label>
+    </span></div>
+  ${persons.length ? `<div class="chiprow">
+    <button class="chip ${!who ? "on" : ""}" onclick="state.fixedWho='';render()">Iedereen</button>
+    <button class="chip ${who === "_samen" ? "on" : ""}" onclick="state.fixedWho='_samen';render()">Gezamenlijk</button>
+    ${persons.map((p) => `<button class="chip ${who === p ? "on" : ""}" onclick="state.fixedWho='${esc(p)}';render()">${esc(p)}</button>`).join("")}
+  </div>` : ""}
+  <div class="card hero" style="padding:18px">
+    <div class="lbl">Maandruimte${who ? ` · ${who === "_samen" ? "gezamenlijk" : esc(who)}` : ""} (inkomsten − vaste lasten)</div>
+    <div class="big num" style="font-size:30px;color:${ruimte < 0 ? "var(--red)" : "var(--green)"}">${euro(ruimte)}</div>
+    <div class="chips">
+      <span class="pill"><span class="up">↑</span> <b class="num">${euro(inkomsten)}</b>&nbsp;in</span>
+      <span class="pill"><span class="down">↓</span> <b class="num">${euro(lasten)}</b>&nbsp;vaste lasten</span>
+    </div>
+  </div>
+  ${persons.length && !who ? (() => {
+    const calc = (label, fn) => {
+      const its = state.fixed.items.filter(fn);
+      const inn = -its.filter((i) => i.amount < 0).reduce((a, b) => a + b.amount, 0);
+      const uit = its.filter((i) => i.amount > 0).reduce((a, b) => a + b.amount, 0);
+      const schuld = state.fixed.debts.filter((d) => fn({ who: d.who || "" })).reduce((a, d) => a + (d.total - d.paid), 0);
+      return { label, inn, uit, saldo: inn - uit, schuld };
+    };
+    const rows = persons.map((p) => calc(p, (i) => i.who === p));
+    rows.push(calc("Gezamenlijk", (i) => !i.who));
+    return `<div class="card"><h2>Verdeling per persoon</h2>
+    <p class="muted" style="margin:4px 0 6px;font-size:12px">Wie betaalt wat — zoals de boekhouding het verdeelt.</p>
+    <div style="overflow-x:auto"><table>
+      <tr><th>Wie</th><th class="r">In</th><th class="r">Lasten</th><th class="r">Saldo/mnd</th><th class="r">Schuld open</th></tr>
+      ${rows.map((r) => `<tr><td style="white-space:nowrap">${esc(r.label)}</td><td class="r num" style="white-space:nowrap">${euro(r.inn)}</td><td class="r num" style="white-space:nowrap">${euro(r.uit)}</td><td class="r num" style="color:${r.saldo < 0 ? "var(--red)" : "var(--green)"};font-weight:600;white-space:nowrap">${euroS(r.saldo)}</td><td class="r num" style="white-space:nowrap">${r.schuld ? euro(r.schuld) : "—"}</td></tr>`).join("")}
+    </table></div></div>`;
+  })() : ""}
+  ${groups.map((g) => {
+    const gi = items.filter((i) => (i.group || "Algemeen") === g);
+    const sum = gi.reduce((a, b) => a + b.amount, 0);
+    return `<div class="card" style="padding:10px 16px">
+      <div class="row spread" style="padding-block:4px"><h2>${esc(g)}</h2><span class="muted num">netto ${euro(-sum)}</span></div>
+      <div class="rows">${gi.map((i) => `<div class="trow" onclick="openFixedItem('${i.id}')">
+        <div class="tmain"><div class="tname">${esc(i.name)}</div><div class="tsub">${i.who ? esc(i.who) : "gezamenlijk"}${i.note ? " · " + esc(i.note) : ""}</div></div>
+        <div class="tamt num ${i.amount < 0 ? "in" : ""}">${euroS(-i.amount)}</div>
+      </div>`).join("")}</div>
+      <button class="btn sec sm" style="margin:8px 0" onclick="openFixedItem()">+ Post toevoegen</button>
+    </div>`;
+  }).join("")}
+  ${planDebts().length ? (() => {
+    const pds = planDebts().map((d) => ({ d, next: nextPayDate(d.planDay) })).sort((a, b) => a.next - b.next);
+    return `<div class="card">
+    <div class="row spread"><h2>Komende betalingen</h2><button class="btn sec sm" onclick="planIcs()">🔔 In agenda</button></div>
+    <p class="muted" style="margin:4px 0 2px;font-size:12px">Volgens je betaalplannen. Zet ze in je agenda voor echte meldingen op je telefoon.</p>
+    <div class="rows">${pds.map(({ d, next }) => `<div class="trow" onclick="openDebt('${d.id}')">
+      <div class="tmain"><div class="tname">${esc(d.name)}</div><div class="tsub">${next.getDate()} ${MONTH_NAMES[next.getMonth()]} · nog ${Math.max(1, Math.ceil((d.total - d.paid) / d.plan))} termijnen</div></div>
+      <div class="tamt num">${euro(Math.min(d.plan, d.total - d.paid))}</div></div>`).join("")}</div></div>`;
+  })() : ""}
+  <div class="card">
+    <div class="row spread"><h2>Schulden &amp; achterstanden</h2><button class="btn sec sm" onclick="openDebt()">+ Schuld</button></div>
+    <div class="chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <span class="pill">totaal open <b class="num">&nbsp;${euro(open)}</b></span>
+      ${direct ? `<span class="pill" style="color:var(--red)">⚠ nu te betalen <b class="num">&nbsp;${euro(direct)}</b></span>` : ""}
+    </div>
+    <div class="rows" style="margin-top:8px">${debts.map((d) => {
+      const st = DEBT_STATUS[d.status] ?? DEBT_STATUS.open;
+      const pct = Math.min(100, Math.round(d.paid / d.total * 100));
+      return `<div class="trow" onclick="openDebt('${d.id}')">
+        <div class="tmain">
+          <div class="tname">${esc(d.name)}</div>
+          <div class="tsub"><span style="color:${st.color}">● ${st.label}</span>${d.paid ? ` · ${pct}% afgelost` : ""}</div>
+          ${d.paid ? `<div class="bar" style="margin-top:5px;height:4px"><i style="width:${pct}%;background:var(--green)"></i></div>` : ""}
+        </div>
+        <div class="tamt num">${euro(d.total - d.paid)}</div>
+      </div>`;
+    }).join("") || '<p class="muted" style="padding:10px 0">Geen schulden — top!</p>'}</div>
+  </div>
+  ${open > 0 ? `<div class="card">
+    <h2>Aflossingsplan</h2>
+    <p class="muted" style="margin:6px 0 10px">Hoeveel kun je per maand aflossen?</p>
+    <div class="row" style="flex-wrap:nowrap">
+      <input inputmode="decimal" value="${(sim/100).toString().replace(".", ",")}" onchange="simDebt(this.value)" style="width:120px" id="simfield">
+      <div class="small" style="flex:1;color:var(--ink-2)">${simMonths ? `→ schuldenvrij over <b style="color:var(--ink)">~${simMonths} maanden</b> (${simDate})` : "Vul een bedrag in om je aflosdatum te zien."}</div>
+    </div>
+    ${ruimte > 0 && sim > ruimte ? `<p class="muted" style="margin-top:8px;color:var(--orange)">Let op: dit is meer dan je maandruimte van ${euro(ruimte)}.</p>` : ""}
+  </div>` : ""}`;
+}
+
+/* ========== views ========== */
+function viewEmpty() {
+  return `<div class="card empty">
+    <div class="glyph">👋</div>
+    <h3 style="margin:0;font-size:20px;font-weight:700">Welkom bij FinSight</h3>
+    <p class="muted" style="max-width:420px;margin:10px auto 22px">Jouw persoonlijke testversie. Importeer een CSV van je bank, voeg met <b>+</b> een transactie toe, of bekijk alles direct met demodata.</p>
+    <div class="formgrid" style="max-width:280px;margin:0 auto">
+      <button class="btn" onclick="loadDemo()">Demodata laden</button>
+      <button class="btn sec" onclick="go('tx')">Zelf beginnen</button>
+    </div>
+  </div>`;
+}
+function dashMonths() {
+  const set = new Set(allTx().map((t) => t.date.slice(0,7)));
+  set.add(dezeMaand());
+  return [...set].sort();
+}
+function shiftMonth(d) {
+  const months = dashMonths();
+  const cur = state.mSel || dezeMaand();
+  const i = Math.min(Math.max(months.indexOf(cur) + d, 0), months.length - 1);
+  state.mSel = months[i] === dezeMaand() ? null : months[i];
+  render();
+}
+/* Eerlijke vergelijking met vorige maand: voor de lopende maand telt de vorige maand alleen t/m dezelfde dag mee. */
+function expenseCompare(month) {
+  const months = dashMonths();
+  const i = months.indexOf(month);
+  if (i <= 0) return null;
+  const prev = months[i - 1];
+  const partial = month === dezeMaand();
+  const dayCap = new Date().getUTCDate();
+  const sum = (ym, cap) => allTx().filter((t) => t.amount < 0 && !isTransfer(t) && t.date.slice(0,7) === ym && (!cap || +t.date.slice(8) <= cap)).reduce((a,t) => a + -t.amount, 0);
+  const curS = sum(month, null), prevS = sum(prev, partial ? dayCap : null);
+  if (prevS < 2000) return null;
+  return Math.round(((curS - prevS) / prevS) * 100);
+}
+function lastenKaart() {
+  if (!(state.fixed.items.length || state.fixed.debts.length)) return "";
+  const fwho = state.fixedWho;
+  const mw = (w) => !fwho || (fwho === "_samen" ? !w : String(w || "").toLowerCase() === fwho.toLowerCase());
+  const fi = state.fixed.items.filter((i) => mw(i.who));
+  const ruimte = -fi.reduce((a, b) => a + b.amount, 0);
+  const open = state.fixed.debts.filter((d) => mw(d.who || "")).reduce((a, d) => a + (d.total - d.paid), 0);
+  const direct = state.fixed.debts.filter((d) => mw(d.who || "") && (d.status === "direct" || d.status === "uitstel")).reduce((a, d) => a + (d.total - d.paid), 0);
+  return `<div class="card" style="cursor:pointer;padding:14px 16px" onclick="go('lasten')">
+    <div class="row spread"><h2>Lasten &amp; schulden${fwho ? ` · ${fwho === "_samen" ? "gezamenlijk" : esc(fwho)}` : ""}</h2><span class="muted">›</span></div>
+    <div class="chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <span class="pill">maandruimte <b class="num" style="color:${ruimte < 0 ? "var(--red)" : "var(--green)"}">&nbsp;${euro(ruimte)}</b></span>
+      ${open ? `<span class="pill">schuld open <b class="num">&nbsp;${euro(open)}</b></span>` : ""}
+      ${direct ? `<span class="pill" style="color:var(--red)">⚠ nu te betalen <b class="num">&nbsp;${euro(direct)}</b></span>` : ""}
+    </div></div>`;
+}
+function viewDash() {
+  const hasFixed = state.fixed.items.length || state.fixed.debts.length;
+  if (!allTx().length && !hasFixed) return viewEmpty();
+  if (!allTx().length) {
+    return `
+    <div><h1 class="page">Home</h1><div class="sub">${maandNaam(dezeMaand())}</div></div>
+    ${lastenKaart()}
+    <div class="card" style="padding:14px 16px">
+      <h2>Banktransacties</h2>
+      <p class="muted" style="margin:6px 0 12px">Nog geen transacties. Importeer je bankafschrift (CSV of Excel) of scan een bon — dan zie je hier je saldo, uitgaven per categorie en trends naast je vaste lasten.</p>
+      <div class="formgrid">
+        <button class="btn" onclick="go('tx')">Bankafschrift importeren</button>
+      </div>
+    </div>`;
+  }
+  const month = state.mSel || dezeMaand();
+  const cmp = expenseCompare(month);
+  const months = dashMonths();
+  const mi = months.indexOf(month);
+  const stats = monthlyStats(9);
+  const cur = stats.find((s) => s.month === month) || { income: 0, expense: 0 };
+  const perCat = spendPerCat(month);
+  const rec = detectRecurring();
+  const anom = detectAnomalies(month);
+  const rate = savingsRate(month);
+  const recMonthly = rec.filter((r) => r.intervalDays > 20 && r.intervalDays < 40).reduce((a,b) => a + b.avgAmount, 0);
+  const recent = allTx().slice(0, 5);
+  return `
+  <div class="row spread" style="flex-wrap:nowrap">
+    <button class="iconbtn" onclick="shiftMonth(-1)" ${mi <= 0 ? "disabled style='opacity:0.3'" : ""} aria-label="Vorige maand">‹</button>
+    <div style="text-align:center;min-width:0"><b style="font-size:16px">${maandNaam(month)}</b>${state.mSel ? `<div class="muted" style="font-size:11px">tik › voor de huidige maand</div>` : ""}</div>
+    <button class="iconbtn" onclick="shiftMonth(1)" ${mi >= months.length - 1 ? "disabled style='opacity:0.3'" : ""} aria-label="Volgende maand">›</button>
+  </div>
+  ${(() => {
+    const sp6 = stats.slice(-6);
+    const mx = Math.max(1, ...sp6.map((s) => s.expense));
+    const spark = sp6.length > 1 ? `<div class="sparkA">${sp6.map((s) => `<i class="${s.month === month ? "hi" : ""}" style="height:${Math.max(9, Math.round(s.expense / mx * 100))}%;cursor:pointer" onclick="state.mSel='${s.month}';render()" title="${maandNaam(s.month)}"></i>`).join("")}</div>` : "";
+    return `<div class="card hero heroA">
+    <div class="lbl">${state.hh ? "Saldo · 🏘️ Immanuelkantstraat" : "Totaal saldo"}</div>
+    <div class="big num">${euro(saldo())}</div>
+    <div class="chips">
+      <span class="pill num">↑ ${euro(cur.income)} in</span>
+      <span class="pill num" onclick="drill('','${month}')" style="cursor:pointer">↓ ${euro(cur.expense)} uit</span>
+      ${hasCash() && !state.hh ? `<span class="pill num" onclick="openKluis()" style="cursor:pointer">💶 ${euro(cashSaldo())} kluis</span>` : ""}
+      ${rate != null && rate >= 0 ? `<span class="pill num">💰 ${rate}% gespaard</span>` : ""}
+      ${cmp != null ? `<span class="pill num">${cmp <= 0 ? "📉" : "📈"} ${cmp > 0 ? "+" : ""}${cmp}% vs vorige mnd</span>` : ""}
+    </div>
+    ${spark}
+  </div>`;
+  })()}
+  ${waarStaIk()}
+  ${anom.length ? `<div class="card" style="border-color:rgba(255,159,10,0.35)">
+    <div class="row" style="gap:10px"><span style="font-size:20px">⚠️</span><div style="flex:1">
+      <b style="font-size:14.5px">Opvallend: ${esc(anom[0].name)}</b>
+      <div class="muted">${euro(anom[0].thisMonth)} deze maand — ${anom[0].pct}% boven je gemiddelde</div></div></div></div>` : ""}
+  ${lastenKaart()}
+  <div class="card"><h2>Deze maand per categorie</h2>
+    <div class="row" style="margin-top:12px;align-items:center;gap:18px">
+      ${chartDonut(perCat.slice(0,8).map((c) => ({ label: c.cat?.name || "Overig", value: c.total, color: c.cat?.color || "#8e8e93" })))}
+      <div style="flex:1;min-width:150px">${perCat.slice(0,5).map((c) => `<div class="row spread" style="padding-block:4px;font-size:13.5px;flex-wrap:nowrap;cursor:pointer" onclick="${c.cat ? `openCatDetail('${c.cat.id}')` : `drill('none','${month}')`}">
+        <span class="row" style="gap:8px;flex-wrap:nowrap;min-width:0"><span class="dotl" style="background:${c.cat?.color || "#8e8e93"};margin:0"></span><span style="color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.cat?.name || "Ongecategoriseerd")}</span></span>
+        <b class="num" style="white-space:nowrap">${euro(c.total)}</b></div>`).join("")}</div>
+    </div></div>
+  <div class="card"><h2>Inkomsten vs. uitgaven</h2><div style="margin-top:12px">${chartBars(stats)}</div></div>
+  <div class="card">
+    <div class="row spread"><h2>Vaste lasten</h2><button class="btn sec sm" onclick="go('abos')">Alles</button></div>
+    <div class="muted" style="margin-top:4px">${euro(recMonthly)} per maand gedetecteerd</div>
+    <div class="rows" style="margin-top:6px">${rec.slice(0,4).map((r) => `<div class="trow" onclick="go('abos')">${cicon(catById(r.cat), 38)}
+      <div class="tmain"><div class="tname">${esc(r.payee)}</div><div class="tsub">volgende rond ${datum(r.nextExpected)}</div></div>
+      <div class="tamt num">${euro(r.avgAmount)}</div></div>`).join("")}</div></div>
+  <div class="card">
+    <div class="row spread"><h2>Recent</h2><button class="btn sec sm" onclick="go('tx')">Alles</button></div>
+    <div class="rows" style="margin-top:6px">${recent.map(txRow).join("")}</div></div>`;
+}
+/* Alles in één oogopslag: alle potjes + schuld = netto positie. */
+function waarStaIk() {
+  if (state.hh) return "";
+  const bank = saldo(), kluis = cashSaldo(), spaar = spaarSaldo();
+  const kant = hasKant() ? kantSaldo() : null;
+  const bezit = bank + kluis + spaar + (kant || 0);
+  const schuld = state.fixed.debts.reduce((a, d) => a + (d.total - d.paid), 0);
+  const netto = bezit - schuld;
+  const rij = (glyph, naam, bedrag, click, sub) => `
+    <div class="trow" style="padding:9px 2px" ${click ? `onclick="${click}"` : ""}>
+      <span style="font-size:19px;width:30px;text-align:center;flex:none">${glyph}</span>
+      <div class="tmain"><div class="tname" style="font-size:14.5px">${naam}</div>${sub ? `<div class="tsub">${sub}</div>` : ""}</div>
+      <div class="tamt num" style="color:${bedrag < 0 ? "var(--red)" : "var(--ink)"}">${euro(bedrag)}</div>
+      ${click ? '<span class="chev" style="color:var(--ink-3)">›</span>' : ""}
+    </div>`;
+  return `
+  <div class="card" style="padding:10px 16px 12px">
+    <div class="row spread" style="padding:6px 2px 2px"><h2>Waar sta ik?</h2><span class="muted" style="font-size:12px">al je potjes bij elkaar</span></div>
+    <div class="rows">
+      ${rij("🏦", "Bank", bank, "openCalibrate()")}
+      ${rij("💶", "Cash-kluis", kluis, "openKluis()")}
+      ${rij("🐷", "Spaarpot", spaar, "openSpaar()")}
+      ${kant != null ? rij("🏘️", "Immanuelkantstraat", kant, "toggleHh()", "aparte woning — tik om te wisselen") : ""}
+    </div>
+    <div class="row spread" style="border-top:1px solid var(--hair);padding:9px 2px 2px;font-size:14px"><b>Totaal bezit</b><b class="num">${euro(bezit)}</b></div>
+    ${schuld > 0 ? `
+    <div class="row spread" style="padding:7px 2px 2px;font-size:14px;cursor:pointer" onclick="go('lasten')"><span style="color:var(--ink-2)">🧾 Schuld open</span><b class="num" style="color:var(--red)">− ${euro(schuld)}</b></div>
+    <div class="row spread" style="border-top:1px solid var(--hair);margin-top:7px;padding:9px 2px 2px;font-size:15px"><b>Netto positie</b><b class="num" style="color:${netto < 0 ? "var(--red)" : "var(--green)"}">${euroS(netto)}</b></div>` : ""}
+  </div>`;
+}
+function txRow(t) {
+  const c = catById(t.cat);
+  return `<div class="trow" onclick="openTx('${t.id}')">${cicon(c, 42)}
+    <div class="tmain"><div class="tname">${esc(t.payee)}</div><div class="tsub">${t.acc === "cash" ? "💶 cash · " : t.acc === "spaar" ? "🐷 spaarpot · " : ""}${datum(t.date)} · ${esc(c?.name || "Tik om te categoriseren")}</div></div>
+    <div class="tamt num ${t.amount > 0 ? "in" : ""}">${euroS(t.amount)}</div></div>`;
+}
+function drill(catId, month) {
+  state.filter = { m: month, cat: catId, q: "" };
+  go("tx");
+}
+function drillRange(catId, from, to, label) {
+  state.filter = { m: "", cat: catId || "", q: "", from, to, label };
+  go("tx");
+}
+function weekNr(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+  const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return Math.ceil(((t - y0) / 864e5 + 1) / 7);
+}
+/* Categorie-detail: trend, gemiddelden en top-tegenpartijen, door te tikken tot de transacties. */
+function openCatDetail(catId) {
+  const c = catById(catId);
+  if (!c) { drill("none", ""); return; }
+  const isIncome = c.kind === "income";
+  const txs = allTx().filter((t) => t.cat === catId);
+  const per = {};
+  for (const t of txs) { const ym = t.date.slice(0, 7); per[ym] = (per[ym] || 0) + (isIncome ? t.amount : -t.amount); }
+  const keys = Object.keys(per).sort();
+  const last12 = keys.slice(-12);
+  const cur = dezeMaand();
+  const vol = keys.filter((k) => k < cur).slice(-6);
+  const avg = vol.length ? vol.reduce((a, k) => a + per[k], 0) / vol.length : 0;
+  const dezeM = per[cur] || 0;
+  const jaar = keys.filter((k) => k.startsWith(cur.slice(0, 4))).reduce((a, k) => a + per[k], 0);
+
+  // mini-trendgrafiek
+  const W = 560, H = 110, pb = 18;
+  const max = Math.max(1, ...last12.map((k) => per[k]));
+  const bw = Math.min(26, (W - 10) / Math.max(1, last12.length) - 6);
+  let svg = "";
+  last12.forEach((k, i) => {
+    const x = 5 + i * ((W - 10) / last12.length) + ((W - 10) / last12.length - bw) / 2;
+    const h = Math.max(2, per[k] / max * (H - pb - 6));
+    svg += `<rect x="${x}" y="${H - pb - h}" width="${bw}" height="${h}" rx="3.5" fill="${c.color}" style="cursor:pointer" onclick="closeSheet();drill('${c.id}','${k}')"><title>${k}: ${euro(per[k])}</title></rect>`;
+    if (i % 2 === last12.length % 2) svg += `<text x="${x + bw / 2}" y="${H - 4}" font-size="9.5" fill="var(--ink-3)" text-anchor="middle">${MONTH_NAMES[+k.slice(5) - 1]}</text>`;
+  });
+
+  const partijen = {};
+  for (const t of txs) { const k = t.payee.trim(); if (!partijen[k]) partijen[k] = { n: 0, sum: 0 }; partijen[k].n++; partijen[k].sum += isIncome ? t.amount : -t.amount; }
+  const top = Object.entries(partijen).sort((a, b) => b[1].sum - a[1].sum).slice(0, 8);
+
+  openSheet(`
+    <div class="grab"></div>
+    <div class="row" style="gap:12px">${cicon(c, 46)}<div><h3>${esc(c.name)}</h3><div class="muted">${txs.length} transacties</div></div></div>
+    <div class="grid4" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
+      <div class="card" style="padding:10px"><div class="muted" style="font-size:11px">Deze maand</div><div class="num" style="font-weight:700">${euro(dezeM)}</div></div>
+      <div class="card" style="padding:10px"><div class="muted" style="font-size:11px">Gem. per maand</div><div class="num" style="font-weight:700">${euro(Math.round(avg))}</div></div>
+      <div class="card" style="padding:10px"><div class="muted" style="font-size:11px">Dit jaar</div><div class="num" style="font-weight:700">${euro(jaar)}</div></div>
+    </div>
+    ${last12.length > 1 ? `<svg viewBox="0 0 ${W} ${H}" style="width:100%;margin-top:12px" role="img" aria-label="Maandtrend ${esc(c.name)}">${svg}</svg>` : ""}
+    ${top.length ? `<h2 style="margin:14px 0 6px">Waar precies</h2>
+    <div class="rows">${top.map(([naam, d]) => `<div class="trow" onclick="closeSheet();state.filter={m:'',cat:'${c.id}',q:${JSON.stringify(naam).replace(/"/g, "&quot;")}};go('tx')">
+      <div class="tmain"><div class="tname">${esc(naam)}</div><div class="tsub">${d.n}×</div></div>
+      <div class="tamt num">${euro(d.sum)}</div></div>`).join("")}</div>` : ""}
+    <button class="btn sec" style="margin-top:14px" onclick="closeSheet();drill('${c.id}','')">Alle transacties bekijken</button>`);
+}
+function viewTx() {
+  const f = state.filter;
+  const months = [...new Set(allTx().map((t) => t.date.slice(0,7)))].sort().reverse();
+  let txs = allTx();
+  if (f.m) txs = txs.filter((t) => t.date.slice(0,7) === f.m);
+  if (f.from && f.to) txs = txs.filter((t) => t.date >= f.from && t.date <= f.to);
+  if (f.cat === "none") txs = txs.filter((t) => !t.cat);
+  else if (f.cat) txs = txs.filter((t) => t.cat === f.cat);
+  if (f.q) { const q = f.q.toLowerCase(); txs = txs.filter((t) => (t.payee + " " + t.desc).toLowerCase().includes(q)); }
+  txs = txs.slice(0, 200);
+  const noCat = allTx().filter((t) => !t.cat).length;
+  const groups = [];
+  for (const t of txs) {
+    const d = t.date;
+    if (!groups.length || groups[groups.length-1].date !== d) groups.push({ date: d, items: [] });
+    groups[groups.length-1].items.push(t);
+  }
+  return `
+  <div><h1 class="page">Transacties</h1><div class="sub">${txs.length} getoond · netto <b class="num" style="color:var(--ink)">${euro(txs.reduce((a,t) => a + t.amount, 0))}</b></div></div>
+  <div class="chiprow">
+    <button class="chip ${!f.m && f.cat !== "none" ? "on" : ""}" onclick="state.filter={m:'',cat:'',q:state.filter.q};render()">Alles</button>
+    ${noCat ? `<button class="chip ${f.cat === "none" ? "on" : ""}" style="${f.cat === "none" ? "" : "color:var(--orange)"}" onclick="state.filter={m:'',cat:'none',q:''};render()">⚠ ${noCat} zonder categorie</button>` : ""}
+    ${SAMPLE && noCat ? `<button class="chip" style="color:var(--blue)" onclick="aiLabel()">🤖 AI-labelen</button>` : ""}
+    ${(state.config.review || []).length ? `<button class="chip on" onclick="openReview()">❓ ${state.config.review.length} ${state.config.review.length === 1 ? "vraag" : "vragen"}</button>` : ""}
+    ${f.cat && f.cat !== "none" ? `<button class="chip on" onclick="state.filter={m:'',cat:'',q:''};render()">${esc(catById(f.cat)?.name || "")}${f.m ? " · " + MONTH_NAMES[+f.m.slice(5)-1] : ""}${f.label ? " · " + esc(f.label) : ""} ✕</button>` : ""}
+    ${f.from && (!f.cat || f.cat === "none") ? `<button class="chip on" onclick="state.filter={m:'',cat:'',q:''};render()">${esc(f.label || f.from)} ✕</button>` : ""}
+    ${months.slice(0,8).map((m) => `<button class="chip ${f.m === m ? "on" : ""}" onclick="state.filter={m:'${m}',cat:'',q:''};render()">${MONTH_NAMES[+m.slice(5)-1]} ${m.slice(2,4)}</button>`).join("")}
+  </div>
+  <input id="zoek" placeholder="🔍  Zoeken op naam…" value="${esc(f.q)}" oninput="state.filter.q=this.value" onchange="render()">
+  <div class="card" style="padding:12px 16px">
+    <label class="row" style="gap:12px;cursor:pointer;flex-wrap:nowrap">
+      <span class="cicon" style="background:rgba(10,132,255,0.15);width:40px;height:40px;font-size:18px">📄</span>
+      <span style="flex:1;min-width:0"><b style="font-size:14.5px">Bankafschrift importeren</b><br><span class="muted">CSV of Excel (.xlsx) — ING, Rabobank, ABN AMRO, bunq of eigen lijst</span></span>
+      <span class="muted">›</span>
+      <input type="file" id="csvfile" accept=".csv,.txt,.xlsx,.xls" onchange="importCsv(this)" hidden>
+    </label>
+    ${canScan() ? `<label class="row" style="gap:12px;cursor:pointer;flex-wrap:nowrap;border-top:1px solid var(--hair);margin-top:10px;padding-top:10px">
+      <span class="cicon" style="background:rgba(10,132,255,0.15);width:40px;height:40px;font-size:18px">📷</span>
+      <span style="flex:1;min-width:0"><b style="font-size:14.5px">Bon of brief scannen</b><br><span class="muted">AI leest het bedrag, de naam en de datum automatisch</span></span>
+      <span class="muted">›</span>
+      <input type="file" accept="image/*" capture="environment" onchange="scanDoc(this)" hidden>
+    </label>` : ""}</div>
+  ${groups.map((g) => `
+    <div><h2 style="margin:4px 0 6px">${datumL(g.date)}</h2>
+    <div class="card" style="padding:4px 14px"><div class="rows">${g.items.map(txRow).join("")}</div></div></div>`).join("") ||
+    '<div class="card empty"><p class="muted">Geen transacties gevonden.</p></div>'}`;
+}
+function viewBudget() {
+  const month = dezeMaand();
+  const spend = Object.fromEntries(spendPerCat(month).map((s) => [s.id, s.total]));
+  const cats = state.config.cats.filter((c) => c.kind === "expense");
+  const withB = cats.filter((c) => c.budget != null);
+  const tb = withB.reduce((a,c) => a + c.budget, 0), ts = withB.reduce((a,c) => a + (spend[c.id] || 0), 0);
+  const dayOfMonth = new Date().getDate();
+  const daysInM = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
+  const pace = Math.round(dayOfMonth / daysInM * 100);
+  return `
+  <div><h1 class="page">Budgetten</h1><div class="sub">${maandNaam(month)} · dag ${dayOfMonth} van ${daysInM}</div></div>
+  ${withB.length ? `<div class="card hero" style="padding:18px">
+    <div class="row spread"><span class="lbl">Totaal deze maand</span><span class="muted num">${pace}% van de maand om</span></div>
+    <div class="big num" style="font-size:28px">${euro(ts)} <span style="font-size:15px;color:var(--ink-2);font-weight:500">van ${euro(tb)}</span></div>
+    <div class="bar" style="margin-top:12px"><i style="width:${Math.min(100, ts/Math.max(1,tb)*100)}%;background:${ts > tb ? "var(--red)" : "linear-gradient(90deg,#0a84ff,#5ac8fa)"}"></i></div>
+  </div>` : ""}
+  ${cats.map((c) => {
+    const sp = spend[c.id] || 0;
+    const pct = c.budget != null ? Math.min(100, sp/Math.max(1,c.budget)*100) : 0;
+    const over = c.budget != null && sp > c.budget;
+    return `<div class="card" style="padding:14px 16px;cursor:pointer" onclick="openBudget('${c.id}')">
+      <div class="row" style="gap:12px;flex-wrap:nowrap">${cicon(c, 40)}
+        <div style="flex:1;min-width:0">
+          <div class="row spread" style="flex-wrap:nowrap"><b style="font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.name)}</b>
+            <span class="num muted" style="white-space:nowrap">${euro(sp)}${c.budget != null ? ` / ${euro(c.budget)}` : ""}</span></div>
+          ${c.budget != null ? (() => {
+            const expected = c.budget * pace / 100;
+            const status = over
+              ? `<span style="color:var(--red)">● over budget</span>`
+              : sp <= expected * 1.05
+                ? `<span style="color:var(--green)">● op koers</span>`
+                : `<span style="color:var(--orange)">● sneller dan de maand</span>`;
+            return `<div class="bar" style="margin-top:7px"><i style="width:${pct}%;background:${over ? "var(--red)" : c.color}"></i></div>
+          <div class="muted" style="margin-top:4px;font-size:12px">${status} · ${over ? euro(sp - c.budget) + " eroverheen" : "nog " + euro(c.budget - sp) + " over"}</div>`;
+          })()
+          : `<div class="muted" style="margin-top:4px;font-size:12px">Tik om een budget in te stellen</div>`}
+        </div></div></div>`;
+  }).join("")}`;
+}
+function viewDoelen() {
+  const net = avgNet();
+  return `
+  <div class="row spread"><h1 class="page">Spaardoelen</h1><button class="btn sm" style="width:auto" onclick="openGoal()">+ Nieuw</button></div>
+  ${(state.config.goals || []).map((g) => {
+    const pct = Math.min(100, Math.round(g.saved/g.target*100)), rem = g.target - g.saved;
+    const eta = net > 0 && rem > 0 ? Math.ceil(rem/net) : null;
+    return `<div class="card" style="cursor:pointer" onclick="openGoal('${g.id}')">
+      <div class="row spread"><b style="font-size:16px">${esc(g.name)}</b><b class="num" style="color:var(--green)">${pct}%</b></div>
+      <div class="muted num" style="margin:3px 0 10px">${euro(g.saved)} van ${euro(g.target)}</div>
+      <div class="bar" style="height:9px"><i style="width:${pct}%;background:linear-gradient(90deg,#30d158,#66e38a)"></i></div>
+      <div class="muted" style="margin-top:8px;font-size:12.5px">${rem <= 0 ? "Doel behaald! 🎉" : eta ? `Bij je spaartempo van ${euro(Math.round(net))}/mnd haal je dit over ~${eta} maanden` : "Nog " + euro(rem) + " te gaan"}</div>
+    </div>`;
+  }).join("") || '<div class="card empty"><p class="muted">Nog geen spaardoelen. Maak je eerste doel aan — bijvoorbeeld een noodbuffer van 3 maanden uitgaven.</p></div>'}`;
+}
+function viewAbos() {
+  const rec = detectRecurring();
+  const monthly = rec.filter((r) => r.intervalDays >= 23 && r.intervalDays <= 38);
+  const freq = (d) => d < 23 ? "wekelijks" : d <= 38 ? "maandelijks" : "jaarlijks";
+  return `
+  <div><h1 class="page">Abonnementen</h1><div class="sub">Automatisch gedetecteerd uit je terugkerende afschrijvingen</div></div>
+  <div class="card hero" style="padding:18px">
+    <span class="lbl">Vaste lasten per maand</span>
+    <div class="big num" style="font-size:30px">${euro(monthly.reduce((a,b) => a + b.avgAmount, 0))}</div>
+    <div class="chips"><span class="pill">${rec.length} gedetecteerd</span><span class="pill num">${euro(rec.reduce((a,b) => a + b.yearlyCost, 0))} per jaar</span></div>
+  </div>
+  <div class="card" style="padding:6px 16px"><div class="rows">
+    ${rec.map((r) => `<div class="trow" style="cursor:default">${cicon(catById(r.cat), 42)}
+      <div class="tmain"><div class="tname">${esc(r.payee)}</div><div class="tsub">${freq(r.intervalDays)} · volgende rond ${datum(r.nextExpected)}</div></div>
+      <div style="text-align:right"><div class="tamt num">${euro(r.avgAmount)}</div><div class="tsub num">${euro(r.yearlyCost)}/jr</div></div>
+    </div>`).join("") || '<p class="muted" style="text-align:center;padding:18px 0">Nog geen terugkerende afschrijvingen gevonden. Importeer minimaal twee maanden aan transacties.</p>'}
+  </div></div>
+  ${rec.length ? '<p class="muted" style="padding-inline:4px">💡 Eén vergeten abonnement van €10 per maand kost €120 per jaar. Loop de lijst af en zeg op wat je niet meer gebruikt.</p>' : ""}`;
+}
+/* ===== Inzichten in "kaarten-flow" (optie A) ===== */
+function periodeKolommen(mode, stats) {
+  const today = new Date();
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const cols = [];
+  if (mode === "maand")
+    return stats.slice(-6).map((s) => ({ key: s.month, label: MONTH_NAMES[+s.month.slice(5) - 1], from: s.month + "-01", to: s.month + "-31", m: s.month }));
+  if (mode === "week") {
+    const ma = new Date(today); ma.setDate(ma.getDate() - ((ma.getDay() + 6) % 7));
+    for (let i = 7; i >= 0; i--) {
+      const van = new Date(ma); van.setDate(ma.getDate() - i * 7);
+      const tot = new Date(van); tot.setDate(van.getDate() + 6);
+      cols.push({ key: iso(van), label: "wk" + weekNr(van), from: iso(van), to: iso(tot) });
+    }
+    return cols;
+  }
+  for (let i = 9; i >= 0; i--) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    cols.push({ key: iso(d), label: d.getDate() + "/" + (d.getMonth() + 1), from: iso(d), to: iso(d) });
+  }
+  return cols;
+}
+function inzichtA(stats) {
+  const mode = state.hbMode || "maand";
+  const cols = periodeKolommen(mode, stats);
+  if (!cols.length) return "";
+  const lo = cols[0].from, hi = cols[cols.length - 1].to;
+  const per = {}, inc = {}, uit = {};
+  for (const t of allTx()) {
+    if (t.date < lo || t.date > hi || isTransfer(t)) continue;
+    const c = cols.find((x) => t.date >= x.from && t.date <= x.to);
+    if (!c) continue;
+    if (t.amount > 0) { inc[c.key] = (inc[c.key] || 0) + t.amount; continue; }
+    uit[c.key] = (uit[c.key] || 0) - t.amount;
+    const k = t.cat || "_none";
+    const p = per[k] = per[k] || { m: {}, n: {} };
+    p.m[c.key] = (p.m[c.key] || 0) - t.amount;
+    p.n[c.key] = (p.n[c.key] || 0) + 1;
+  }
+  const cur = cols[cols.length - 1], prev = cols[cols.length - 2];
+  const curIn = inc[cur.key] || 0, curUit = uit[cur.key] || 0, netto = curIn - curUit;
+  const maxUit = Math.max(1, ...cols.map((c) => uit[c.key] || 0));
+  const spark = cols.length > 1 ? `<div class="sparkA">${cols.map((c, i) => `<i class="${i === cols.length - 1 ? "hi" : ""}" style="height:${Math.max(9, Math.round((uit[c.key] || 0) / maxUit * 100))}%"></i>`).join("")}</div>` : "";
+  const perLabel = mode === "maand" ? maandNaam(cur.m) : mode === "week" ? `deze week (${datum(cur.from)} – ${datum(cur.to)})` : "vandaag";
+  const rijen = Object.entries(per).map(([id, p]) => ({
+    id, cat: id === "_none" ? null : catById(id), m: p.m,
+    cur: p.m[cur.key] || 0, prev: prev ? p.m[prev.key] || 0 : 0, n: p.n[cur.key] || 0,
+    tot: Object.values(p.m).reduce((a, b) => a + b, 0),
+  })).sort((a, b) => (b.cur - a.cur) || (b.tot - a.tot));
+  const eenheid = mode === "maand" ? "deze maand" : mode === "week" ? "deze week" : "vandaag";
+  const kaart = (r) => {
+    const c = r.cat;
+    const mx = Math.max(1, ...cols.map((x) => r.m[x.key] || 0));
+    const bars = cols.map((x, i) => `<i class="${i === cols.length - 1 ? "hi" : ""}" style="height:${Math.max(2, Math.round((r.m[x.key] || 0) / mx * 26))}px"></i>`).join("");
+    let delta = "";
+    if (r.prev > 0 && r.cur > 0) {
+      const p = Math.round((r.cur - r.prev) / r.prev * 100);
+      if (p) delta = `<div class="tsub num" style="color:${p > 0 ? "var(--red)" : "var(--green)"}">${p > 0 ? "▲" : "▼"} ${Math.abs(p)}%</div>`;
+    } else if (!r.cur && r.prev > 0) delta = `<div class="tsub num" style="color:var(--green)">▼ was ${euroK(r.prev)}</div>`;
+    return `<div class="trow" onclick="${c ? `openCatDetail('${r.id}')` : `drill('none','')`}">
+      ${cicon(c || { color: "#8e8e93", glyph: "❔" }, 40)}
+      <div class="tmain"><div class="tname">${esc(c?.name || "Zonder label")}</div><div class="tsub">${r.n ? r.n + "× " + eenheid : "niets " + eenheid}${!c ? " · ✨ labelen" : ""}</div></div>
+      <div class="minibars">${bars}</div>
+      <div style="text-align:right;min-width:72px"><div class="tamt num">${euro(r.cur)}</div>${delta}</div>
+    </div>`;
+  };
+  const drillCur = mode === "maand" ? `drill('','${cur.m}')` : `drillRange('','${cur.from}','${cur.to}','${cur.label}')`;
+  return `
+  <div class="card hero heroA">
+    <div class="lbl">Netto · ${perLabel}</div>
+    <div class="big num" style="font-size:34px">${netto < 0 ? "− " : "+ "}${euro(Math.abs(netto))}</div>
+    <div class="chips">
+      <span class="pill num">↑ ${euro(curIn)} in</span>
+      <span class="pill num" onclick="${drillCur}" style="cursor:pointer">↓ ${euro(curUit)} uit</span>
+      ${hasCash() && !state.hh ? `<span class="pill num" onclick="openKluis()" style="cursor:pointer">💶 ${euro(cashSaldo())} kluis</span>` : ""}
+    </div>
+    ${spark}
+  </div>
+  <div class="row spread" style="margin:2px 2px 6px"><h2>Waar ging het heen?</h2><span class="muted" style="font-size:12px">tik voor detail ›</span></div>
+  <div class="card" style="padding:4px 14px"><div class="rows">
+    ${rijen.length ? rijen.map(kaart).join("") : '<p class="muted" style="padding:14px 2px">Geen uitgaven in deze periode.</p>'}
+  </div></div>
+  ${cols.length > 1 ? `<p class="muted" style="text-align:center;margin:-2px 0 10px;font-size:12px">Staafjes = laatste ${cols.length} ${mode === "maand" ? "maanden" : mode === "week" ? "weken" : "dagen"} · blauw = nu · tik ↓ uit voor alle transacties</p>` : ""}`;
+}
+
+function viewInzicht() {
+  if (!allTx().length) return viewEmpty();
+  const month = dezeMaand();
+  const stats = monthlyStats(12);
+  const anom = detectAnomalies(month);
+  const rate = savingsRate(month);
+  const net = avgNet();
+  const perCat = spendPerCat(month);
+  const rec = detectRecurring();
+  const tips = [];
+  const avgExp = (() => { const d = stats.filter((s) => s.month < month).slice(-3); return d.length ? d.reduce((a,b) => a + b.expense, 0)/d.length : 0; })();
+  if (net < 0) tips.push(["📉", `Je geeft gemiddeld ${euro(-Math.round(net))} per maand méér uit dan er binnenkomt.`]);
+  if (avgExp > 0 && saldo() < avgExp*3) tips.push(["🛟", `Je buffer (${euro(saldo())}) is kleiner dan 3 maanden aan uitgaven. 3–6 maanden is een gezonde basis.`]);
+  const subs = rec.filter((r) => r.intervalDays >= 23 && r.intervalDays <= 38 && r.avgAmount < 5000);
+  if (subs.length >= 3) tips.push(["🔁", `${subs.length} kleinere maandabonnementen, samen ${euro(subs.reduce((a,b) => a + b.avgAmount, 0))}/maand. Gebruik je ze allemaal nog?`]);
+  if (rate != null && rate >= 20) tips.push(["🏆", `Sterk: je spaarquote van ${rate}% zit boven de 20%-richtlijn.`]);
+  else if (rate != null && rate >= 0) tips.push(["💪", `Je spaarquote is ${rate}%. Richtlijn: probeer richting 20% te sparen.`]);
+  if (perCat[0]?.cat) tips.push([perCat[0].cat.glyph, `Grootste uitgavenpost deze maand: ${perCat[0].cat.name} (${euro(perCat[0].total)}).`]);
+  return `
+  <div><h1 class="page">Inzichten</h1><div class="sub">${state.hh ? "🏘️ Immanuelkantstraat" : maandNaam(month)}</div></div>
+  <div class="segA">${[["dag","Dag"],["week","Week"],["maand","Maand"]].map(([k, l]) => `<button class="${(state.hbMode || "maand") === k ? "on" : ""}" onclick="state.hbMode='${k}';render()">${l}</button>`).join("")}</div>
+  ${inzichtA(stats)}
+  <div class="card">
+    <div class="row spread"><h2>Vermogensverloop</h2><span class="pill num" style="font-size:12px">${net >= 0 ? "+" : "−"}${euro(Math.abs(Math.round(net)))}/mnd</span></div>
+    <p class="muted" style="margin:4px 0 8px;font-size:12px">Doorgetrokken lijn = je werkelijke saldo per maand · stippellijn = prognose bij je huidige tempo.</p>
+    ${chartWealth(wealthSeries(), forecast(6))}</div>
+  ${anom.length ? `<div class="card" style="border-color:rgba(255,159,10,0.35)"><h2 style="color:var(--orange)">Opvallende uitgaven</h2>
+    <div class="rows" style="margin-top:6px">${anom.map((a) => `<div class="trow" style="cursor:default"><span class="cicon" style="background:${tint(a.color,0.16)};width:38px;height:38px;font-size:17px">${a.glyph}</span>
+      <div class="tmain"><div class="tname">${esc(a.name)}</div><div class="tsub">gemiddeld ${euro(a.avg)}</div></div>
+      <div style="text-align:right"><div class="tamt num">${euro(a.thisMonth)}</div><div class="tsub" style="color:var(--orange)">+${a.pct}%</div></div></div>`).join("")}</div></div>` : ""}
+  <div class="card"><h2>Voor jou</h2>
+    <div class="rows" style="margin-top:6px">${tips.map(([g, t]) => `<div class="trow" style="cursor:default"><span style="font-size:20px;flex:none;width:30px;text-align:center">${g}</span><div class="tmain" style="white-space:normal"><div style="font-size:13.5px;color:var(--ink-2)">${t}</div></div></div>`).join("") || '<p class="muted">Voeg meer transacties toe voor persoonlijke tips.</p>'}</div></div>
+  <div class="card"><h2>Maandoverzicht</h2><div style="overflow-x:auto;margin-top:10px"><table>
+    <tr><th>Maand</th><th class="r">In</th><th class="r">Uit</th><th class="r">Netto</th></tr>
+    ${stats.slice().reverse().map((s) => `<tr><td>${MONTH_NAMES[+s.month.slice(5)-1]} ${s.month.slice(0,4)}</td><td class="r num">${euro(s.income)}</td><td class="r num">${euro(s.expense)}</td><td class="r num" style="color:${s.net < 0 ? "var(--red)" : "var(--green)"};font-weight:600">${euroS(s.net)}</td></tr>`).join("")}
+  </table></div></div>`;
+}
+function viewMeer() {
+  const openDebtTotal = state.fixed.debts.reduce((a, d) => a + (d.total - d.paid), 0);
+  const items = [
+    ["lasten", "🧾", "Vaste lasten & schulden", state.fixed.items.length || state.fixed.debts.length ? `${state.fixed.items.length} posten · ${euro(openDebtTotal)} schuld open` : "begroting, schulden en aflossingsplan"],
+    ["doelen", "🎯", "Spaardoelen", (state.config.goals || []).length + " doelen"],
+    ["abos", "🔁", "Abonnementen", "terugkerende kosten"],
+    ["budget", "💳", "Budgetten", "maandbudgetten per categorie"],
+  ];
+  return `
+  <h1 class="page">Meer</h1>
+  <div class="card" style="padding:4px 16px">${items.map(([tab, g, name, sub]) => `
+    <div class="menu-item" onclick="go('${tab}')"><span style="font-size:21px">${g}</span>
+      <div><b style="font-size:15px">${name}</b><div class="muted" style="font-size:12.5px">${sub}</div></div>
+      <span class="chev">›</span></div>`).join("")}</div>
+  <div class="card" style="padding:4px 16px">
+    <div class="menu-item" onclick="toggleHh()"><span style="font-size:21px">${state.hh ? "🏘️" : "🏠"}</span>
+      <div><b style="font-size:15px">Administratie: ${HH_NAAM[state.hh]}</b><div class="muted" style="font-size:12.5px">${state.hh ? "tik om terug te gaan naar privé" : "tik voor Immanuelkantstraat (aparte woning & rekening)"}</div></div>
+      <span class="chev">⇄</span></div>
+    ${!state.hh ? `<div class="menu-item" onclick="openKluis()"><span style="font-size:21px">💶</span>
+      <div><b style="font-size:15px">Cash-kluis</b><div class="muted" style="font-size:12.5px">${hasCash() ? `${euro(cashSaldo())} contant in de kluis` : "houd je contante geld bij"}</div></div>
+      <span class="chev">›</span></div>
+    <div class="menu-item" onclick="openSpaar()"><span style="font-size:21px">🐷</span>
+      <div><b style="font-size:15px">Spaarpot</b><div class="muted" style="font-size:12.5px">${hasSpaar() ? `${euro(spaarSaldo())} opzijgezet` : "bijv. je bunq “Mijn Doel 5000”"}</div></div>
+      <span class="chev">›</span></div>` : ""}
+    <div class="menu-item" onclick="openLabels()"><span style="font-size:21px">🏷️</span>
+      <div><b style="font-size:15px">Labels beheren</b><div class="muted" style="font-size:12.5px">${state.config.cats.length} labels — toevoegen, hernoemen, verwijderen</div></div>
+      <span class="chev">›</span></div>
+    <div class="menu-item" onclick="openFb()"><span style="font-size:21px">💬</span>
+      <div><b style="font-size:15px">Feedback geven</b><div class="muted" style="font-size:12.5px">${state.feedback.length} notities — helpt FinSight beter te maken</div></div>
+      <span class="chev">›</span></div>
+    <div class="menu-item" onclick="loadDemo()"><span style="font-size:21px">✨</span>
+      <div><b style="font-size:15px">Demodata laden</b><div class="muted" style="font-size:12.5px">9 maanden voorbeeldtransacties (alleen bij lege app)</div></div>
+      <span class="chev">›</span></div>
+  </div>
+  <div class="card" style="padding:4px 16px">
+    ${SRV.on ? `<div class="menu-item" onclick="serverSync(true)"><span style="font-size:21px">🔄</span>
+      <div><b style="font-size:15px">Nu verversen vanaf bunq</b><div class="muted" style="font-size:12.5px">haalt direct je nieuwste transacties op</div></div>
+      <span class="chev">›</span></div>` : ""}
+    <div class="menu-item" onclick="openCalibrate()"><span style="font-size:21px">⚖️</span>
+      <div><b style="font-size:15px">Saldo kalibreren</b><div class="muted" style="font-size:12.5px">zet het app-saldo exact gelijk aan je echte banksaldo</div></div>
+      <span class="chev">›</span></div>
+    <div class="menu-item" onclick="cycleTheme()"><span style="font-size:21px">${themeGlyph()}</span>
+      <div><b style="font-size:15px">Weergave</b><div class="muted" style="font-size:12.5px">volgt nu: ${themeLabel()} — tik om te wisselen</div></div>
+      <span class="chev">›</span></div>
+    ${DOWNLOADS ? `<div class="menu-item" onclick="exportCsv()"><span style="font-size:21px">📤</span>
+      <div><b style="font-size:15px">Exporteer transacties</b><div class="muted" style="font-size:12.5px">CSV-bestand — jouw data blijft van jou</div></div>
+      <span class="chev">›</span></div>` : ""}
+  </div>
+  <p class="muted" style="text-align:center">FinSight testversie · jouw data blijft van jou</p>`;
+}
+
+/* ========== thema, export & haptiek ========== */
+function getThemePref() { try { return localStorage.getItem("fs_theme") || "light"; } catch { return "light"; } }
+function applyTheme() {
+  const t = getThemePref();
+  const r = document.documentElement;
+  if (t === "light" || t === "dark") r.dataset.theme = t;
+  else delete r.dataset.theme;
+}
+function themeLabel() { const t = getThemePref(); return t === "dark" ? "Donker" : t === "light" ? "Licht" : "Systeem (telefoon)"; }
+function themeGlyph() { const t = getThemePref(); return t === "dark" ? "🌙" : t === "light" ? "☀️" : "📱"; }
+function cycleTheme() {
+  const order = ["light", "dark", ""];
+  const next = order[(order.indexOf(getThemePref() === "light" ? "light" : getThemePref()) + 1) % 3];
+  try { next ? localStorage.setItem("fs_theme", next) : localStorage.setItem("fs_theme", "system"); } catch {}
+  applyTheme(); render();
+}
+function buzz() { try { if (navigator.vibrate) navigator.vibrate(8); } catch {} }
+function openCalibrate() {
+  openSheet(`
+    <div class="grab"></div>
+    <h3>⚖️ Saldo kalibreren · ${HH_NAAM[state.hh]}</h3>
+    <p class="muted" style="margin:6px 0 12px">De app telt je transacties op vanaf de start van je export, maar kent je beginsaldo niet. Vul je <b>echte huidige saldo</b> van de ${state.hh === "kant" ? "Kantstraat-rekening" : "privérekening"} in (zoals je bank-app het nu toont) — de app rekent het verschil als beginsaldo.</p>
+    <div class="formgrid">
+      <label class="fl">Echt huidig saldo (€)<input id="cal-saldo" inputmode="decimal" placeholder="bijv. 1234,56"></label>
+      <button class="btn" onclick="confirmCalibrate()">Kalibreren</button>
+    </div>
+    <p class="muted" style="margin-top:10px;font-size:12px">App-saldo nu: <b class="num">${euro(saldo())}</b></p>`);
+}
+function confirmCalibrate() {
+  buzz();
+  const raw = $("#cal-saldo").value.trim().replace(/\./g, "").replace(",", ".");
+  if (raw === "") { toast("Vul je echte saldo in."); return; }
+  const real = Math.round(parseFloat(raw) * 100);
+  if (isNaN(real)) { toast("Dat is geen geldig bedrag."); return; }
+  const txSum = allTx().filter((t) => t.acc !== "cash").reduce((a, t) => a + t.amount, 0);
+  state.config[state.hh === "kant" ? "kantStart" : "startBalance"] = real - txSum;
+  saveConfig(); closeSheet(); render();
+  toast(`Gekalibreerd — saldo staat nu op ${euro(real)}.`);
+}
+
+/* ========== cash-kluis ========== */
+function parseBedrag(sel) {
+  const raw = $(sel)?.value.trim().replace(/\./g, "").replace(",", ".") || "";
+  const v = Math.round(parseFloat(raw) * 100);
+  return isNaN(v) || v <= 0 ? null : v;
+}
+function openKluis() {
+  const cash = allTx().filter((t) => t.acc === "cash").slice(0, 8);
+  openSheet(`
+    <div class="grab"></div>
+    <h3>💶 Cash-kluis</h3>
+    <div class="card hero" style="margin:10px 0 14px;padding:16px">
+      <div class="lbl">Contant in de kluis</div>
+      <div class="big num" style="font-size:32px">${euro(cashSaldo())}</div>
+    </div>
+    <div class="formgrid">
+      <div class="cols2">
+        <button class="btn" onclick="openKluisIn()">＋ Geld erin</button>
+        <button class="btn sec" onclick="openKluisUit()">－ Cash uitgave</button>
+      </div>
+      ${canScan() ? `<label class="btn" style="text-align:center;background:var(--card-2);color:var(--ink);border:1.5px dashed var(--blue)">📷 Bon scannen — AI vult alles in<input type="file" accept="image/*" capture="environment" onchange="scanBon(this)" hidden></label>` : ""}
+      <button class="btn sec" onclick="openKluisKal()">⚖️ Kluis tellen & kalibreren</button>
+    </div>
+    ${cash.length ? `<h2 style="margin:16px 0 8px">Laatste cash-bewegingen</h2><div class="rows">${cash.map(txRow).join("")}</div>`
+      : `<p class="muted" style="margin-top:12px">Nog geen cash-bewegingen. Tip: een pinopname komt via "Geld erin → van pinopname" zonder dubbel te tellen — de opname bij je bank krijgt het label <b>Kluis-opname</b> en telt niet als uitgave.</p>`}`);
+}
+function openKluisIn() {
+  openSheet(`
+    <div class="grab"></div>
+    <h3>💶 Geld in de kluis</h3>
+    <div class="formgrid">
+      <label class="fl">Bedrag (€)<input id="k-amount" inputmode="decimal" placeholder="50,00" autocomplete="off"></label>
+      <label class="fl">Waar komt het vandaan?<select id="k-bron">
+        <option value="pin">🏧 Pinopname (van mijn bank — geen inkomst)</option>
+        <option value="ontvangen">🤝 Contant ontvangen (wél inkomst)</option>
+      </select></label>
+      <label class="fl">Datum<input id="k-date" type="date" value="${vandaag()}"></label>
+      <button class="btn" onclick="confirmKluisIn()">In de kluis</button>
+    </div>
+    <p class="muted" style="margin-top:10px;font-size:12px">Bij een pinopname telt alleen de kluis omhoog — de afschrijving staat al in je banktransacties en krijgt het label "Kluis-opname", zodat niets dubbel telt.</p>`);
+}
+function confirmKluisIn() {
+  buzz();
+  const amount = parseBedrag("#k-amount");
+  if (!amount) { toast("Vul een geldig bedrag in."); return; }
+  const date = $("#k-date").value || vandaag();
+  const pin = $("#k-bron").value === "pin";
+  const ym = date.slice(0,7);
+  (state.months[ym] = state.months[ym] || []).push({
+    id: uid(), date, amount, acc: "cash", desc: "",
+    payee: pin ? "Pinopname naar kluis" : "Contant ontvangen",
+    cat: pin ? "kluis" : "overig-in",
+  });
+  saveMonth(ym); closeSheet(); render(); openKluis();
+  toast(`${euro(amount)} in de kluis — saldo nu ${euro(cashSaldo())}.`);
+}
+function openKluisUit() {
+  openSheet(`
+    <div class="grab"></div>
+    <h3>💶 Cash uitgave</h3>
+    <p class="muted" style="margin:0 0 12px">Telt gewoon mee in je huishoudboekje en labels — alleen betaald uit de kluis in plaats van de bank.</p>
+    <div class="formgrid">
+      <div class="cols2">
+        <label class="fl">Bedrag (€)<input id="k-amount" inputmode="decimal" placeholder="12,50" autocomplete="off"></label>
+        <label class="fl">Datum<input id="k-date" type="date" value="${vandaag()}"></label>
+      </div>
+      <label class="fl">Waaraan / winkel<input id="k-payee" placeholder="bijv. markt, kapper" autocomplete="off"></label>
+      <details><summary class="muted" style="cursor:pointer;padding-block:4px">Label kiezen (optioneel — wordt anders herkend)</summary>
+        <div style="margin-top:10px">${catPicker("k-cat", "expense", "")}</div></details>
+      <button class="btn" onclick="confirmKluisUit()">Uitgave vastleggen</button>
+    </div>`);
+}
+function confirmKluisUit() {
+  buzz();
+  const amount = parseBedrag("#k-amount");
+  const payee = $("#k-payee").value.trim();
+  if (!amount || !payee) { toast("Vul bedrag en naam in."); return; }
+  const date = $("#k-date").value || vandaag();
+  const chosen = chosenCat("k-cat");
+  const cat = chosen || autoCat(payee, "", -amount);
+  const ym = date.slice(0,7);
+  (state.months[ym] = state.months[ym] || []).push({ id: uid(), date, amount: -amount, payee, desc: "", cat, acc: "cash" });
+  saveMonth(ym); closeSheet(); render(); openKluis();
+  toast(`${euro(amount)} uit de kluis${cat ? ` · ${catById(cat)?.name}` : ""} — nog ${euro(cashSaldo())} over.`);
+}
+function openKluisKal() {
+  openSheet(`
+    <div class="grab"></div>
+    <h3>⚖️ Kluis kalibreren</h3>
+    <p class="muted" style="margin:6px 0 12px">Tel wat er écht in je kluis ligt en vul het in — de app rekent het verschil als beginsaldo van de kluis.</p>
+    <div class="formgrid">
+      <label class="fl">Geteld bedrag (€)<input id="k-real" inputmode="decimal" placeholder="bijv. 250,00"></label>
+      <button class="btn" onclick="confirmKluisKal()">Kalibreren</button>
+    </div>
+    <p class="muted" style="margin-top:10px;font-size:12px">Kluis-saldo nu volgens de app: <b class="num">${euro(cashSaldo())}</b></p>`);
+}
+/* ========== spaarpot (bijv. bunq "Mijn Doel 5000") ========== */
+function openSpaar() {
+  const rows = allTx().filter((t) => t.acc === "spaar").slice(0, 8);
+  openSheet(`
+    <div class="grab"></div>
+    <h3>🐷 Spaarpot</h3>
+    <div class="card hero" style="margin:10px 0 14px;padding:16px">
+      <div class="lbl">In de spaarpot</div>
+      <div class="big num" style="font-size:32px">${euro(spaarSaldo())}</div>
+    </div>
+    <div class="formgrid">
+      <div class="cols2">
+        <button class="btn" onclick="spaarBij(1)">＋ Erin (van bank)</button>
+        <button class="btn sec" onclick="spaarBij(-1)">－ Eruit (naar bank)</button>
+      </div>
+      <button class="btn sec" onclick="openSpaarKal()">⚖️ Saldo gelijkzetten</button>
+    </div>
+    ${rows.length ? `<h2 style="margin:16px 0 8px">Laatste bewegingen</h2><div class="rows">${rows.map(txRow).join("")}</div>`
+      : `<p class="muted" style="margin-top:12px">Nog leeg. Via de bunq-koppeling vullen de automatische spaarcentjes van "Mijn Doel 5000" dit potje vanzelf; handmatig bijstorten kan ook.</p>`}`);
+}
+function spaarBij(richting) {
+  openSheet(`
+    <div class="grab"></div>
+    <h3>🐷 ${richting > 0 ? "Geld in de spaarpot" : "Geld uit de spaarpot"}</h3>
+    <p class="muted" style="margin:0 0 12px">Dit is een verplaatsing tussen je eigen potjes — telt niet als uitgave of inkomst.</p>
+    <div class="formgrid">
+      <div class="cols2">
+        <label class="fl">Bedrag (€)<input id="s-amount" inputmode="decimal" placeholder="25,00" autocomplete="off"></label>
+        <label class="fl">Datum<input id="s-date" type="date" value="${vandaag()}"></label>
+      </div>
+      <button class="btn" onclick="confirmSpaar(${richting})">${richting > 0 ? "In de spaarpot" : "Uit de spaarpot"}</button>
+    </div>`);
+}
+function confirmSpaar(richting) {
+  buzz();
+  const amount = parseBedrag("#s-amount");
+  if (!amount) { toast("Vul een geldig bedrag in."); return; }
+  const date = $("#s-date").value || vandaag();
+  const ym = date.slice(0,7);
+  (state.months[ym] = state.months[ym] || []).push({
+    id: uid(), date, amount: richting * amount, acc: "spaar", cat: "potje", desc: "",
+    payee: richting > 0 ? "Naar spaarpot" : "Uit spaarpot",
+  });
+  saveMonth(ym); closeSheet(); render(); openSpaar();
+  toast(`Spaarpot staat nu op ${euro(spaarSaldo())}.`);
+}
+function openSpaarKal() {
+  openSheet(`
+    <div class="grab"></div>
+    <h3>⚖️ Spaarpot gelijkzetten</h3>
+    <p class="muted" style="margin:6px 0 12px">Vul het échte saldo van je spaarrekening in (bijv. "Mijn Doel 5000" in de bunq-app) — de app rekent het verschil als beginsaldo.</p>
+    <div class="formgrid">
+      <label class="fl">Echt saldo (€)<input id="s-real" inputmode="decimal" placeholder="bijv. 59,78"></label>
+      <button class="btn" onclick="confirmSpaarKal()">Gelijkzetten</button>
+    </div>
+    <p class="muted" style="margin-top:10px;font-size:12px">Volgens de app: <b class="num">${euro(spaarSaldo())}</b></p>`);
+}
+function confirmSpaarKal() {
+  buzz();
+  const raw = $("#s-real").value.trim().replace(/\./g, "").replace(",", ".");
+  const real = Math.round(parseFloat(raw) * 100);
+  if (raw === "" || isNaN(real)) { toast("Vul het saldo in."); return; }
+  const sum = allTx().filter((t) => t.acc === "spaar").reduce((a, t) => a + t.amount, 0);
+  state.config.spaarStart = real - sum;
+  saveConfig(); closeSheet(); render();
+  toast(`Spaarpot gelijkgezet op ${euro(real)}.`);
+}
+
+/* Bon in de kluis: AI leest de bon, labelt hem en slaat hem direct op als cash-uitgave. */
+function scanBon(input) {
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file) return;
+  if (!canScan()) { toast("Scannen is in deze weergave niet beschikbaar."); return; }
+  openSheet(`<div class="grab"></div><h3>📷 Bon scannen</h3>
+    <p class="muted" style="margin-top:8px">AI leest je bon en zet hem direct als cash-uitgave in de kluis, met het juiste label.</p>
+    <p class="muted" style="margin-top:10px">Bezig met lezen…</p>`);
+  const catList = state.config.cats.filter((c) => c.kind === "expense" && c.id !== "kluis").map((c) => `"${c.id}" (${c.name})`).join(", ");
+  const prompt = `Je krijgt een foto van een kassabon of betaalbewijs (Nederlands). Haal de kerngegevens eruit.
+Antwoord met ALLEEN dit JSON-object, zonder tekst eromheen:
+{"winkel":"naam van de winkel/zaak","bedrag":totaalbedrag in euro als positief getal,"datum":"YYYY-MM-DD" van de bon of null,"label":het best passende label-id uit deze lijst of null,"omschrijving":"korte omschrijving van wat er gekocht is"}
+Mogelijke labels: ${catList}. Kies het label dat het best past bij wat er op de bon staat; twijfel je, gebruik null.`;
+  SAMPLE.json(prompt, { images: file, cache: false })
+    .then((d) => {
+      const bedrag = typeof d?.bedrag === "number" && isFinite(d.bedrag) ? Math.round(Math.abs(d.bedrag) * 100) : 0;
+      if (!bedrag) throw { code: "invalid_json" };
+      const payee = String(d.winkel || "Bon").slice(0, 60);
+      const desc = String(d.omschrijving || "").slice(0, 90);
+      const date = /^\d{4}-\d{2}-\d{2}$/.test(d.datum || "") ? d.datum : vandaag();
+      const aiCat = catById(d.label);
+      const cat = aiCat && aiCat.kind === "expense" && aiCat.id !== "kluis" ? aiCat.id : autoCat(payee, desc, -bedrag);
+      const ym = date.slice(0, 7);
+      (state.months[ym] = state.months[ym] || []).push({ id: uid(), date, amount: -bedrag, payee, desc, cat, acc: "cash" });
+      saveMonth(ym); render(); openKluis();
+      toast(`📷 ${euro(bedrag)} · ${payee}${cat ? ` · ${catById(cat).name}` : ""} — opgeslagen uit de kluis. Tik erop om aan te passen.`);
+    })
+    .catch((e) => {
+      console.error(e);
+      const msg = {
+        not_granted: "Je hebt AI-gebruik voor deze app niet toegestaan.",
+        refused: "De AI kon of mocht deze bon niet verwerken.",
+        invalid_json: "Kon het bedrag niet van de bon lezen — probeer een scherpere foto, of voeg hem handmatig toe via − Cash uitgave.",
+        image_rejected: "Deze foto wordt niet geaccepteerd — probeer een ander bestand (JPEG/PNG).",
+        rate_limited: "Even te veel gevraagd — probeer het over een paar minuten opnieuw.",
+      }[e?.code] || "Scannen mislukte — probeer het opnieuw.";
+      openKluis();
+      toast(msg);
+    });
+}
+function confirmKluisKal() {
+  buzz();
+  const raw = $("#k-real").value.trim().replace(/\./g, "").replace(",", ".");
+  const real = Math.round(parseFloat(raw) * 100);
+  if (raw === "" || isNaN(real)) { toast("Vul het getelde bedrag in."); return; }
+  const cashTx = allTx().filter((t) => t.acc === "cash").reduce((a, t) => a + t.amount, 0);
+  state.config.cashStart = real - cashTx;
+  saveConfig(); closeSheet(); render();
+  toast(`Kluis gekalibreerd op ${euro(real)}.`);
+}
+
+async function exportCsv() {
+  if (!DOWNLOADS) { toast("Export is in deze weergave niet beschikbaar."); return; }
+  const q = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
+  const lines = ["datum;bedrag;naam;omschrijving;categorie"];
+  for (const t of allTx().slice().reverse())
+    lines.push([t.date, (t.amount / 100).toFixed(2).replace(".", ","), q(t.payee), q(t.desc), q(catById(t.cat)?.name || "")].join(";"));
+  try {
+    await DOWNLOADS.save({ filename: "finsight-export.csv", data: new Blob([lines.join("\n")], { type: "text/csv" }) });
+    toast("Export klaargezet als download.");
+  } catch (e) {
+    console.error(e);
+    toast("Export niet opgeslagen.");
+  }
+}
+
+/* ========== acties ========== */
+function go(tab) { state.tab = tab; render(); window.scrollTo({ top: 0 }); }
+/* Excel-ondersteuning: SheetJS wordt pas geladen wanneer iemand echt een .xlsx kiest. */
+let xlsxLoading = null;
+function loadXLSX() {
+  if (window.XLSX) return Promise.resolve();
+  if (!xlsxLoading) {
+    xlsxLoading = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      s.onload = resolve;
+      s.onerror = () => { xlsxLoading = null; reject(new Error("xlsx load")); };
+      document.head.appendChild(s);
+    });
+  }
+  return xlsxLoading;
+}
+function importCsv(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+  const read = isExcel
+    ? loadXLSX()
+        .then(() => file.arrayBuffer())
+        .then((buf) => {
+          const wb = XLSX.read(buf, { type: "array", cellDates: true, dateNF: "yyyy-mm-dd" });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          return XLSX.utils.sheet_to_csv(ws, { FS: ";" });
+        })
+    : file.text();
+  read.then((content) => {
+    const { bank, rows } = parseBankCsv(content);
+    if (!rows.length) { toast("Geen transacties herkend. Ondersteund: ING, Rabobank, ABN AMRO en generieke CSV."); return; }
+    // Dubbel-detectie die échte herhaalde betalingen (zelfde dag, bedrag én naam) niet wegfiltert:
+    // een regel is pas dubbel als de app al evenveel exemplaren van exact die combinatie heeft.
+    const have = {};
+    for (const t of allTx()) { const k = t.date + "|" + t.amount + "|" + t.payee; have[k] = (have[k] || 0) + 1; }
+    const inFile = {};
+    let ok = 0, dup = 0;
+    for (const r of rows) {
+      const key = r.date + "|" + r.amount + "|" + r.payee;
+      inFile[key] = (inFile[key] || 0) + 1;
+      if (inFile[key] <= (have[key] || 0)) { dup++; continue; }
+      const ym = r.date.slice(0,7);
+      const tnew = { id: uid(), date: r.date, amount: r.amount, payee: r.payee, desc: r.desc, cat: autoCat(r.payee, r.desc, r.amount) };
+      if (state.hh) tnew.hh = state.hh;
+      (state.months[ym] = state.months[ym] || []).push(tnew);
+      ok++;
+    }
+    for (const ym of Object.keys(state.months)) saveMonth(ym);
+    render();
+    buzz();
+    toast(`${ok} transacties geïmporteerd (${bank}) in ${HH_NAAM[state.hh]}${dup ? `, ${dup} dubbele overgeslagen` : ""}.`);
+  }).catch((e) => {
+    console.error(e);
+    toast(isExcel ? "Kon het Excel-bestand niet lezen — probeer het nogmaals of gebruik CSV." : "Kon het bestand niet lezen.");
+  });
+  input.value = "";
+}
+
+/* ========== render & boot ========== */
+function render() {
+  const hb = $("#hhbtn");
+  if (hb) { hb.textContent = state.hh ? "🏘️ Kantstraat" : "🏠 Privé"; hb.classList.toggle("kant", !!state.hh); }
+  document.querySelectorAll("#tabbar button[data-tab]").forEach((b) => {
+    const t = b.dataset.tab;
+    b.classList.toggle("on", state.tab === t || (t === "meer" && ["doelen","abos","budget","meer","lasten"].includes(state.tab)));
+  });
+  if (!state.loaded) { $("#main").innerHTML = '<div class="card empty"><p class="muted">Gegevens laden…</p></div>'; return; }
+  const v = { dash: viewDash, tx: viewTx, budget: viewBudget, doelen: viewDoelen, abos: viewAbos, inzicht: viewInzicht, meer: viewMeer, lasten: viewLasten }[state.tab] || viewDash;
+  $("#main").innerHTML = v();
+}
+Object.assign(window, { go, loadDemo, importCsv, openAdd, confirmAdd, openTx, confirmCat, confirmDel, openBudget, confirmBudget, openGoal, confirmGoalNew, confirmGoalDelta, delGoal, openFb, confirmFb, pickCat, shiftMonth, drill, cycleTheme, exportCsv, allTx, importFixed, openCalibrate, confirmCalibrate, openFixedItem, confirmFixedItem, delFixedItem, openDebt, confirmDebtNew, confirmDebtPay, confirmDebtStatus, delDebt, simDebt, scanDoc, applyScan, planIcs, closeSheet, aiLabel, openReview, reviewAnswer, reviewConfirm, reviewSkip, addCategory, openCatDetail, openLabels, confirmNewLabel, openLabelEdit, confirmLabelEdit, delLabel, relabelUnknown, drillRange, serverSync, toggleHh, openKluis, openKluisIn, openKluisUit, openKluisKal, confirmKluisIn, confirmKluisUit, confirmKluisKal, scanBon, openSpaar, spaarBij, confirmSpaar, openSpaarKal, confirmSpaarKal });
+
+document.querySelectorAll("#tabbar button[data-tab]").forEach((b) => b.addEventListener("click", () => go(b.dataset.tab)));
+$("#plusbtn").addEventListener("click", openAdd);
+$("#sheet").addEventListener("click", (e) => { if (e.target === $("#sheet")) closeSheet(); });
+window.addEventListener("scroll", () => $("#topbar").classList.toggle("scrolled", window.scrollY > 8), { passive: true });
+
+/* ========== eigen-server modus (zonder claude.ai): login, database-API en bunq-sync ========== */
+const SRV = { on: false, token: null };
+window.FS_IBANS = { hoofd: "NL61BUNQ2042260150", spaar: "NL49BUNQ2105588271" };
+async function srvFetch(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { "Content-Type": "application/json", "Authorization": "Bearer " + (SRV.token || ""), ...(opts.headers || {}) } });
+  if (r.status === 401) { await srvLogin(); return srvFetch(path, opts); }
+  if (!r.ok) throw new Error("server " + r.status);
+  return r.json();
+}
+function srvLogin() {
+  return new Promise((done) => {
+    openSheet(`
+      <div class="grab"></div>
+      <h3>🔒 Inloggen</h3>
+      <p class="muted" style="margin:6px 0 12px">Dit is jouw eigen FinSight-server. Vul je app-wachtwoord in (staat als APP_PASSWORD op de server).</p>
+      <div class="formgrid">
+        <label class="fl">Wachtwoord<input id="srv-pw" type="password" autocomplete="current-password"></label>
+        <button class="btn" id="srv-go">Inloggen</button>
+      </div>`);
+    $("#srv-go").addEventListener("click", async () => {
+      buzz();
+      const pw = $("#srv-pw").value;
+      const r = await fetch("api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }) }).catch(() => null);
+      if (!r || !r.ok) { toast("Wachtwoord klopt niet."); return; }
+      SRV.token = pw;
+      try { localStorage.setItem("fs_srv_token", pw); } catch {}
+      closeSheet(); done();
+    });
+  });
+}
+async function serverDB() {
+  SRV.on = true;
+  try { SRV.token = localStorage.getItem("fs_srv_token") || null; } catch {}
+  const ok = SRV.token && (await fetch("api/ping", { headers: { Authorization: "Bearer " + SRV.token } }).then((r) => r.ok).catch(() => false));
+  if (!ok) await srvLogin();
+  if (!DOWNLOADS) DOWNLOADS = { save: async ({ filename, data }) => {
+    const u = URL.createObjectURL(data); const a = document.createElement("a");
+    a.href = u; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(u), 5000);
+  } };
+  const snap = (d) => ({ exists: d.exists, data: () => d.data });
+  const docs = (d) => ({ docs: d.docs.map((x) => ({ id: x.id, data: () => x.data })) });
+  return {
+    doc: (p) => ({
+      get: async () => snap(await srvFetch("api/doc/" + p)),
+      set: async (data) => { await srvFetch("api/doc/" + p, { method: "PUT", body: JSON.stringify({ data }) }); },
+    }),
+    collection: (name) => ({
+      get: async () => docs(await srvFetch("api/col/" + name)),
+      add: async (data) => { await srvFetch("api/col/" + name, { method: "POST", body: JSON.stringify({ data }) }); },
+      orderBy: (f, dir) => ({ limit: (n) => ({ get: async () => docs(await srvFetch(`api/col/${name}?order=${f}&dir=${dir}&limit=${n}`)) }) }),
+    }),
+  };
+}
+/* Sync-bij-openen: de server haalt bunq op; de app dedupliceert en labelt met zijn eigen regels. */
+async function serverSync(force) {
+  if (!SRV.on) { toast("Bunq-verversen werkt alleen op je eigen server."); return; }
+  const d = await srvFetch("api/bunq/rows?days=45" + (force ? "&force=1" : ""));
+  if (d.error) { if (force) toast("Bunq: " + d.error); return; }
+  const have = {};
+  for (const t of allTxAll()) { const k = t.date + "|" + t.amount + "|" + t.payee; have[k] = (have[k] || 0) + 1; }
+  const inF = {}; const dirty = new Set(); let nieuw = 0;
+  for (const r of d.rows || []) {
+    if (r.iban !== FS_IBANS.hoofd && r.iban !== FS_IBANS.spaar) continue;
+    const k = r.date + "|" + r.amount + "|" + r.payee;
+    inF[k] = (inF[k] || 0) + 1;
+    if (inF[k] <= (have[k] || 0)) continue;
+    const ym = r.date.slice(0, 7);
+    const t = { id: uid(), date: r.date, amount: r.amount, payee: r.payee, desc: r.desc || "" };
+    if (r.iban === FS_IBANS.spaar) { t.acc = "spaar"; t.cat = "potje"; t.desc = t.desc || "Mijn Doel 5000"; }
+    else {
+      t.cat = autoCat(r.payee, r.desc || "", r.amount);
+      if (!t.cat && r.payee === "B. Ouwendijk" && r.amount < 0 && r.amount >= -100) t.cat = "potje";
+    }
+    (state.months[ym] = state.months[ym] || []).push(t);
+    dirty.add(ym); nieuw++;
+  }
+  for (const ym of dirty) saveMonth(ym);
+  if (nieuw) { render(); toast(`🔄 ${nieuw} nieuwe transacties van bunq opgehaald.`); }
+  else if (force) toast("✓ Alles was al bij.");
+}
+
+async function boot() {
+  applyTheme();
+  const hash = (location.hash || "").slice(1);
+  if (["dash","tx","budget","doelen","abos","inzicht","meer","lasten"].includes(hash)) state.tab = hash;
+  render();
+  state.config = { cats: CATS_DEFAULT.map((c) => ({ ...c })), rules: [], goals: [], startBalance: 0, review: [] };
+  if (window.claude?.use) window.claude.use("downloads").then((d) => { DOWNLOADS = d; }).catch(() => {});
+  if (window.claude?.use) window.claude.use("sample").then(async (s) => {
+    SAMPLE = s;
+    if (s) SCANLIM = await s.limits().catch(() => null);
+    if (s) render();
+  }).catch(() => {});
+  if (window.claude?.use) {
+    DB = await window.claude.use("db");
+  } else if (location.protocol.startsWith("http")) {
+    // Eigen server (bijv. Render): zelfde app, eigen database via de server-API.
+    DB = await serverDB();
+  }
+  if (!DB) {
+    state.loaded = true;
+    render();
+    toast("Niet verbonden — wijzigingen worden nu niet bewaard.");
+    return;
+  }
+  FEEDBACK_COL = DB.collection("feedback");
+  try {
+    const [cfgSnap, monthsSnap, fbSnap, fixedSnap] = await Promise.all([
+      DB.doc("meta/config").get(),
+      DB.collection("months").get(),
+      FEEDBACK_COL.orderBy("date", "desc").limit(100).get(),
+      DB.doc("meta/fixed").get(),
+    ]);
+    if (fixedSnap.exists) {
+      const f = fixedSnap.data();
+      state.fixed = { items: f.items || [], debts: f.debts || [] };
+      if (f.defaultWho) state.fixedWho = f.defaultWho;
+    }
+    if (cfgSnap.exists) {
+      const c = cfgSnap.data();
+      const defs = Object.fromEntries(CATS_DEFAULT.map((d) => [d.id, d]));
+      const cats = (c.cats || []).map((x) => ({ ...defs[x.id], ...x, glyph: x.glyph || defs[x.id]?.glyph || "🏷️" }));
+      for (const d of CATS_DEFAULT) if (!cats.some((x) => x.id === d.id)) cats.push({ ...d });
+      state.config = { cats, rules: c.rules || [], goals: c.goals || [], startBalance: c.startBalance || 0, review: c.review || [] };
+    }
+    for (const d of monthsSnap.docs) state.months[d.id] = (d.data().txs || []);
+    state.feedback = fbSnap.docs.map((d) => d.data());
+    setSync(true);
+  } catch (e) {
+    console.error(e);
+    toast("Laden mislukte — herlaad de pagina.");
+  }
+  state.loaded = true;
+  render();
+  if (SRV.on) serverSync().catch((e) => console.error("bunq-sync:", e));
+}
+boot();
+</script>
